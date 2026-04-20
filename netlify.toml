@@ -15,7 +15,7 @@
   [headers.values]
     X-Frame-Options        = "DENY"
     X-Content-Type-Options = "nosniff"
-    Referrer-Policy        = "strict-origin-when-cross-origin"
+    Referrer-Policy        = "no-referrer-when-downgrade"
     Permissions-Policy     = "camera=(), microphone=(), geolocation=()"
 
 # ── 靜態資源快取（JSON 資料短期快取，避免更新後瀏覽器看舊資料）────
