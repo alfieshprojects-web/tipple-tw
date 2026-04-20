@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TIPPLE · 台灣微醺飲酒指南</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0c;--bg-2:#111116;--bg-3:#18181f;--bg-4:#1e1e27;
+  --line:#252530;--line-2:#32323f;
+  --text:#f0f0f4;--muted:#8a8a96;--muted-2:#5a5a68;
+  --gold:#c9a96a;--gold-2:#e7cf9b;--gold-3:#8a7544;--gold-4:#f5e4b8;
+  --silver:#cfd2d6;--silver-2:#8c9096;
+  --gold-grad:linear-gradient(135deg,#f5e4b8 0%,#c9a96a 45%,#8a7544 100%);
+  --silver-grad:linear-gradient(135deg,#f1f3f5 0%,#cfd2d6 50%,#8c9096 100%);
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --shadow:0 12px 48px rgba(0,0,0,.55);
+  --shadow-sm:0 4px 20px rgba(0,0,0,.35);
+  --max:1240px;
+  --ease:.22s cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter','Noto Serif TC',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(1400px 700px at 80% -5%,rgba(201,169,106,.09),transparent 60%),
+             radial-gradient(1000px 600px at -10% 110%,rgba(207,210,214,.05),transparent 60%);}
+
+.container{max-width:var(--max);margin:0 auto;padding:0 28px}
+
+/* ── Scroll reveal ── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+.reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}
+
+/* ── Topbar ── */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,12,.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.topbar-inner{display:flex;align-items:center;gap:18px;padding:13px 0}
+
+.brand{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;letter-spacing:.18em;flex-shrink:0;cursor:pointer}
+.brand-mark{width:27px;height:27px;border-radius:50%;background:var(--gold-grad);position:relative;flex:none;box-shadow:0 4px 16px rgba(201,169,106,.22)}
+.brand-mark::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--bg)}
+.brand-mark::before{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;background:var(--gold);transform:translate(-50%,-50%)}
+.brand .sub{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:.26em;color:var(--muted);font-weight:500;margin-left:6px;border-left:1px solid var(--line-2);padding-left:10px}
+@media(max-width:700px){.brand .sub{display:none}}
+
+.nav{display:none;gap:2px;margin-left:6px}
+@media(min-width:900px){.nav{display:flex}}
+.nav a{padding:8px 13px;border-radius:999px;font-size:13px;color:var(--muted);transition:var(--ease);letter-spacing:.02em}
+.nav a:hover{color:var(--text);background:var(--bg-3)}
+.nav a.active{color:var(--gold-2);background:rgba(201,169,106,.1);box-shadow:inset 0 0 0 1px rgba(201,169,106,.28)}
+
+/* Search */
+.search-wrap{flex:1;max-width:320px;margin-left:auto;position:relative}
+.search{display:flex;align-items:center;gap:9px;background:var(--bg-2);border:1px solid var(--line);border-radius:999px;padding:8px 16px;transition:var(--ease)}
+.search:focus-within{border-color:var(--gold-3);box-shadow:0 0 0 3px rgba(201,169,106,.1)}
+.search svg{width:13px;height:13px;color:var(--muted);flex-shrink:0}
+.search input{background:transparent;border:none;outline:none;color:var(--text);font-size:13px;width:100%;min-width:0}
+.search input::placeholder{color:var(--muted-2)}
+.search-clear{display:none;color:var(--muted);padding:2px;border-radius:50%;transition:var(--ease);align-items:center;justify-content:center}
+.search-clear:hover{color:var(--text)}
+.search-results{position:absolute;top:calc(100%+8px);left:0;right:0;background:var(--bg-3);border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden;display:none;z-index:200;box-shadow:var(--shadow)}
+.sri{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;cursor:pointer;transition:var(--ease);border-bottom:1px solid var(--line)}
+.sri:last-child{border-bottom:none}
+.sri:hover{background:var(--bg-4)}
+.sri-name{font-size:14px;font-family:'Cormorant Garamond',serif;font-weight:600}
+.sri-meta{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.03em}
+.sri-score{font-family:'Cormorant Garamond',serif;color:var(--gold-2);font-size:16px;font-weight:600}
+.sr-empty{padding:18px 16px;text-align:center;color:var(--muted);font-size:13px}
+
+/* Lang */
+.lang-sw{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--bg-2);flex-shrink:0}
+.lang-sw button{padding:7px 11px;font-size:11px;color:var(--muted);letter-spacing:.06em;transition:var(--ease)}
+.lang-sw button.active{background:var(--gold-grad);color:#1a1408;font-weight:700}
+
+/* Hamburger */
+.hamburger{display:flex;flex-direction:column;gap:5px;padding:8px;flex-shrink:0}
+@media(min-width:900px){.hamburger{display:none}}
+.hamburger span{display:block;width:20px;height:1.5px;background:var(--silver);transition:var(--ease);transform-origin:center}
+.hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+
+/* Mobile drawer */
+.drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.drawer-bg.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:270px;background:var(--bg-2);border-left:1px solid var(--line);z-index:200;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);padding:80px 22px 36px;display:flex;flex-direction:column;gap:4px}
+.drawer.open{transform:none}
+.drawer a{display:block;padding:13px 16px;border-radius:var(--radius-sm);color:var(--muted);font-size:15px;letter-spacing:.04em;transition:var(--ease)}
+.drawer a:hover,.drawer a.active{color:var(--text);background:var(--bg-3)}
+.drawer a.active{color:var(--gold-2)}
+.drawer-lang{margin-top:auto;padding-top:24px;border-top:1px solid var(--line)}
+
+/* ── Hero ── */
+.hero{position:relative;padding:96px 0 68px;border-bottom:1px solid var(--line);overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(closest-side at 72% 38%,rgba(201,169,106,.15),transparent 70%),linear-gradient(180deg,transparent 40%,var(--bg) 100%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:44px}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--gold);letter-spacing:.34em;font-size:10px;text-transform:uppercase;margin-bottom:20px}
+.hero-eyebrow::before{content:"";width:22px;height:1px;background:var(--gold-grad)}
+.hero h1{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:62px;line-height:1.04;font-weight:500}
+@media(max-width:900px){.hero h1{font-size:46px}}
+@media(max-width:560px){.hero h1{font-size:36px}}
+.hero h1 em{font-style:italic;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{margin-top:20px;font-size:15px;color:var(--muted);max-width:500px;line-height:1.72}
+.hero-cta{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:999px;font-size:13px;font-weight:500;letter-spacing:.05em;transition:var(--ease);border:1px solid transparent}
+.btn-primary{background:var(--gold-grad);color:#1a1408;font-weight:700;box-shadow:0 4px 20px rgba(201,169,106,.2)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,169,106,.32)}
+.btn-ghost{border-color:var(--line-2);color:var(--text)}
+.btn-ghost:hover{background:var(--bg-2);border-color:var(--silver-2)}
+
+.hero-stats{display:flex;gap:30px;margin-top:42px;padding-top:30px;border-top:1px solid var(--line)}
+.stat{display:flex;flex-direction:column}
+.stat .num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:600;background:var(--silver-grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.stat .lbl{font-size:10px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-top:6px}
+
+/* Spotlight */
+.spotlight{position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);background:var(--bg-2);box-shadow:var(--shadow);aspect-ratio:4/5;cursor:pointer;transition:var(--ease)}
+.spotlight:hover{transform:translateY(-4px);box-shadow:0 24px 60px rgba(0,0,0,.65),0 0 0 1px rgba(201,169,106,.22)}
+.spotlight .cover{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 20%,rgba(0,0,0,.9) 100%),radial-gradient(circle at 30% 25%,#2c2419,#0a0a0c 68%)}
+.spotlight .cover::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 8px);mix-blend-mode:overlay}
+.spotlight .badge{position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:9px;letter-spacing:.28em;background:rgba(0,0,0,.6);border:1px solid var(--gold-3);color:var(--gold-2);text-transform:uppercase;backdrop-filter:blur(8px)}
+.spotlight .meta{position:absolute;left:24px;right:24px;bottom:24px}
+.spotlight .meta h3{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:28px;line-height:1.1;font-weight:600}
+.spotlight .meta .sub{margin-top:6px;color:var(--silver);font-size:12px;letter-spacing:.06em}
+.spotlight .score-badge{display:inline-flex;align-items:baseline;gap:6px;margin-top:14px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.6);border:1px solid var(--line-2);backdrop-filter:blur(8px)}
+.spotlight .score-badge b{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-2)}
+.spotlight .score-badge span{font-size:10px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase}
+
+/* ── Section base ── */
+section.block{padding:78px 0;border-bottom:1px solid var(--line);position:relative}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:38px;flex-wrap:wrap}
+.section-head h2{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:40px;font-weight:500}
+.eyebrow{display:block;color:var(--gold);letter-spacing:.32em;font-size:10px;text-transform:uppercase;margin-bottom:10px}
+.section-head .desc{color:var(--muted);font-size:14px;max-width:480px;margin-top:9px;line-height:1.65}
+.section-head a.more{font-size:12px;color:var(--silver-2);border-bottom:1px solid var(--line-2);padding-bottom:3px;letter-spacing:.06em;white-space:nowrap;transition:var(--ease);cursor:pointer}
+.section-head a.more:hover{color:var(--gold-2);border-color:var(--gold-3)}
+
+/* ── Chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 15px;border-radius:999px;font-size:12px;color:var(--muted);border:1px solid var(--line);background:var(--bg-2);transition:var(--ease);letter-spacing:.04em;cursor:pointer}
+.chip:hover{color:var(--text);border-color:var(--line-2);background:var(--bg-3)}
+.chip.active{color:#1a1408;font-weight:700;background:var(--gold-grad);border-color:transparent;box-shadow:0 4px 16px rgba(201,169,106,.2)}
+.chip .count{margin-left:5px}.chip:not(.active) .count{color:var(--muted-2)}
+
+/* Open now badge */
+.open-badge{display:inline-flex;align-items:center;gap:5px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#4ade80;padding:3px 9px;border:1px solid rgba(74,222,128,.3);border-radius:999px;background:rgba(74,222,128,.08)}
+.open-badge::before{content:"";width:5px;height:5px;border-radius:50%;background:#4ade80;flex-shrink:0;box-shadow:0 0 6px #4ade80;animation:pulse-g 1.8s infinite}
+@keyframes pulse-g{0%,100%{opacity:1}50%{opacity:.35}}
+.closed-badge{display:inline-flex;align-items:center;gap:5px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2);padding:3px 9px;border:1px solid var(--line);border-radius:999px}
+
+/* ── Rankings ── */
+/* #1 featured card */
+.rank-featured{display:grid;grid-template-columns:76px 1fr auto;gap:18px;align-items:center;padding:22px 26px;border-radius:var(--radius);background:linear-gradient(135deg,rgba(201,169,106,.11),rgba(201,169,106,.04));border:1px solid rgba(201,169,106,.38);position:relative;overflow:hidden;cursor:pointer;transition:var(--ease);margin-bottom:14px}
+.rank-featured::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 50%,rgba(201,169,106,.14),transparent 58%);pointer-events:none}
+.rank-featured:hover{transform:translateY(-2px);border-color:var(--gold);box-shadow:0 8px 32px rgba(201,169,106,.15)}
+.rank-featured .rn{font-family:'Cormorant Garamond',serif;font-size:60px;line-height:1;font-weight:700;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center}
+.rank-featured .ri h4{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:24px;font-weight:600}
+.rank-featured .ri .meta{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:.03em}
+.rank-featured .ri .tags{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rank-featured .rs b{font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold-2);font-weight:600;display:block;text-align:right;line-height:1}
+.rank-featured .rs span{font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;display:block;text-align:right;margin-top:3px}
+@media(max-width:580px){.rank-featured{grid-template-columns:54px 1fr auto;padding:16px 18px}.rank-featured .rn{font-size:44px}.rank-featured .rs b{font-size:26px}}
+
+/* #2+ grid */
+.ranks-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:680px){.ranks-grid{grid-template-columns:1fr}}
+.rank-item{display:grid;grid-template-columns:48px 1fr auto;gap:14px;align-items:center;padding:15px 18px;border-radius:var(--radius);background:var(--bg-2);border:1px solid var(--line);transition:var(--ease);cursor:pointer}
+.rank-item:hover{border-color:var(--gold-3);background:var(--bg-3);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.rank-item .rn{font-family:'Cormorant Garamond',serif;font-size:36px;line-height:1;font-weight:600;text-align:center}
+.rank-item.r2 .rn{background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rank-item.r3 .rn{background:var(--silver-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rank-item:not(.r2):not(.r3) .rn{color:var(--muted-2)}
+.rank-item .ri h4{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:17px;font-weight:600}
+.rank-item .ri .meta{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.03em}
+.rank-item .ri .tags{margin-top:7px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.rank-item .rs{text-align:right}
+.rank-item .rs b{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold-2);font-weight:600}
+.rank-item .rs span{display:block;font-size:9px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.tag{font-size:9px;letter-spacing:.13em;color:var(--silver-2);text-transform:uppercase;padding:2px 7px;border:1px solid var(--line-2);border-radius:4px}
+
+/* ── Editor picks ── */
+.picks{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:880px){.picks{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.picks{grid-template-columns:1fr}}
+.pick{border-radius:var(--radius);overflow:hidden;background:var(--bg-2);border:1px solid var(--line);transition:var(--ease);cursor:pointer}
+.pick:hover{border-color:var(--gold-3);transform:translateY(-4px);box-shadow:var(--shadow)}
+.pick .img{position:relative;aspect-ratio:4/3}
+.pick .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 38%,rgba(0,0,0,.78) 100%)}
+.p-img-1{background:radial-gradient(circle at 32% 32%,rgba(201,169,106,.32),transparent 55%),radial-gradient(circle at 68% 68%,rgba(201,169,106,.1),transparent 50%),var(--bg-3)}
+.p-img-2{background:radial-gradient(circle at 62% 30%,rgba(120,90,200,.28),transparent 55%),radial-gradient(circle at 30% 72%,rgba(201,169,106,.16),transparent 50%),var(--bg-3)}
+.p-img-3{background:radial-gradient(circle at 40% 62%,rgba(70,160,200,.22),transparent 55%),radial-gradient(circle at 72% 28%,rgba(201,169,106,.22),transparent 50%),var(--bg-3)}
+.pick .pill{position:absolute;top:13px;left:13px;z-index:1;padding:4px 10px;border-radius:999px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;background:rgba(0,0,0,.62);border:1px solid var(--gold-3);color:var(--gold-2);backdrop-filter:blur(6px)}
+.pick .fscore{position:absolute;top:13px;right:13px;z-index:1;display:inline-flex;align-items:baseline;gap:3px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.62);border:1px solid var(--line-2);font-family:'Cormorant Garamond',serif;color:var(--gold-2);font-size:15px;font-weight:600;backdrop-filter:blur(6px)}
+.pick .fscore span{font-size:8px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;font-family:'Inter',sans-serif}
+.pick .pbody{padding:17px 19px 21px}
+.pick h4{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:20px;font-weight:600}
+.pick .psub{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.04em}
+.pick .quote{font-size:13px;color:var(--silver);margin-top:13px;line-height:1.56;font-style:italic;border-left:2px solid var(--gold-3);padding-left:11px}
+.pick .qsrc{font-size:9px;letter-spacing:.2em;color:var(--muted-2);text-transform:uppercase;margin-top:7px}
+
+/* ── Style grid ── */
+.styles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:800px){.styles{grid-template-columns:1fr 1fr}}
+.style-card{position:relative;aspect-ratio:1/1.1;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:var(--bg-2);transition:var(--ease);cursor:pointer}
+.style-card:hover{border-color:var(--gold-3);transform:translateY(-3px);box-shadow:var(--shadow-sm)}
+.sc-bg{position:absolute;inset:0;transition:transform .5s ease}
+.style-card:hover .sc-bg{transform:scale(1.05)}
+.sc-bg.s1{background:radial-gradient(circle at 35% 35%,#3a2c18,#0a0a0c 66%)}
+.sc-bg.s2{background:radial-gradient(circle at 65% 30%,#26263a,#0a0a0c 66%)}
+.sc-bg.s3{background:radial-gradient(circle at 50% 65%,#1b2c2a,#0a0a0c 66%)}
+.sc-bg.s4{background:radial-gradient(circle at 32% 65%,#38181c,#0a0a0c 66%)}
+.sc-bg.s5{background:radial-gradient(circle at 58% 40%,#1e1a1e,#0a0a0c 66%)}
+.sc-bg.s6{background:radial-gradient(circle at 40% 58%,#18222e,#0a0a0c 66%)}
+.sc-bg.s7{background:radial-gradient(circle at 50% 50%,#2c2416,#0a0a0c 66%)}
+.sc-bg.s8{background:radial-gradient(circle at 50% 28%,#261e2e,#0a0a0c 66%)}
+.sc-label{position:absolute;left:0;right:0;bottom:0;padding:15px 17px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.76))}
+.sc-en{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600}
+.sc-zh{font-size:10px;letter-spacing:.22em;color:var(--silver);margin-top:4px;text-transform:uppercase}
+.sc-num{position:absolute;top:12px;right:12px;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold-2);opacity:.7}
+
+/* ── Sources ── */
+.sources{padding:42px 0;background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sources-row{display:flex;align-items:center;justify-content:center;gap:36px;flex-wrap:wrap}
+.src-label{font-size:10px;letter-spacing:.32em;color:var(--gold);text-transform:uppercase;padding-right:22px;border-right:1px solid var(--line-2)}
+.src-logo{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--muted-2);font-style:italic;transition:var(--ease)}
+.src-logo:hover{color:var(--gold-2)}
+
+/* ── List page ── */
+.list-toolbar{display:flex;flex-direction:column;gap:14px;margin-bottom:34px}
+.filter-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-lbl{font-size:10px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase;min-width:76px;flex-shrink:0}
+.bar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:880px){.bar-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.bar-grid{grid-template-columns:1fr}}
+.bar-card{border-radius:var(--radius);overflow:hidden;background:var(--bg-2);border:1px solid var(--line);transition:var(--ease);cursor:pointer}
+.bar-card:hover{border-color:var(--gold-3);transform:translateY(-4px);box-shadow:var(--shadow)}
+.bc-img{position:relative;aspect-ratio:16/9}
+.bc-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(0,0,0,.68) 100%)}
+.bc-img.v1{background:radial-gradient(circle at 30% 30%,rgba(201,169,106,.24),transparent 54%),radial-gradient(circle at 70% 70%,rgba(201,169,106,.08),transparent 54%),var(--bg-3)}
+.bc-img.v2{background:radial-gradient(circle at 62% 30%,rgba(207,210,214,.18),transparent 54%),radial-gradient(circle at 28% 78%,rgba(201,169,106,.12),transparent 54%),var(--bg-3)}
+.bc-img.v3{background:radial-gradient(circle at 40% 52%,rgba(130,90,200,.16),transparent 54%),radial-gradient(circle at 78% 20%,rgba(201,169,106,.18),transparent 54%),var(--bg-3)}
+.bc-img.v4{background:radial-gradient(circle at 20% 32%,rgba(70,148,168,.17),transparent 54%),radial-gradient(circle at 70% 70%,rgba(201,169,106,.14),transparent 54%),var(--bg-3)}
+.bc-indicator{position:absolute;top:11px;right:11px;z-index:1}
+.bc-body{padding:15px 17px 19px}
+.bc-row1{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.bc-body h4{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:19px;font-weight:600;line-height:1.15}
+.bc-zh{font-size:11px;color:var(--silver);margin-top:3px;letter-spacing:.04em}
+.bc-sc{display:inline-flex;align-items:baseline;gap:3px;padding:4px 9px;border-radius:999px;background:var(--bg-3);border:1px solid var(--line-2);font-family:'Cormorant Garamond',serif;color:var(--gold-2);font-size:17px;font-weight:600;flex-shrink:0}
+.bc-sc span{font-size:8px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;font-family:'Inter',sans-serif}
+.bc-meta{font-size:11px;color:var(--muted);margin-top:9px;display:flex;gap:7px;flex-wrap:wrap}
+.bc-meta .dot{color:var(--muted-2)}
+.bc-tags{margin-top:11px;display:flex;gap:5px;flex-wrap:wrap}
+.bc-plat{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}
+.bc-plat .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* Empty state */
+.empty-state{grid-column:1/-1;padding:72px 40px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--radius);background:var(--bg-2)}
+.empty-state .esi{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--silver);margin-top:10px}
+.empty-state p{font-size:13px;margin-top:6px}
+
+/* ── Detail page ── */
+.detail-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;letter-spacing:.05em;margin-bottom:26px;transition:var(--ease);cursor:pointer}
+.detail-back:hover{color:var(--gold-2)}
+.detail-hero{position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);background:var(--bg-2);min-height:340px;
+  background-image:radial-gradient(circle at 30% 40%,rgba(201,169,106,.22),transparent 52%),radial-gradient(circle at 70% 60%,rgba(207,210,214,.08),transparent 52%),linear-gradient(180deg,transparent 34%,rgba(0,0,0,.9) 100%)}
+.detail-hero::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.015) 0 2px,transparent 2px 9px);mix-blend-mode:overlay;pointer-events:none}
+.dh-info{position:absolute;left:32px;right:32px;bottom:28px}
+.dh-pills{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap;align-items:center}
+.dh-pill{padding:4px 10px;border-radius:999px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;background:rgba(0,0,0,.62);border:1px solid var(--gold-3);color:var(--gold-2);backdrop-filter:blur(6px)}
+.detail-hero h1{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:50px;font-weight:600;line-height:1.05}
+@media(max-width:560px){.detail-hero h1{font-size:34px}.dh-info{left:18px;right:18px;bottom:18px}}
+.dh-zh{margin-top:6px;font-size:13px;color:var(--silver);letter-spacing:.05em}
+.dh-quick{margin-top:15px;display:flex;gap:14px;color:var(--silver);font-size:12px;letter-spacing:.04em;flex-wrap:wrap}
+.dh-quick span{display:inline-flex;align-items:center;gap:5px}
+.dh-quick svg{width:13px;height:13px;color:var(--gold-2);flex-shrink:0}
+
+/* Score panel */
+.score-panel{margin-top:28px;display:grid;grid-template-columns:196px 1fr;gap:22px}
+@media(max-width:680px){.score-panel{grid-template-columns:1fr}}
+.score-card{padding:26px;border-radius:var(--radius);background:var(--bg-2);border:1px solid var(--gold-3);position:relative;overflow:hidden}
+.score-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 10%,rgba(201,169,106,.16),transparent 58%);pointer-events:none}
+.score-card .sc-lbl{font-size:9px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase}
+.score-card .sc-big{font-family:'Cormorant Garamond',serif;font-size:76px;line-height:1;font-weight:600;background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:5px}
+.score-card .sc-out{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.06em}
+.score-card .sc-rev{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--silver);letter-spacing:.04em}
+.score-card .sc-rev b{color:var(--gold-2)}
+
+/* Platform progress bars */
+.platform-bars{display:flex;flex-direction:column;gap:11px;padding:26px;border-radius:var(--radius);background:var(--bg-2);border:1px solid var(--line)}
+.pb-title{font-size:9px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.pb-row{display:grid;grid-template-columns:76px 1fr 50px;gap:10px;align-items:center}
+.pb-name{font-size:11px;letter-spacing:.05em;color:var(--silver);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pb-track{height:4px;background:var(--bg-4);border-radius:999px;overflow:hidden}
+.pb-fill{height:100%;border-radius:999px;background:var(--gold-grad);transform-origin:left;transform:scaleX(0);transition:transform .95s cubic-bezier(.4,0,.2,1)}
+.pb-score{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--gold-2);text-align:right}
+
+/* Platform tabs */
+.platform-tabs{margin-top:42px}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.tabs::-webkit-scrollbar{display:none}
+.ptab{padding:12px 17px;font-size:12px;color:var(--muted);letter-spacing:.05em;border-bottom:2px solid transparent;white-space:nowrap;transition:var(--ease);cursor:pointer}
+.ptab:hover{color:var(--text)}
+.ptab.active{color:var(--gold-2);border-bottom-color:var(--gold)}
+.ptab .cnt{margin-left:5px;color:var(--muted-2);font-size:10px}
+.ptab.active .cnt{color:var(--gold-3)}
+.tab-panel{padding:24px 0;display:none}
+.tab-panel.active{display:block;animation:fadeIn .22s ease}
+
+/* Reviews */
+.review{display:grid;grid-template-columns:42px 1fr;gap:13px;padding:19px 21px;border-radius:var(--radius);background:var(--bg-2);border:1px solid var(--line);margin-bottom:11px;transition:var(--ease)}
+.review:hover{border-color:var(--line-2)}
+.rv-av{width:42px;height:42px;border-radius:50%;background:var(--bg-3);border:1px solid var(--line-2);display:grid;place-items:center;font-family:'Cormorant Garamond',serif;color:var(--silver);font-size:16px;font-weight:600}
+.rv-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.rv-name{font-size:13px;font-weight:500}
+.rv-src{font-size:9px;letter-spacing:.22em;color:var(--gold-2);text-transform:uppercase;padding:2px 7px;border:1px solid var(--gold-3);border-radius:4px}
+.rv-date{font-size:10px;color:var(--muted-2);margin-left:auto}
+.rv-stars{margin-top:4px;color:var(--gold);font-size:12px;letter-spacing:2px}
+.rv-body{margin-top:9px;font-size:13px;color:var(--silver);line-height:1.62}
+.rv-ext{margin-top:9px;font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.rv-ext a{color:var(--silver);border-bottom:1px solid var(--line-2);padding-bottom:1px;transition:var(--ease)}
+.rv-ext a:hover{color:var(--gold-2)}
+
+/* Footer */
+footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05em}
+.footer-row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end}
+.footer-brand{font-family:'Cormorant Garamond',serif;font-size:21px;letter-spacing:.18em;color:var(--silver)}
+.footer-links{display:flex;gap:18px;flex-wrap:wrap}
+.footer-links a{transition:var(--ease);cursor:pointer}
+.footer-links a:hover{color:var(--gold-2)}
+
+/* Pages */
+.page{display:none}
+.page.active{display:block;animation:fadeIn .28s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Scroll-to-top */
+#scroll-top{position:fixed;bottom:26px;right:26px;width:42px;height:42px;border-radius:50%;background:var(--bg-3);border:1px solid var(--line-2);display:grid;place-items:center;cursor:pointer;opacity:0;transform:translateY(10px);transition:var(--ease);z-index:50}
+#scroll-top.vis{opacity:1;transform:none}
+#scroll-top:hover{border-color:var(--gold-3);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+#scroll-top svg{color:var(--silver)}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand" data-route="home">
+      <span class="brand-mark"></span>TIPPLE
+      <span class="sub" data-i18n="brand.sub">TAIWAN BAR INDEX</span>
+    </div>
+    <nav class="nav" id="nav">
+      <a data-route="home" class="active" data-i18n="nav.home">Home</a>
+      <a data-route="list" data-i18n="nav.discover">Discover</a>
+      <a data-route="list" data-i18n="nav.rank">Rankings</a>
+      <a data-route="list" data-i18n="nav.style">By Style</a>
+    </nav>
+    <div class="search-wrap">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="search-input" data-i18n-attr="placeholder|search.ph" placeholder="搜尋酒吧、地區、風格…" autocomplete="off"/>
+        <button class="search-clear" id="search-clear">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="lang-sw" id="lang-sw">
+      <button class="active" data-lang="zh">繁中</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </div>
+</header>
+
+<!-- MOBILE DRAWER -->
+<div class="drawer-bg" id="drawer-bg"></div>
+<nav class="drawer" id="drawer">
+  <a data-route="home" class="active" data-i18n="nav.home">Home</a>
+  <a data-route="list" data-i18n="nav.discover">Discover</a>
+  <a data-route="list" data-i18n="nav.rank">Rankings</a>
+  <a data-route="list" data-i18n="nav.style">By Style</a>
+  <div class="drawer-lang">
+    <div class="lang-sw" style="display:inline-flex">
+      <button class="active" data-lang="zh">繁中</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ========== HOME PAGE ========== -->
+<main id="page-home" class="page active">
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="hero-eyebrow reveal" data-i18n="hero.eyebrow">A NIGHT WORTH HAVING</span>
+        <h1 class="reveal reveal-d1" data-i18n-html="hero.title">台灣酒吧的<br/><em>夜之指南針</em></h1>
+        <p class="lead reveal reveal-d2" data-i18n="hero.lead">聚合 Google Maps、PTT、Dcard 與媒體評論，為你找出真正值得一去的台灣酒吧。</p>
+        <div class="hero-cta reveal reveal-d2">
+          <button class="btn btn-primary" data-route="list"><span data-i18n="hero.cta1">開始探索</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+          <button class="btn btn-ghost" data-route="detail" data-bar="1" data-i18n="hero.cta2">本月之選</button>
+        </div>
+        <div class="hero-stats reveal reveal-d3">
+          <div class="stat"><span class="num count-up" data-target="2847">0</span><span class="lbl" data-i18n="stat.bars">收錄酒吧</span></div>
+          <div class="stat"><span class="num count-up" data-target="142" data-suffix="K">0</span><span class="lbl" data-i18n="stat.reviews">匯整評論</span></div>
+          <div class="stat"><span class="num count-up" data-target="14">0</span><span class="lbl" data-i18n="stat.sources">資料來源</span></div>
+        </div>
+      </div>
+      <div class="spotlight reveal reveal-d2" data-route="detail" data-bar="1">
+        <div class="cover"></div>
+        <span class="badge" data-i18n="spot.badge">★ EDITOR'S PICK · APRIL</span>
+        <div class="meta">
+          <h3>Indulge Experimental Bistro</h3>
+          <div class="sub" data-i18n="spot.sub">大安 · Cocktail Bar · Experimental</div>
+          <div class="score-badge"><b>9.4</b><span>TIPPLE INDEX</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sources">
+    <div class="container sources-row">
+      <span class="src-label" data-i18n="sources.label">Sourced From</span>
+      <span class="src-logo">Google Maps</span><span class="src-logo">Instagram</span>
+      <span class="src-logo">Facebook</span><span class="src-logo">X</span>
+      <span class="src-logo">PTT</span><span class="src-logo">Dcard</span>
+      <span class="src-logo">GQ</span><span class="src-logo">Elle</span><span class="src-logo">Popdaily</span>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="container">
+      <div class="section-head reveal">
+        <div>
+          <span class="eyebrow" data-i18n="rank.eyebrow">Top of the Index</span>
+          <h2 data-i18n="rank.title">本月綜合排行榜</h2>
+          <p class="desc" data-i18n="rank.desc">綜合各大平台與媒體評分加權計算，每週更新。</p>
+        </div>
+        <a class="more" data-route="list" data-i18n="rank.more">View All →</a>
+      </div>
+      <div class="chips reveal" style="margin-bottom:26px" id="rank-chips">
+        <button class="chip active" data-cat="all">All <span class="count">12</span></button>
+        <button class="chip" data-cat="cocktail">Cocktail <span class="count">5</span></button>
+        <button class="chip" data-cat="bistro">Bistro <span class="count">1</span></button>
+        <button class="chip" data-cat="wine">Wine <span class="count">2</span></button>
+        <button class="chip" data-cat="sake">Sake <span class="count">2</span></button>
+        <button class="chip" data-cat="whisky">Whisky <span class="count">1</span></button>
+        <button class="chip" data-cat="speakeasy">Speakeasy <span class="count">1</span></button>
+      </div>
+      <div id="ranks-featured"></div>
+      <div class="ranks-grid" id="ranks-list"></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="container">
+      <div class="section-head reveal">
+        <div>
+          <span class="eyebrow" data-i18n="picks.eyebrow">From the Editors</span>
+          <h2 data-i18n="picks.title">編輯精選 · 本週話題</h2>
+          <p class="desc" data-i18n="picks.desc">GQ、Elle、Popdaily 與 PTT／Dcard 熱議浮上的酒吧。</p>
+        </div>
+        <a class="more" data-route="list" data-i18n="picks.more">All Picks →</a>
+      </div>
+      <div class="picks">
+        <div class="pick reveal" data-route="detail" data-bar="2">
+          <div class="img p-img-1"><span class="pill" data-i18n="picks.tag1">★ GQ FEATURED</span><span class="fscore">9.2<span>idx</span></span></div>
+          <div class="pbody"><h4>Bar Mood</h4><div class="psub" data-i18n="picks.sub2">大安 · Speakeasy · Modern Asian</div><p class="quote" data-i18n="picks.q2">把台灣本土風土帶入分子調酒，是亞洲 50 大酒吧裡最具識別度的一間。</p><p class="qsrc" data-i18n="picks.qs2">— GQ TAIWAN, MAR 2026</p></div>
+        </div>
+        <div class="pick reveal reveal-d1" data-route="detail" data-bar="3">
+          <div class="img p-img-2"><span class="pill" data-i18n="picks.tag2">★ DCARD HOT</span><span class="fscore">8.9<span>idx</span></span></div>
+          <div class="pbody"><h4>AHA Saloon</h4><div class="psub" data-i18n="picks.sub3">中山 · Cocktail Bar · Craft</div><p class="quote" data-i18n="picks.q3">調酒師會問你今天的心情，再為你客製。氛圍沉穩、不浮誇，第一次去就被收買。</p><p class="qsrc" data-i18n="picks.qs3">— DCARD 美食版, 2.3K LIKES</p></div>
+        </div>
+        <div class="pick reveal reveal-d2" data-route="detail" data-bar="4">
+          <div class="img p-img-3"><span class="pill" data-i18n="picks.tag3">★ ELLE COVER</span><span class="fscore">9.0<span>idx</span></span></div>
+          <div class="pbody"><h4>Room by Le Kief</h4><div class="psub" data-i18n="picks.sub4">中山 · Cocktail Bar · Theatre</div><p class="quote" data-i18n="picks.q4">每季更新劇場式 menu，去一次像看 90 分鐘浸沒式演出。</p><p class="qsrc" data-i18n="picks.qs4">— ELLE TAIWAN, FEB 2026</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="container">
+      <div class="section-head reveal">
+        <div>
+          <span class="eyebrow" data-i18n="style.eyebrow">By Vibe</span>
+          <h2 data-i18n="style.title">依風格挑一間</h2>
+          <p class="desc" data-i18n="style.desc">心情決定夜晚，挑個氛圍再出發。</p>
+        </div>
+        <a class="more" data-route="list" data-i18n="style.more">All Styles →</a>
+      </div>
+      <div class="styles">
+        <div class="style-card reveal" data-route="list"><div class="sc-bg s1"></div><span class="sc-num">01</span><div class="sc-label"><div class="sc-en">Speakeasy</div><div class="sc-zh" data-i18n="style.s1">隱藏 · 私密</div></div></div>
+        <div class="style-card reveal reveal-d1" data-route="list"><div class="sc-bg s2"></div><span class="sc-num">02</span><div class="sc-label"><div class="sc-en">Craft</div><div class="sc-zh" data-i18n="style.s2">職人 · 手作</div></div></div>
+        <div class="style-card reveal reveal-d2" data-route="list"><div class="sc-bg s3"></div><span class="sc-num">03</span><div class="sc-label"><div class="sc-en">Japanese</div><div class="sc-zh" data-i18n="style.s3">日式 · 沉穩</div></div></div>
+        <div class="style-card reveal reveal-d3" data-route="list"><div class="sc-bg s4"></div><span class="sc-num">04</span><div class="sc-label"><div class="sc-en">Luxe</div><div class="sc-zh" data-i18n="style.s4">奢華 · 飯店</div></div></div>
+        <div class="style-card reveal" data-route="list"><div class="sc-bg s5"></div><span class="sc-num">05</span><div class="sc-label"><div class="sc-en">Casual</div><div class="sc-zh" data-i18n="style.s5">輕鬆 · 站立</div></div></div>
+        <div class="style-card reveal reveal-d1" data-route="list"><div class="sc-bg s6"></div><span class="sc-num">06</span><div class="sc-label"><div class="sc-en">Rooftop</div><div class="sc-zh" data-i18n="style.s6">頂樓 · 城景</div></div></div>
+        <div class="style-card reveal reveal-d2" data-route="list"><div class="sc-bg s7"></div><span class="sc-num">07</span><div class="sc-label"><div class="sc-en">Experimental</div><div class="sc-zh" data-i18n="style.s7">實驗 · 分子</div></div></div>
+        <div class="style-card reveal reveal-d3" data-route="list"><div class="sc-bg s8"></div><span class="sc-num">08</span><div class="sc-label"><div class="sc-en">Classic</div><div class="sc-zh" data-i18n="style.s8">古典 · 傳承</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-row">
+      <div><div class="footer-brand">TIPPLE</div><div style="margin-top:6px" data-i18n="footer.tag">台灣酒吧索引 · 來自全網的真實聲音</div></div>
+      <div class="footer-links">
+        <a data-i18n="footer.about">About</a><a data-i18n="footer.method">Methodology</a>
+        <a data-i18n="footer.partners">For Bars</a><a data-i18n="footer.contact">Contact</a>
+      </div>
+    </div>
+    <div class="container" style="margin-top:26px;color:var(--muted-2)">© 2026 TIPPLE · v0.2</div>
+  </footer>
+</main>
+
+<!-- ========== LIST PAGE ========== -->
+<main id="page-list" class="page">
+  <section class="block" style="padding-top:46px">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow" data-i18n="list.eyebrow">Discover</span>
+          <h2 data-i18n="list.title">探索 · 全台灣酒吧</h2>
+          <p class="desc" data-i18n="list.desc">類型 × 風格 × 地區交叉篩選，找到今晚的那一間。</p>
+        </div>
+        <span style="color:var(--muted);font-size:13px"><b id="list-count" style="color:var(--gold-2);font-family:'Cormorant Garamond',serif;font-size:26px">12</b><span data-i18n="list.found"> 家符合</span></span>
+      </div>
+      <div class="list-toolbar">
+        <div class="filter-group"><span class="filter-lbl" data-i18n="filter.cat">CATEGORY</span>
+          <div class="chips" id="cat-chips">
+            <button class="chip active" data-cat="all" data-i18n="cat.all">全部</button>
+            <button class="chip" data-cat="cocktail" data-i18n="cat.cocktail">調酒吧</button>
+            <button class="chip" data-cat="bistro" data-i18n="cat.bistro">餐酒館</button>
+            <button class="chip" data-cat="wine" data-i18n="cat.wine">紅酒吧</button>
+            <button class="chip" data-cat="sake" data-i18n="cat.sake">清酒吧</button>
+            <button class="chip" data-cat="whisky" data-i18n="cat.whisky">威士忌吧</button>
+            <button class="chip" data-cat="speakeasy" data-i18n="cat.speakeasy">Speakeasy</button>
+            <button class="chip" data-cat="craft" data-i18n="cat.craft">精釀</button>
+          </div>
+        </div>
+        <div class="filter-group"><span class="filter-lbl" data-i18n="filter.style">STYLE</span>
+          <div class="chips" id="style-chips">
+            <button class="chip active" data-style="all" data-i18n="style.all">全部</button>
+            <button class="chip" data-style="speakeasy" data-i18n="filter.speak">隱藏</button>
+            <button class="chip" data-style="craft" data-i18n="filter.craft">職人手作</button>
+            <button class="chip" data-style="japanese" data-i18n="filter.jp">日式</button>
+            <button class="chip" data-style="luxe" data-i18n="filter.luxe">奢華</button>
+            <button class="chip" data-style="casual" data-i18n="filter.casual">輕鬆</button>
+            <button class="chip" data-style="rooftop" data-i18n="filter.roof">頂樓</button>
+            <button class="chip" data-style="experimental" data-i18n="filter.exp">實驗</button>
+            <button class="chip" data-style="classic" data-i18n="filter.classic">古典</button>
+          </div>
+        </div>
+        <div class="filter-group"><span class="filter-lbl" data-i18n="filter.area">AREA</span>
+          <div class="chips" id="area-chips">
+            <button class="chip active" data-area="all" data-i18n="area.all">全部</button>
+            <button class="chip" data-area="taipei">Taipei 台北</button>
+            <button class="chip" data-area="taichung">Taichung 台中</button>
+          </div>
+        </div>
+        <div class="filter-group"><span class="filter-lbl" data-i18n="filter.time">NOW</span>
+          <div class="chips"><button class="chip" id="open-now-chip" data-i18n="filter.open">現在營業中</button></div>
+        </div>
+      </div>
+      <div class="bar-grid" id="bar-grid"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ========== DETAIL PAGE ========== -->
+<main id="page-detail" class="page">
+  <section class="block" style="padding-top:36px">
+    <div class="container">
+      <div class="detail-back" data-route="home">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span data-i18n="detail.back">返回</span>
+      </div>
+      <div class="detail-hero">
+        <div class="dh-info">
+          <div class="dh-pills">
+            <span class="dh-pill" id="d-cat"></span>
+            <span class="dh-pill" id="d-style"></span>
+            <span class="dh-pill" id="d-area"></span>
+            <span id="d-open-badge"></span>
+          </div>
+          <h1 id="d-name"></h1>
+          <div class="dh-zh" id="d-zhname"></div>
+          <div class="dh-quick">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="d-addr"></span></span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span id="d-hours"></span></span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M5 8h11a3 3 0 010 6H7a3 3 0 000 6h12"/></svg><span id="d-price"></span></span>
+          </div>
+        </div>
+      </div>
+      <div class="score-panel">
+        <div class="score-card">
+          <div class="sc-lbl" data-i18n="detail.idx">TIPPLE INDEX</div>
+          <div class="sc-big" id="d-score">—</div>
+          <div class="sc-out" data-i18n="detail.outof">滿分 10 · 加權平均</div>
+          <div class="sc-rev"><span data-i18n="detail.basedon">基於</span> <b id="d-reviews"></b> <span data-i18n="detail.reviews">則跨平台評論</span></div>
+        </div>
+        <div class="platform-bars" id="platform-bars">
+          <div class="pb-title" data-i18n="detail.platforms">各平台分數</div>
+        </div>
+      </div>
+      <div class="platform-tabs">
+        <div class="section-head" style="margin-bottom:0;border:0;padding-bottom:0">
+          <div><span class="eyebrow" data-i18n="detail.tabs.eyebrow">All Voices</span><h2 data-i18n="detail.tabs.title">分平台評價</h2></div>
+        </div>
+        <div class="tabs" id="platform-tabs"></div>
+        <div id="platform-panels"></div>
+      </div>
+      <div style="margin-top:44px;text-align:center;color:var(--muted-2);font-size:10px;letter-spacing:.16em" data-i18n="detail.disclaimer">本頁評論由各平台公開內容自動匯整，僅供參考</div>
+    </div>
+  </section>
+</main>
+
+<button id="scroll-top" aria-label="Back to top">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
+<script>
+/* ===== I18N ===== */
+const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依風格','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps、PTT、Dcard 與媒體評論，為你找出真正值得一去的台灣酒吧。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'綜合各大平台與媒體評分加權計算，每週更新。','rank.more':'看完整排行 →','picks.eyebrow':'編輯精選','picks.title':'編輯精選 · 本週話題','picks.desc':'GQ、Elle、Popdaily 與 PTT／Dcard 熱議浮上的酒吧。','picks.more':'更多精選 →','picks.tag1':'★ GQ 推薦','picks.tag2':'★ DCARD 熱門','picks.tag3':'★ ELLE 封面','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','picks.q2':'把台灣本土風土帶入分子調酒，是亞洲 50 大酒吧裡最具識別度的一間。','picks.q3':'調酒師會問你今天的心情，再為你客製。氛圍沉穩、不浮誇，第一次去就被收買。','picks.q4':'每季更新劇場式 menu，去一次像看 90 分鐘浸沒式演出。','picks.qs2':'— GQ TAIWAN, 2026 / 03','picks.qs3':'— DCARD 美食版, 2.3K LIKES','picks.qs4':'— ELLE TAIWAN, 2026 / 02','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'隱藏 · 私密','style.s2':'職人 · 手作','style.s3':'日式 · 沉穩','style.s4':'奢華 · 飯店','style.s5':'輕鬆 · 站立','style.s6':'頂樓 · 城景','style.s7':'實驗 · 分子','style.s8':'古典 · 傳承','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.style':'風格','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','cat.all':'全部','cat.cocktail':'調酒吧','cat.bistro':'餐酒館','cat.wine':'紅酒吧','cat.sake':'清酒吧','cat.whisky':'威士忌吧','cat.speakeasy':'Speakeasy','cat.craft':'精釀','style.all':'全部','filter.speak':'隱藏','filter.craft':'職人手作','filter.jp':'日式','filter.luxe':'奢華','filter.casual':'輕鬆','filter.roof':'頂樓','filter.exp':'實驗','filter.classic':'古典','area.all':'全部','detail.back':'返回','detail.idx':'TIPPLE 指數','detail.outof':'滿分 10 · 加權平均','detail.basedon':'基於','detail.reviews':'則跨平台評論','detail.platforms':'各平台分數','detail.tabs.eyebrow':'所有聲音','detail.tabs.title':'分平台評價','detail.disclaimer':'本頁評論由各平台公開內容自動匯整，僅供參考','open.now':'現在營業','closed.now':'暫停營業'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Style','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'We pull reviews from Google Maps, PTT, Dcard and top media so you find bars actually worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Weighted blend of every platform, refreshed weekly.','rank.more':'View All →','picks.eyebrow':'From the Editors','picks.title':"Editor's Picks · This Week",'picks.desc':'Bars surfaced through GQ, Elle, Popdaily and PTT & Dcard.','picks.more':'All Picks →','picks.tag1':'★ GQ FEATURED','picks.tag2':'★ DCARD HOT','picks.tag3':'★ ELLE COVER','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','picks.q2':"Bringing Taiwanese terroir into molecular cocktails — Asia's 50 Best's most distinctive entry.",'picks.q3':'The bartender asks how your day was, then builds the drink. Calm, never showy.','picks.q4':'A new theatrical menu each season — going feels like a 90-minute immersive show.','picks.qs2':'— GQ TAIWAN, MAR 2026','picks.qs3':'— DCARD FOOD, 2.3K LIKES','picks.qs4':'— ELLE TAIWAN, FEB 2026','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Hidden · Private','style.s2':'Craft · Made by hand','style.s3':'Japanese · Calm','style.s4':'Luxe · Hotel','style.s5':'Casual · Standing','style.s6':'Rooftop · Skyline','style.s7':'Experimental · Molecular','style.s8':'Classic · Heritage','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.style':'STYLE','filter.area':'AREA','filter.time':'NOW','filter.open':'Open now','filter.openon':'✓ Open now','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.bistro':'Bistro Bar','cat.wine':'Wine Bar','cat.sake':'Sake Bar','cat.whisky':'Whisky Bar','cat.speakeasy':'Speakeasy','cat.craft':'Craft Beer','style.all':'All','filter.speak':'Speakeasy','filter.craft':'Craft','filter.jp':'Japanese','filter.luxe':'Luxe','filter.casual':'Casual','filter.roof':'Rooftop','filter.exp':'Experimental','filter.classic':'Classic','area.all':'All','detail.back':'Back','detail.idx':'TIPPLE INDEX','detail.outof':'Out of 10 · Weighted','detail.basedon':'Based on','detail.reviews':'reviews across platforms','detail.platforms':'Platform Scores','detail.tabs.eyebrow':'All Voices','detail.tabs.title':'Reviews by Platform','detail.disclaimer':'Reviews aggregated from public sources. For reference only.','open.now':'Open now','closed.now':'Closed'}};
+
+/* ===== DATA ===== */
+const BARS=[
+  {id:1,name:'Indulge Experimental Bistro',zh:'Indulge 實驗創新餐酒館',cat:'bistro',style:'experimental',area:'taipei',district:"Da'an · 大安",score:9.4,reviews:3217,openHours:[[19,26]],addr:{zh:'台北市大安區復興南路一段 219 巷 11 號',en:"No.11, Ln. 219, Sec. 1, Fuxing S. Rd., Taipei"},hours:{zh:'19:00 – 02:00 · 週一公休',en:'19:00 – 02:00 · Closed Mon'},price:{zh:'$$$ · 單杯 NT$450 起',en:'$$$ · From NT$450'},catLabel:{zh:'餐酒館',en:'Bistro Bar'},styleLabel:{zh:'實驗派',en:'Experimental'},img:'v1',tags:['Experimental','Asia 50 Best','GQ Featured']},
+  {id:2,name:'Bar Mood',zh:'Bar Mood Taipei 吧沐',cat:'cocktail',style:'speakeasy',area:'taipei',district:"Da'an · 大安",score:9.2,reviews:2418,openHours:[[19,26]],addr:{zh:'台北市大安區安和路一段 102 巷 10 號',en:"No.10, Ln. 102, Sec. 1, Anhe Rd., Taipei"},hours:{zh:'19:00 – 02:00',en:'19:00 – 02:00'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'隱藏感',en:'Speakeasy'},img:'v2',tags:['Speakeasy','Modern Asian','Asia 50 Best']},
+  {id:3,name:'AHA Saloon',zh:'AHA Saloon 啊哈酒場',cat:'cocktail',style:'craft',area:'taipei',district:'Zhongshan · 中山',score:8.9,reviews:1922,openHours:[[19.5,26.5]],addr:{zh:'台北市中山區市民大道三段 8 號',en:'No.8, Sec. 3, Civic Blvd., Taipei'},hours:{zh:'19:30 – 02:30',en:'19:30 – 02:30'},price:{zh:'$$',en:'$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'職人手作',en:'Craft'},img:'v3',tags:['Craft','Bartender Driven','Dcard Hot']},
+  {id:4,name:'Room by Le Kief',zh:'Room by Le Kief',cat:'cocktail',style:'experimental',area:'taipei',district:'Zhongshan · 中山',score:9.0,reviews:1655,openHours:[[19,25.5]],addr:{zh:'台北市中山區明水路 535 號',en:'No.535, Mingshui Rd., Taipei'},hours:{zh:'19:00 – 01:30',en:'19:00 – 01:30'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'劇場式',en:'Theatre'},img:'v1',tags:['Theatre','Tasting Menu','Elle Cover']},
+  {id:5,name:'Draft Land',zh:'Draft Land',cat:'cocktail',style:'casual',area:'taipei',district:"Da'an · 大安",score:8.5,reviews:2840,openHours:[[15,24]],addr:{zh:'台北市大安區忠孝東路四段 181 巷 7 弄 1 號',en:'No.1, Aly. 7, Ln. 181, Sec. 4, Zhongxiao E. Rd., Taipei'},hours:{zh:'15:00 – 24:00',en:'15:00 – 24:00'},price:{zh:'$$ · NT$200',en:'$$ · NT$200 / cocktail'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'輕鬆站立',en:'Casual'},img:'v4',tags:['On Tap','Casual','Crowd Favorite']},
+  {id:6,name:'East End',zh:'East End 威士忌吧',cat:'whisky',style:'classic',area:'taipei',district:'Songshan · 松山',score:8.8,reviews:980,openHours:[[20,27]],addr:{zh:'台北市松山區敦化北路 165 巷 6 號',en:'No.6, Ln. 165, Dunhua N. Rd., Taipei'},hours:{zh:'20:00 – 03:00',en:'20:00 – 03:00'},price:{zh:'$$$$',en:'$$$$'},catLabel:{zh:'威士忌吧',en:'Whisky Bar'},styleLabel:{zh:'古典',en:'Classic'},img:'v3',tags:['Whisky','Cigar Friendly','Heritage']},
+  {id:7,name:'Sake Bar Ukai',zh:'鵜飼 清酒小酒場',cat:'sake',style:'japanese',area:'taipei',district:'Zhongshan · 中山',score:8.7,reviews:540,openHours:[[18,24]],addr:{zh:'台北市中山區林森北路 119 巷 22 號',en:'No.22, Ln. 119, Linsen N. Rd., Taipei'},hours:{zh:'18:00 – 24:00 · 週日公休',en:'18:00 – 24:00 · Closed Sun'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'清酒吧',en:'Sake Bar'},styleLabel:{zh:'日式',en:'Japanese'},img:'v2',tags:['Junmai','Japanese','Quiet']},
+  {id:8,name:'Wa-Shu',zh:'和酒',cat:'sake',style:'japanese',area:'taipei',district:"Da'an · 大安",score:8.6,reviews:412,openHours:[[19,25]],addr:{zh:'台北市大安區復興南路一段 107 巷 5 弄 12 號',en:'No.12, Aly. 5, Ln. 107, Fuxing S. Rd., Taipei'},hours:{zh:'19:00 – 01:00',en:'19:00 – 01:00'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'清酒吧',en:'Sake Bar'},styleLabel:{zh:'日式',en:'Japanese'},img:'v4',tags:['Sake Pairing','Calm','Omakase']},
+  {id:9,name:'Vender',zh:'Vender 隱藏調酒吧',cat:'speakeasy',style:'speakeasy',area:'taipei',district:'Zhongshan · 中山',score:8.8,reviews:1280,openHours:[[20.5,26.5]],addr:{zh:'台北市中山區中山北路二段 16 巷 1 號',en:'No.1, Ln. 16, Sec. 2, Zhongshan N. Rd., Taipei'},hours:{zh:'20:30 – 02:30',en:'20:30 – 02:30'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'Speakeasy',en:'Speakeasy'},styleLabel:{zh:'隱藏感',en:'Speakeasy'},img:'v1',tags:['Hidden','Reservation','Cult Favorite']},
+  {id:10,name:'Wine & Beyond',zh:'酒外之意 葡萄酒吧',cat:'wine',style:'luxe',area:'taipei',district:'Xinyi · 信義',score:8.9,reviews:740,openHours:[[17,24]],addr:{zh:'台北市信義區松仁路 100 號 38F',en:'38F, No.100, Songren Rd., Xinyi, Taipei'},hours:{zh:'17:00 – 24:00',en:'17:00 – 24:00'},price:{zh:'$$$$',en:'$$$$'},catLabel:{zh:'紅酒吧',en:'Wine Bar'},styleLabel:{zh:'飯店奢華',en:'Luxe'},img:'v2',tags:['Wine','Skyline','Hotel']},
+  {id:11,name:'Rooftop 88',zh:'Rooftop 88 城市頂樓酒吧',cat:'cocktail',style:'rooftop',area:'taipei',district:'Xinyi · 信義',score:8.4,reviews:2105,openHours:[[17.5,25]],addr:{zh:'台北市信義區市府路 88 號 88F',en:'88F, No.88, Shifu Rd., Xinyi, Taipei'},hours:{zh:'17:30 – 01:00',en:'17:30 – 01:00'},price:{zh:'$$$$',en:'$$$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'頂樓',en:'Rooftop'},img:'v3',tags:['Rooftop','City View','Date Night']},
+  {id:12,name:'Plough',zh:'Plough 精釀啤酒吧',cat:'craft',style:'casual',area:'taichung',district:'West Dist. · 西區',score:8.3,reviews:680,openHours:[[17,25]],addr:{zh:'台中市西區精誠路 88 號',en:'No.88, Jingcheng Rd., Taichung'},hours:{zh:'17:00 – 01:00',en:'17:00 – 01:00'},price:{zh:'$$',en:'$$'},catLabel:{zh:'精釀啤酒',en:'Craft Beer'},styleLabel:{zh:'輕鬆',en:'Casual'},img:'v4',tags:['Local Brew','Easy Going','Taichung']}
+];
+
+const PLATFORMS=[
+  {key:'google',name:'Google Maps',short:'GMaps',ico:'G'},
+  {key:'instagram',name:'Instagram',short:'IG',ico:'IG'},
+  {key:'facebook',name:'Facebook',short:'FB',ico:'FB'},
+  {key:'x',name:'X / Twitter',short:'X',ico:'X'},
+  {key:'ptt',name:'PTT',short:'PTT',ico:'P'},
+  {key:'dcard',name:'Dcard',short:'Dcard',ico:'D'},
+  {key:'media',name:'Media · GQ / Elle',short:'Media',ico:'M'}
+];
+
+const SAMPLE_REVIEWS={
+  google:[{name:'Lucas Chen',date:'2026/03/22',stars:5,body:{zh:'酒單像短篇小說，調酒師會問你想要什麼樣的故事。Signature 那杯「島嶼之夜」必喝。',en:'The menu reads like a short story. The signature "Island Nights" is a must.'},ext:'View on Google Maps'},{name:'Yvonne L.',date:'2026/03/14',stars:5,body:{zh:'空間不大但氛圍極好，週末建議提前訂位。',en:'Small space, exquisite atmosphere. Book ahead on weekends.'},ext:'View on Google Maps'},{name:'Marcus W.',date:'2026/02/27',stars:4,body:{zh:'價位偏高但物有所值。一個人來吧台位也不會尷尬。',en:'Pricier side but worth it. Solo at the bar feels welcome.'},ext:'View on Google Maps'}],
+  instagram:[{name:'@taipei_drinks',date:'2026/04/03',stars:5,body:{zh:'今晚最美的一杯 ✨ 那層金箔是真的會在嘴裡融化。',en:'Tonight\'s most beautiful pour ✨ the gold leaf actually melts.'},ext:'View on Instagram'},{name:'@bar_geek_tw',date:'2026/03/29',stars:4,body:{zh:'喜歡這種「微醺實驗室」的感覺。',en:'Love the tasting lab vibe.'},ext:'View on Instagram'}],
+  facebook:[{name:'Joyce Huang',date:'2026/03/10',stars:5,body:{zh:'說了一句「她不喜歡太甜」，最後出來的那杯讓她差點哭出來。服務真的不一樣。',en:'I just mentioned "not too sweet" and the drink nearly made her cry. Service on another level.'},ext:'View on Facebook'}],
+  x:[{name:'@cocktail_anon',date:'2026/04/01',stars:5,body:{zh:'Indulge 還是 Indulge。十年了，標準從沒掉過。',en:'Indulge is still Indulge. Ten years in and the standard never slipped.'},ext:'View on X'}],
+  ptt:[{name:'PTT [Drink] sukidayo3',date:'2026/03/22',stars:5,body:{zh:'去過全台灣大部分前 50，Indulge 還是最穩定的那間。帶香港朋友去，他現場訂了下次。',en:"I've been to most of Taiwan's top 50. Indulge is the most consistent."},ext:'View on PTT'}],
+  dcard:[{name:'Dcard 美食版',date:'2026/03/30',stars:5,body:{zh:'初次去就被收買 🥹 服務生記得我朋友的名字（只去過一次）。',en:"First visit and they had me 🥹 the host remembered my friend's name from one prior visit."},ext:'View on Dcard'}],
+  media:[{name:'GQ Taiwan',date:'2026/03/01',stars:5,body:{zh:'「把台灣本土風土帶入分子調酒，是亞洲 50 大酒吧裡最具識別度的一間。」',en:'"Bringing Taiwanese terroir into molecular cocktails — the most distinctive entry on Asia\'s 50 Best."'},ext:'Read on GQ.com.tw'},{name:'Elle Taiwan',date:'2026/02/14',stars:5,body:{zh:'「劇場式 menu 與味覺敘事，Indulge 重新定義了台北的高端調酒體驗。」',en:'"With its theatrical menu, Indulge redefines Taipei\'s high-end cocktail experience."'},ext:'Read on Elle.com.tw'}]
+};
+
+/* ===== STATE ===== */
+let lang='zh',currentBarId=1,activePlatform='google';
+let filters={cat:'all',style:'all',area:'all',openNow:false};
+
+/* ===== HELPERS ===== */
+function isOpen(bar){
+  const now=new Date(),h=now.getHours()+now.getMinutes()/60,ha=h<6?h+24:h;
+  return (bar.openHours||[]).some(([s,e])=>ha>=s&&ha<e);
+}
+function platData(barId){
+  const seed=barId*7+11,r=i=>Math.sin(seed+i*1.7)*.5+.5,base=BARS.find(b=>b.id===barId)?.score||8.5;
+  return PLATFORMS.map((p,i)=>({...p,score:Math.max(7.2,Math.min(9.8,+(base+(r(i)-.5)*.8).toFixed(1))),count:Math.round(80+r(i+9)*1500)}));
+}
+
+/* ===== I18N ===== */
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(I18N[lang][k])el.textContent=I18N[lang][k]});
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{const k=el.getAttribute('data-i18n-html');if(I18N[lang][k])el.innerHTML=I18N[lang][k]});
+  document.querySelectorAll('[data-i18n-attr]').forEach(el=>{const[a,k]=el.getAttribute('data-i18n-attr').split('|');if(I18N[lang][k])el.setAttribute(a,I18N[lang][k])});
+  document.documentElement.lang=lang==='zh'?'zh-TW':'en';
+}
+
+/* ===== ROUTING ===== */
+function go(route,opts={}){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+route).classList.add('active');
+  document.querySelectorAll('.nav a,.drawer a').forEach(a=>a.classList.toggle('active',a.dataset.route===route));
+  closeDrawer();
+  if(route==='detail'&&opts.barId){currentBarId=opts.barId;renderDetail()}
+  if(route==='list')renderList();
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(checkReveal,60);
+}
+document.addEventListener('click',e=>{
+  const l=e.target.closest('[data-route]');
+  if(l){e.preventDefault();go(l.dataset.route,l.dataset.bar?{barId:+l.dataset.bar}:{})}
+});
+
+/* ===== HAMBURGER ===== */
+const ham=document.getElementById('hamburger'),drw=document.getElementById('drawer'),drwBg=document.getElementById('drawer-bg');
+function openDrawer(){ham.classList.add('open');drw.classList.add('open');drwBg.classList.add('open');document.body.style.overflow='hidden'}
+function closeDrawer(){ham.classList.remove('open');drw.classList.remove('open');drwBg.classList.remove('open');document.body.style.overflow=''}
+ham.addEventListener('click',()=>drw.classList.contains('open')?closeDrawer():openDrawer());
+drwBg.addEventListener('click',closeDrawer);
+
+/* ===== SEARCH ===== */
+const sInput=document.getElementById('search-input'),sResults=document.getElementById('search-results'),sClear=document.getElementById('search-clear');
+sInput.addEventListener('input',()=>{
+  const q=sInput.value.trim().toLowerCase();
+  sClear.style.display=q?'flex':'none';
+  if(!q){sResults.style.display='none';return}
+  const m=BARS.filter(b=>(b.name+' '+b.zh+' '+b.district+' '+b.tags.join(' ')).toLowerCase().includes(q)).slice(0,6);
+  sResults.innerHTML=m.length?m.map(b=>`<div class="sri" data-route="detail" data-bar="${b.id}"><div><div class="sri-name">${b.name}</div><div class="sri-meta">${b.district} · ${lang==='zh'?b.catLabel.zh:b.catLabel.en}</div></div><div class="sri-score">${b.score.toFixed(1)}</div></div>`).join(''):`<div class="sr-empty">${lang==='zh'?'找不到符合的酒吧':'No bars found'}</div>`;
+  sResults.style.display='block';
+});
+sClear.addEventListener('click',()=>{sInput.value='';sClear.style.display='none';sResults.style.display='none';sInput.focus()});
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))sResults.style.display='none'});
+
+/* ===== RANKINGS ===== */
+function renderRanks(cat='all'){
+  const sorted=(cat==='all'?[...BARS]:BARS.filter(b=>b.cat===cat)).sort((a,b)=>b.score-a.score);
+  const top=sorted[0],rest=sorted.slice(1,9);
+  const featEl=document.getElementById('ranks-featured'),listEl=document.getElementById('ranks-list');
+  if(!top){featEl.innerHTML='';listEl.innerHTML='';return}
+  const ln=lang==='zh',ob=isOpen(top)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:'';
+  featEl.innerHTML=`<div class="rank-featured reveal" data-route="detail" data-bar="${top.id}">
+    <div class="rn">01</div>
+    <div class="ri"><h4>${ln?top.zh:top.name}</h4><div class="meta">${top.district} · ${ln?top.catLabel.zh:top.catLabel.en}</div>
+      <div class="tags">${top.tags.map(t=>`<span class="tag">${t}</span>`).join('')}${ob?' '+ob:''}</div></div>
+    <div class="rs"><b>${top.score.toFixed(1)}</b><span>idx</span></div>
+  </div>`;
+  listEl.innerHTML=rest.map((b,i)=>{
+    const idx=i+2,cls=idx===2?'r2':idx===3?'r3':'',ob2=isOpen(b)?`<span class="open-badge" style="font-size:8px;padding:2px 6px">${I18N[lang]['open.now']}</span>`:'';
+    return`<div class="rank-item ${cls}" data-route="detail" data-bar="${b.id}">
+      <div class="rn">${String(idx).padStart(2,'0')}</div>
+      <div class="ri"><h4>${ln?b.zh:b.name}</h4><div class="meta">${b.district} · ${ln?b.catLabel.zh:b.catLabel.en}</div>
+        <div class="tags">${b.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}${ob2?' '+ob2:''}</div></div>
+      <div class="rs"><b>${b.score.toFixed(1)}</b><span>idx</span></div>
+    </div>`;
+  }).join('');
+  checkReveal();
+}
+
+/* ===== LIST ===== */
+function renderList(){
+  const ln=lang==='zh';
+  const filtered=BARS.filter(b=>{
+    if(filters.cat!=='all'&&b.cat!==filters.cat)return false;
+    if(filters.style!=='all'&&b.style!==filters.style)return false;
+    if(filters.area!=='all'&&b.area!==filters.area)return false;
+    if(filters.openNow&&!isOpen(b))return false;
+    return true;
+  }).sort((a,b)=>b.score-a.score);
+  document.getElementById('list-count').textContent=filtered.length;
+  const grid=document.getElementById('bar-grid');
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty-state"><div class="esi">${ln?'找不到符合的酒吧':'No bars match'}</div><p>${ln?'換個篩選條件試試？':'Try adjusting your filters.'}</p></div>`;return;
+  }
+  grid.innerHTML=filtered.map(b=>{
+    const meta=ln?`${b.district}<span class="dot">·</span>${b.catLabel.zh}<span class="dot">·</span>${b.styleLabel.zh}`:`${b.district}<span class="dot">·</span>${b.catLabel.en}<span class="dot">·</span>${b.styleLabel.en}`;
+    const opInd=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
+    return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
+      <div class="bc-img ${b.img}"><div class="bc-indicator">${opInd}</div></div>
+      <div class="bc-body">
+        <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div class="bc-sc">${b.score.toFixed(1)}<span>idx</span></div></div>
+        <div class="bc-meta">${meta}</div>
+        <div class="bc-tags">${b.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <div class="bc-plat"><span class="dot"></span>${b.reviews.toLocaleString()} ${ln?'則跨平台評論':'reviews across 7 platforms'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ===== DETAIL ===== */
+function renderDetail(){
+  const b=BARS.find(x=>x.id===currentBarId)||BARS[0],ln=lang==='zh';
+  document.getElementById('d-name').textContent=b.name;
+  document.getElementById('d-zhname').textContent=b.zh;
+  document.getElementById('d-cat').textContent=ln?b.catLabel.zh:b.catLabel.en;
+  document.getElementById('d-style').textContent=ln?b.styleLabel.zh:b.styleLabel.en;
+  document.getElementById('d-area').textContent=b.district;
+  document.getElementById('d-addr').textContent=ln?b.addr.zh:b.addr.en;
+  document.getElementById('d-hours').textContent=ln?b.hours.zh:b.hours.en;
+  document.getElementById('d-price').textContent=ln?b.price.zh:b.price.en;
+  document.getElementById('d-reviews').textContent=b.reviews.toLocaleString();
+  document.getElementById('d-open-badge').innerHTML=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
+
+  // Animated score
+  const scoreEl=document.getElementById('d-score');
+  animCount(scoreEl,0,b.score,900,v=>v.toFixed(1));
+
+  // Platform bars
+  const pd=platData(b.id);
+  const pbEl=document.getElementById('platform-bars');
+  pbEl.innerHTML=`<div class="pb-title">${I18N[lang]['detail.platforms']}</div>`+
+    pd.map(p=>`<div class="pb-row"><div class="pb-name">${p.name}</div><div class="pb-track"><div class="pb-fill" data-s="${p.score}"></div></div><div class="pb-score">${p.score.toFixed(1)}</div></div>`).join('');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    pbEl.querySelectorAll('.pb-fill').forEach(el=>el.style.transform=`scaleX(${+el.dataset.s/10})`);
+  }));
+
+  // Tabs
+  document.getElementById('platform-tabs').innerHTML=pd.map(p=>`<button class="ptab ${activePlatform===p.key?'active':''}" data-tab="${p.key}">${p.name}<span class="cnt">${p.count.toLocaleString()}</span></button>`).join('');
+  document.getElementById('platform-panels').innerHTML=pd.map(p=>{
+    const revs=SAMPLE_REVIEWS[p.key]||[];
+    const items=revs.map(r=>`<div class="review"><div class="rv-av">${(r.name[0]||'?').toUpperCase()}</div><div>
+      <div class="rv-head"><span class="rv-name">${r.name}</span><span class="rv-src">${p.short}</span><span class="rv-date">${r.date}</span></div>
+      <div class="rv-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
+      <div class="rv-body">${ln?r.body.zh:r.body.en}</div>
+      <div class="rv-ext">↗ <a href="#">${r.ext}</a></div>
+    </div></div>`).join('');
+    const empty=`<div class="empty-state" style="padding:36px"><p>${ln?'此平台暫無樣本評論（Demo 資料）':'No sample reviews (demo data)'}</p></div>`;
+    return`<div class="tab-panel ${activePlatform===p.key?'active':''}" data-panel="${p.key}">${items||empty}</div>`;
+  }).join('');
+
+  document.querySelectorAll('#platform-tabs .ptab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      activePlatform=t.dataset.tab;
+      document.querySelectorAll('#platform-tabs .ptab').forEach(x=>x.classList.toggle('active',x.dataset.tab===activePlatform));
+      document.querySelectorAll('#platform-panels .tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===activePlatform));
+    });
+  });
+}
+
+/* ===== ANIMATE COUNT ===== */
+function animCount(el,from,to,dur,fmt){
+  const s=performance.now();
+  const tick=n=>{const t=Math.min((n-s)/dur,1),e=1-Math.pow(1-t,3),v=from+(to-from)*e;el.textContent=fmt?fmt(v):Math.round(v);if(t<1)requestAnimationFrame(tick)};
+  requestAnimationFrame(tick);
+}
+
+/* ===== CHIPS ===== */
+function bindChips(id,key){
+  const c=document.getElementById(id);if(!c)return;
+  c.addEventListener('click',e=>{
+    const b=e.target.closest('.chip');if(!b)return;
+    c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+    filters[key]=b.dataset[key]||'all';renderList();
+  });
+}
+bindChips('cat-chips','cat');bindChips('style-chips','style');bindChips('area-chips','area');
+
+document.getElementById('rank-chips')?.addEventListener('click',e=>{
+  const b=e.target.closest('.chip');if(!b)return;
+  document.querySelectorAll('#rank-chips .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  renderRanks(b.dataset.cat);
+});
+
+const onNowChip=document.getElementById('open-now-chip');
+onNowChip?.addEventListener('click',()=>{
+  filters.openNow=!filters.openNow;
+  onNowChip.classList.toggle('active',filters.openNow);
+  onNowChip.textContent=I18N[lang][filters.openNow?'filter.openon':'filter.open'];
+  renderList();
+});
+
+/* ===== LANG ===== */
+document.querySelectorAll('[data-lang]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    lang=b.dataset.lang;
+    document.querySelectorAll('[data-lang]').forEach(x=>x.classList.toggle('active',x.dataset.lang===lang));
+    applyI18n();renderRanks();
+    if(document.getElementById('page-list').classList.contains('active'))renderList();
+    if(document.getElementById('page-detail').classList.contains('active'))renderDetail();
+    if(filters.openNow&&onNowChip)onNowChip.textContent=I18N[lang]['filter.openon'];
+  });
+});
+
+/* ===== SCROLL REVEAL ===== */
+function checkReveal(){
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el=>{
+    if(el.getBoundingClientRect().top<window.innerHeight-50)el.classList.add('visible');
+  });
+}
+window.addEventListener('scroll',checkReveal,{passive:true});
+
+/* ===== SCROLL TO TOP ===== */
+const stBtn=document.getElementById('scroll-top');
+window.addEventListener('scroll',()=>stBtn.classList.toggle('vis',scrollY>380),{passive:true});
+stBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+/* ===== HERO COUNT-UPS ===== */
+function initCountUps(){
+  document.querySelectorAll('.count-up').forEach(el=>{
+    const target=+el.dataset.target,suffix=el.dataset.suffix||'';
+    const io=new IntersectionObserver(en=>{
+      if(en[0].isIntersecting){animCount(el,0,target,1300,v=>Math.round(v).toLocaleString()+suffix);io.disconnect()}
+    });io.observe(el);
+  });
+}
+
+/* ===== LOAD DATA FROM bars.json ===== */
+async function loadBars(){
+  try{
+    const res=await fetch('bars.json');
+    if(!res.ok)throw new Error('fetch failed');
+    const data=await res.json();
+    // Remap bars.json fields to the internal BARS format
+    BARS.length=0;
+    data.bars.forEach(b=>{
+      BARS.push({
+        id:b.id,
+        name:b.name,
+        zh:b.zh,
+        cat:b.cat,
+        style:b.style,
+        area:b.area,
+        district:`${b.district_en} · ${b.district_zh}`,
+        score:b.score,
+        reviews:b.reviews,
+        openHours:b.open_hours||[],
+        addr:{zh:b.addr_zh,en:b.addr_en},
+        hours:{zh:b.hours_zh,en:b.hours_en},
+        price:{zh:b.price_zh,en:b.price_en},
+        catLabel:{zh:b.cat_zh,en:b.cat_en},
+        styleLabel:{zh:b.style_zh,en:b.style_en},
+        img:b.img||'v1',
+        tags:b.tags||[]
+      });
+    });
+    console.log(`✓ Loaded ${BARS.length} bars from bars.json`);
+  }catch(e){
+    // bars.json 載入失敗時（例如直接開啟 file:// 本機檔案）維持原有硬編碼資料
+    console.warn('bars.json not loaded, using built-in data.',e.message);
+  }
+  applyI18n();renderRanks();renderList();renderDetail();initCountUps();
+  setTimeout(checkReveal,80);
+}
+
+/* ===== INIT ===== */
+loadBars();
+</script>
+</body>
+</html>

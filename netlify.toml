@@ -1,0 +1,30 @@
+# TIPPLE · Netlify 部署設定
+
+[build]
+  publish = "."
+
+# ── 首頁與所有路由都指向 index.html ──────────────────────────────────
+[[redirects]]
+  from = "/*"
+  to   = "/index.html"
+  status = 200
+
+# ── HTTP 安全 Headers ────────────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options        = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "strict-origin-when-cross-origin"
+    Permissions-Policy     = "camera=(), microphone=(), geolocation=()"
+
+# ── 靜態資源快取（JSON 資料短期快取，避免更新後瀏覽器看舊資料）────
+[[headers]]
+  for = "/bars.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
