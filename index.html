@@ -353,6 +353,23 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 #scroll-top.vis{opacity:1;transform:none}
 #scroll-top:hover{border-color:var(--gold-3);box-shadow:0 4px 16px rgba(0,0,0,.4)}
 #scroll-top svg{color:var(--silver)}
+
+/* ===== PHOTO CAROUSEL ===== */
+.photo-carousel{position:relative;border-radius:12px;overflow:hidden;height:300px;background:var(--bg-3);margin-bottom:28px;display:none}
+.photo-carousel.has-photos{display:block}
+.carousel-track{display:flex;height:100%;overflow-x:scroll;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0}
+.carousel-track::-webkit-scrollbar{display:none}
+.carousel-slide{flex:0 0 100%;height:100%;scroll-snap-align:start;background-size:cover;background-position:center;background-repeat:no-repeat;position:relative}
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(10,10,12,.7);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--ease);backdrop-filter:blur(6px)}
+.carousel-btn:hover{background:rgba(201,169,106,.3);border-color:var(--gold-3)}
+.carousel-btn svg{color:#fff;width:16px;height:16px}
+.carousel-prev{left:12px}
+.carousel-next{right:12px}
+.carousel-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:10}
+.carousel-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;transition:var(--ease)}
+.carousel-dot.active{background:var(--gold);width:18px;border-radius:3px}
+.carousel-count{position:absolute;top:12px;right:12px;background:rgba(10,10,12,.65);color:var(--silver);font-size:11px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px);letter-spacing:.05em;z-index:10}
+@media(max-width:640px){.photo-carousel{height:220px}}
 </style>
 </head>
 <body>
@@ -654,8 +671,16 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <span data-i18n="detail.back">返回</span>
       </div>
       <!-- 店家照片輪播 -->
-      <div id="d-photos" style="display:none;margin-bottom:28px;border-radius:12px;overflow:hidden;position:relative;height:280px;background:var(--card)">
-        <div id="d-photos-track" style="display:flex;height:100%;gap:4px"></div>
+      <div id="d-photos" class="photo-carousel">
+        <div id="d-photos-track" class="carousel-track"></div>
+        <button class="carousel-btn carousel-prev" id="carousel-prev" aria-label="上一張">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="carousel-btn carousel-next" id="carousel-next" aria-label="下一張">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="carousel-dots" id="carousel-dots"></div>
+        <div class="carousel-count" id="carousel-count"></div>
       </div>
 
       <div class="detail-hero">
@@ -931,18 +956,59 @@ function renderDetail(){
   document.getElementById('d-reviews').textContent=b.reviews.toLocaleString();
   document.getElementById('d-open-badge').innerHTML=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
 
-  // ── 店家照片 ────────────────────────────────────────────────
+  // ── 店家照片輪播 ────────────────────────────────────────────
   const photosEl=document.getElementById('d-photos');
   const trackEl=document.getElementById('d-photos-track');
+  const dotsEl=document.getElementById('carousel-dots');
+  const countEl=document.getElementById('carousel-count');
   const refs=(b.photoRefs||[]).filter(Boolean);
   if(refs.length>0&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE'){
-    photosEl.style.display='block';
-    trackEl.innerHTML=refs.map((ref,i)=>{
-      const flex=i===0?'0 0 60%':'0 0 38%';
-      return`<div style="flex:${flex};background:url('${photoUrl(ref,800)}') center/cover no-repeat;border-radius:${i===0?'10px 0 0 10px':'0'};min-height:100%"></div>`;
-    }).join('');
+    photosEl.classList.add('has-photos');
+    // Build slides
+    trackEl.innerHTML=refs.map((ref,i)=>
+      `<div class="carousel-slide" style="background-image:url('${photoUrl(ref,1200)}')" data-idx="${i}"></div>`
+    ).join('');
+    // Build dots
+    dotsEl.innerHTML=refs.map((_,i)=>
+      `<div class="carousel-dot${i===0?' active':''}" data-dot="${i}"></div>`
+    ).join('');
+    // Count label
+    countEl.textContent=`1 / ${refs.length}`;
+    // Show/hide nav buttons
+    const prevBtn=document.getElementById('carousel-prev');
+    const nextBtn=document.getElementById('carousel-next');
+    prevBtn.style.display=refs.length>1?'flex':'none';
+    nextBtn.style.display=refs.length>1?'flex':'none';
+    if(refs.length<=1){dotsEl.style.display='none';}else{dotsEl.style.display='flex';}
+    // Sync dots & count on scroll
+    let scrollTimer;
+    trackEl.onscroll=()=>{
+      clearTimeout(scrollTimer);
+      scrollTimer=setTimeout(()=>{
+        const w=trackEl.clientWidth||1;
+        const idx=Math.round(trackEl.scrollLeft/w);
+        dotsEl.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+        countEl.textContent=`${idx+1} / ${refs.length}`;
+      },60);
+    };
+    // Dot clicks
+    dotsEl.querySelectorAll('.carousel-dot').forEach(d=>{
+      d.onclick=()=>{
+        const idx=+d.dataset.dot;
+        trackEl.scrollTo({left:idx*trackEl.clientWidth,behavior:'smooth'});
+      };
+    });
+    // Arrow buttons
+    prevBtn.onclick=()=>{
+      const w=trackEl.clientWidth;
+      trackEl.scrollBy({left:-w,behavior:'smooth'});
+    };
+    nextBtn.onclick=()=>{
+      const w=trackEl.clientWidth;
+      trackEl.scrollBy({left:w,behavior:'smooth'});
+    };
   } else {
-    photosEl.style.display='none';
+    photosEl.classList.remove('has-photos');
   }
 
   // Animated score
