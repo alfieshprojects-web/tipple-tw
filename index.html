@@ -125,10 +125,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* Spotlight */
 .spotlight{position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);background:var(--bg-2);box-shadow:var(--shadow);aspect-ratio:4/5;cursor:pointer;transition:var(--ease)}
 .spotlight:hover{transform:translateY(-4px);box-shadow:0 24px 60px rgba(0,0,0,.65),0 0 0 1px rgba(201,169,106,.22)}
-.spotlight .cover{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 20%,rgba(0,0,0,.9) 100%),radial-gradient(circle at 30% 25%,#2c2419,#0a0a0c 68%)}
+.spotlight .sp-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .6s ease;z-index:0}
+.spotlight:hover .sp-photo{transform:scale(1.04)}
+.spotlight .cover{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1) 20%,rgba(0,0,0,.88) 100%);z-index:1}
 .spotlight .cover::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 8px);mix-blend-mode:overlay}
-.spotlight .badge{position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:9px;letter-spacing:.28em;background:rgba(0,0,0,.6);border:1px solid var(--gold-3);color:var(--gold-2);text-transform:uppercase;backdrop-filter:blur(8px)}
-.spotlight .meta{position:absolute;left:24px;right:24px;bottom:24px}
+.spotlight .badge{position:absolute;top:18px;left:18px;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:9px;letter-spacing:.28em;background:rgba(0,0,0,.6);border:1px solid var(--gold-3);color:var(--gold-2);text-transform:uppercase;backdrop-filter:blur(8px);z-index:2}
+.spotlight .meta{position:absolute;left:24px;right:24px;bottom:24px;z-index:2}
 .spotlight .meta h3{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:28px;line-height:1.1;font-weight:600}
 .spotlight .meta .sub{margin-top:6px;color:var(--silver);font-size:12px;letter-spacing:.06em}
 .spotlight .score-badge{display:inline-flex;align-items:baseline;gap:6px;margin-top:14px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.6);border:1px solid var(--line-2);backdrop-filter:blur(8px)}
@@ -193,13 +195,15 @@ section.block{padding:78px 0;border-bottom:1px solid var(--line);position:relati
 @media(max-width:560px){.picks{grid-template-columns:1fr}}
 .pick{border-radius:var(--radius);overflow:hidden;background:var(--bg-2);border:1px solid var(--line);transition:var(--ease);cursor:pointer}
 .pick:hover{border-color:var(--gold-3);transform:translateY(-4px);box-shadow:var(--shadow)}
-.pick .img{position:relative;aspect-ratio:4/3}
-.pick .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 38%,rgba(0,0,0,.78) 100%)}
+.pick .img{position:relative;aspect-ratio:4/3;overflow:hidden}
+.pick .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 38%,rgba(0,0,0,.78) 100%);z-index:1}
+.pick .p-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .5s ease;z-index:0}
+.pick:hover .p-photo{transform:scale(1.04)}
 .p-img-1{background:radial-gradient(circle at 32% 32%,rgba(201,169,106,.32),transparent 55%),radial-gradient(circle at 68% 68%,rgba(201,169,106,.1),transparent 50%),var(--bg-3)}
 .p-img-2{background:radial-gradient(circle at 62% 30%,rgba(120,90,200,.28),transparent 55%),radial-gradient(circle at 30% 72%,rgba(201,169,106,.16),transparent 50%),var(--bg-3)}
 .p-img-3{background:radial-gradient(circle at 40% 62%,rgba(70,160,200,.22),transparent 55%),radial-gradient(circle at 72% 28%,rgba(201,169,106,.22),transparent 50%),var(--bg-3)}
-.pick .pill{position:absolute;top:13px;left:13px;z-index:1;padding:4px 10px;border-radius:999px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;background:rgba(0,0,0,.62);border:1px solid var(--gold-3);color:var(--gold-2);backdrop-filter:blur(6px)}
-.pick .fscore{position:absolute;top:13px;right:13px;z-index:1;display:inline-flex;align-items:baseline;gap:3px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.62);border:1px solid var(--line-2);font-family:'Cormorant Garamond',serif;color:var(--gold-2);font-size:15px;font-weight:600;backdrop-filter:blur(6px)}
+.pick .pill{position:absolute;top:13px;left:13px;z-index:2;padding:4px 10px;border-radius:999px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;background:rgba(0,0,0,.62);border:1px solid var(--gold-3);color:var(--gold-2);backdrop-filter:blur(6px)}
+.pick .fscore{position:absolute;top:13px;right:13px;z-index:2;display:inline-flex;align-items:baseline;gap:3px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.62);border:1px solid var(--line-2);font-family:'Cormorant Garamond',serif;color:var(--gold-2);font-size:15px;font-weight:600;backdrop-filter:blur(6px)}
 .pick .fscore span{font-size:8px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;font-family:'Inter',sans-serif}
 .pick .pbody{padding:17px 19px 21px}
 .pick h4{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:20px;font-weight:600}
@@ -212,8 +216,9 @@ section.block{padding:78px 0;border-bottom:1px solid var(--line);position:relati
 @media(max-width:800px){.styles{grid-template-columns:1fr 1fr}}
 .style-card{position:relative;aspect-ratio:1/1.1;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:var(--bg-2);transition:var(--ease);cursor:pointer}
 .style-card:hover{border-color:var(--gold-3);transform:translateY(-3px);box-shadow:var(--shadow-sm)}
-.sc-bg{position:absolute;inset:0;transition:transform .5s ease}
+.sc-bg{position:absolute;inset:0;transition:transform .5s ease;overflow:hidden}
 .style-card:hover .sc-bg{transform:scale(1.05)}
+.sc-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.55}
 .sc-bg.s1{background:radial-gradient(circle at 35% 35%,#3a2c18,#0a0a0c 66%)}
 .sc-bg.s2{background:radial-gradient(circle at 65% 30%,#26263a,#0a0a0c 66%)}
 .sc-bg.s3{background:radial-gradient(circle at 50% 65%,#1b2c2a,#0a0a0c 66%)}
@@ -1215,6 +1220,16 @@ async function loadBars(){
       bindChips('area-chips','area');
     }
 
+    // ── 工具：注入照片 ────────────────────────────────────────────
+    const injectPhoto=(el,bar,cls)=>{
+      if(!el||!bar||!bar.photoRefs||!bar.photoRefs[0]||GPHOTO_KEY==='YOUR_BROWSER_API_KEY_HERE')return;
+      const img=document.createElement('img');
+      img.className=cls;img.alt=bar.name;img.loading='lazy';
+      img.onerror=()=>img.remove();
+      img.src=photoUrl(bar.photoRefs[0],800);
+      el.prepend(img);
+    };
+
     // ── 更新首頁 Spotlight 為真實第一名 ──────────────────────────
     if(BARS.length>0){
       const b0=BARS[0];
@@ -1225,8 +1240,8 @@ async function loadBars(){
         const sb=sp.querySelector('.score-badge b');if(sb)sb.textContent=b0.score.toFixed(1);
         const sub=sp.querySelector('.sub[data-i18n="spot.sub"]');
         if(sub)sub.textContent=`${b0.district} · ${b0.catLabel.zh} · ${b0.styleLabel.zh}`;
+        injectPhoto(sp,b0,'sp-photo');
       }
-      // 本月之選按鈕
       const heroBtn=document.querySelector('[data-route="detail"][data-i18n="hero.cta2"]');
       if(heroBtn)heroBtn.dataset.bar=b0.id;
     }
@@ -1240,6 +1255,17 @@ async function loadBars(){
       if(psub)psub.textContent=`${b.district} · ${b.catLabel.zh} · ${b.styleLabel.zh}`;
       const fscore=pick.querySelector('.fscore');
       if(fscore)fscore.innerHTML=`${b.score.toFixed(1)}<span>idx</span>`;
+      injectPhoto(pick.querySelector('.img'),b,'p-photo');
+    });
+
+    // ── 風格卡片注入代表酒吧照片 ─────────────────────────────────
+    const styleOrder=['speakeasy','craft','japanese','luxe','casual','rooftop','experimental','classic'];
+    document.querySelectorAll('.style-card').forEach((card,i)=>{
+      const sty=styleOrder[i];if(!sty)return;
+      const rep=BARS.find(b=>b.style===sty&&b.photoRefs&&b.photoRefs[0]);
+      if(!rep)return;
+      const scBg=card.querySelector('.sc-bg');
+      injectPhoto(scBg,rep,'sc-photo');
     });
 
   }catch(e){
