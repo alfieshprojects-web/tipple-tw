@@ -637,6 +637,11 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         <span data-i18n="detail.back">返回</span>
       </div>
+      <!-- 店家照片輪播 -->
+      <div id="d-photos" style="display:none;margin-bottom:28px;border-radius:12px;overflow:hidden;position:relative;height:280px;background:var(--card)">
+        <div id="d-photos-track" style="display:flex;height:100%;gap:4px"></div>
+      </div>
+
       <div class="detail-hero">
         <div class="dh-info">
           <div class="dh-pills">
@@ -700,6 +705,13 @@ const BARS=[
   {id:11,name:'Rooftop 88',zh:'Rooftop 88 城市頂樓酒吧',cat:'cocktail',style:'rooftop',area:'taipei',district:'Xinyi · 信義',score:8.4,reviews:2105,openHours:[[17.5,25]],addr:{zh:'台北市信義區市府路 88 號 88F',en:'88F, No.88, Shifu Rd., Xinyi, Taipei'},hours:{zh:'17:30 – 01:00',en:'17:30 – 01:00'},price:{zh:'$$$$',en:'$$$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'頂樓',en:'Rooftop'},img:'v3',tags:['Rooftop','City View','Date Night']},
   {id:12,name:'Plough',zh:'Plough 精釀啤酒吧',cat:'craft',style:'casual',area:'taichung',district:'West Dist. · 西區',score:8.3,reviews:680,openHours:[[17,25]],addr:{zh:'台中市西區精誠路 88 號',en:'No.88, Jingcheng Rd., Taichung'},hours:{zh:'17:00 – 01:00',en:'17:00 – 01:00'},price:{zh:'$$',en:'$$'},catLabel:{zh:'精釀啤酒',en:'Craft Beer'},styleLabel:{zh:'輕鬆',en:'Casual'},img:'v4',tags:['Local Brew','Easy Going','Taichung']}
 ];
+
+/* ===== GOOGLE PHOTO KEY (限制來源：tipple-tw.netlify.app) ===== */
+const GPHOTO_KEY='YOUR_BROWSER_API_KEY_HERE';
+function photoUrl(ref,maxw=800){
+  if(!ref||GPHOTO_KEY==='AIzaSyC-YZRHWyYTv0-BQf0JJ4RNtZzFYAERCWQ')return'';
+  return`https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxw}&photoreference=${ref}&key=${GPHOTO_KEY}`;
+}
 
 const PLATFORMS=[
   {key:'google',name:'Google Maps',short:'GMaps',ico:'G'},
@@ -869,8 +881,10 @@ function renderList(){
   grid.innerHTML=filtered.map(b=>{
     const meta=ln?`${b.district}<span class="dot">·</span>${b.catLabel.zh}<span class="dot">·</span>${b.styleLabel.zh}`:`${b.district}<span class="dot">·</span>${b.catLabel.en}<span class="dot">·</span>${b.styleLabel.en}`;
     const opInd=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
+    const cardPhoto=b.photoRefs&&b.photoRefs[0]&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE'
+      ?`style="background-image:url('${photoUrl(b.photoRefs[0],400)}');background-size:cover;background-position:center"`:'';
     return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
-      <div class="bc-img ${b.img}"><div class="bc-indicator">${opInd}</div></div>
+      <div class="bc-img ${b.img}" ${cardPhoto}><div class="bc-indicator">${opInd}</div></div>
       <div class="bc-body">
         <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div class="bc-sc">${b.score.toFixed(1)}<span>idx</span></div></div>
         <div class="bc-meta">${meta}</div>
@@ -894,6 +908,20 @@ function renderDetail(){
   document.getElementById('d-price').textContent=ln?b.price.zh:b.price.en;
   document.getElementById('d-reviews').textContent=b.reviews.toLocaleString();
   document.getElementById('d-open-badge').innerHTML=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
+
+  // ── 店家照片 ────────────────────────────────────────────────
+  const photosEl=document.getElementById('d-photos');
+  const trackEl=document.getElementById('d-photos-track');
+  const refs=(b.photoRefs||[]).filter(Boolean);
+  if(refs.length>0&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE'){
+    photosEl.style.display='block';
+    trackEl.innerHTML=refs.map((ref,i)=>{
+      const flex=i===0?'0 0 60%':'0 0 38%';
+      return`<div style="flex:${flex};background:url('${photoUrl(ref,800)}') center/cover no-repeat;border-radius:${i===0?'10px 0 0 10px':'0'};min-height:100%"></div>`;
+    }).join('');
+  } else {
+    photosEl.style.display='none';
+  }
 
   // Animated score
   const scoreEl=document.getElementById('d-score');
@@ -1024,7 +1052,8 @@ async function loadBars(){
         catLabel:{zh:b.cat_zh,en:b.cat_en},
         styleLabel:{zh:b.style_zh,en:b.style_en},
         img:b.img||'v1',
-        tags:b.tags||[]
+        tags:b.tags||[],
+        photoRefs:b.photo_refs||[]
       });
     });
     console.log(`✓ Loaded ${BARS.length} bars from bars.json`);
