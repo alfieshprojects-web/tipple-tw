@@ -666,9 +666,9 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 <main id="page-detail" class="page">
   <section class="block" style="padding-top:36px">
     <div class="container">
-      <div class="detail-back" data-route="home">
+      <div class="detail-back" data-route="home" id="detail-back-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        <span data-i18n="detail.back">返回</span>
+        <span id="detail-back-label" data-i18n="detail.back">返回</span>
       </div>
       <!-- 店家照片輪播 -->
       <div id="d-photos" class="photo-carousel">
@@ -755,8 +755,13 @@ const BARS=[
 
 /* ===== GOOGLE PHOTO KEY (限制來源：tipple-tw.netlify.app) ===== */
 const GPHOTO_KEY='AIzaSyC-YZRHWyYTv0-BQf0JJ4RNtZzFYAERCWQ';
-function photoUrl(ref,maxw=800){
+function photoUrl(ref,maxw=1200){
   if(!ref||GPHOTO_KEY==='YOUR_BROWSER_API_KEY_HERE')return'';
+  // Places API (New): ref = "places/ChIJ.../photos/AXCi..."
+  if(ref.startsWith('places/')){
+    return`https://places.googleapis.com/v1/${ref}/media?maxWidthPx=${maxw}&key=${GPHOTO_KEY}`;
+  }
+  // Legacy fallback: old photo_reference string
   return`https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxw}&photoreference=${ref}&key=${GPHOTO_KEY}`;
 }
 
@@ -803,7 +808,14 @@ function applyI18n(){
 }
 
 /* ===== ROUTING ===== */
+let prevRoute='home';
+let currentRoute='home';
 function go(route,opts={}){
+  // 進 detail 前記住從哪來；其他頁互相切換也更新 prevRoute
+  if(route==='detail'){
+    prevRoute=currentRoute;
+  }
+  currentRoute=route;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+route).classList.add('active');
   document.querySelectorAll('.nav a,.drawer a').forEach(a=>a.classList.toggle('active',a.dataset.route===route));
@@ -817,7 +829,11 @@ function go(route,opts={}){
 }
 document.addEventListener('click',e=>{
   const l=e.target.closest('[data-route]');
-  if(l){e.preventDefault();go(l.dataset.route,l.dataset.bar?{barId:+l.dataset.bar}:{})}
+  if(!l)return;
+  e.preventDefault();
+  // 返回鍵：回到進入 detail 之前的頁面
+  if(l.classList.contains('detail-back')){go(prevRoute);return;}
+  go(l.dataset.route,l.dataset.bar?{barId:+l.dataset.bar}:{});
 });
 
 /* ===== HAMBURGER ===== */
@@ -945,6 +961,10 @@ function renderList(){
 /* ===== DETAIL ===== */
 function renderDetail(){
   const b=BARS.find(x=>x.id===currentBarId)||BARS[0],ln=lang==='zh';
+  // 動態更新返回按鈕文字
+  const backLabel={home:ln?'首頁':'Home',list:ln?'探索':'Discover',rank:ln?'排行榜':'Rankings',style:ln?'依風格':'By Style'};
+  const backEl=document.getElementById('detail-back-label');
+  if(backEl)backEl.textContent='← '+(backLabel[prevRoute]||(ln?'返回':'Back'));
   document.getElementById('d-name').textContent=b.name;
   document.getElementById('d-zhname').textContent=b.zh;
   document.getElementById('d-cat').textContent=ln?b.catLabel.zh:b.catLabel.en;

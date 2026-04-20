@@ -1,12 +1,13 @@
 """
-TIPPLE — 酒吧資料爬蟲腳本 v2.0
-=====================================
-用途：從 Google Places API 抓取全台灣酒吧資料，輸出 bars.json
+TIPPLE — 酒吧資料爬蟲腳本 v3.0 (Places API New)
+=================================================
+用途：從 Google Places API (New) 抓取全台灣酒吧資料，輸出 bars.json
 
 執行前準備：
   1. 安裝依賴：pip install requests
-  2. 在下方填入你的 Google Places API Key
-  3. 執行：python fetch_bars.py
+  2. 在 Google Cloud Console 啟用「Places API (New)」
+  3. 在下方填入你的 Google Places API Key
+  4. 執行：python fetch_bars.py
 
 費用提醒：
   - 每月有 $200 免費額度
@@ -213,54 +214,71 @@ def district_from_address(address: str) -> dict:
     return {"zh": "台灣", "en": "Taiwan", "area": "taipei"}
 
 def search_places(query: str, location: str, radius: int) -> list:
-    """Google Places Text Search API — 含分頁，最多抓 3 頁（60 筆）"""
-    url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
-    all_results = []
-    params = {
-        "query": query,
-        "location": location,
-        "radius": radius,
-        "type": "bar",
-        "key": GOOGLE_API_KEY,
-        "language": "zh-TW",
+    """
+    Places API (New) Text Search — POST 請求，含分頁，最多抓 3 頁（60 筆）
+    回傳格式：每筆包含 id, displayName, rating, userRatingCount, formattedAddress, location
+    """
+    url = "https://places.googleapis.com/v1/places:searchText"
+    headers = {
+        "X-Goog-Api-Key": GOOGLE_API_KEY,
+        "X-Goog-FieldMask": (
+            "places.id,places.displayName,places.rating,"
+            "places.userRatingCount,places.formattedAddress,places.location,"
+            "places.types,nextPageToken"
+        ),
+        "Content-Type": "application/json",
     }
-    for page in range(3):  # 最多翻 3 頁
-        resp = requests.get(url, params=params, timeout=10)
+    lat, lng = location.split(",")
+    body = {
+        "textQuery": query,
+        "maxResultCount": 20,
+        "languageCode": "zh-TW",
+        "locationBias": {
+            "circle": {
+                "center": {"latitude": float(lat), "longitude": float(lng)},
+                "radius": float(radius),
+            }
+        },
+    }
+    all_results = []
+    for page in range(3):  # 最多翻 3 頁（60 筆）
+        resp = requests.post(url, headers=headers, json=body, timeout=10)
         resp.raise_for_status()
         data = resp.json()
-        status = data.get("status")
-        if status == "ZERO_RESULTS":
+        places = data.get("places", [])
+        if not places:
             break
-        if status != "OK":
-            print(f"  ⚠ API error: {status} — {data.get('error_message','')}")
-            break
-        all_results.extend(data.get("results", []))
-        next_token = data.get("next_page_token")
+        all_results.extend(places)
+        next_token = data.get("nextPageToken")
         if not next_token:
             break
-        # Google 要求等 2 秒後才能用 next_page_token
-        time.sleep(2)
-        params = {"pagetoken": next_token, "key": GOOGLE_API_KEY}
+        time.sleep(2)  # 新版 API 也需要等待
+        body["pageToken"] = next_token
     return all_results
 
+
 def get_place_details(place_id: str) -> dict:
-    """Google Places Details API — 取得詳細資料"""
-    url = "https://maps.googleapis.com/maps/api/place/details/json"
-    params = {
-        "place_id": place_id,
-        "fields": "name,formatted_address,geometry,rating,user_ratings_total,"
-                  "opening_hours,price_level,website,international_phone_number,"
-                  "reviews,photos,types",
-        "key": GOOGLE_API_KEY,
-        "language": "zh-TW",
+    """
+    Places API (New) Place Details — 取得詳細資料 + 最多 10 張照片
+    """
+    url = f"https://places.googleapis.com/v1/places/{place_id}"
+    headers = {
+        "X-Goog-Api-Key": GOOGLE_API_KEY,
+        "X-Goog-FieldMask": (
+            "id,displayName,formattedAddress,location,rating,userRatingCount,"
+            "regularOpeningHours,priceLevel,websiteUri,internationalPhoneNumber,"
+            "photos,types"
+        ),
     }
-    resp = requests.get(url, params=params, timeout=10)
+    resp = requests.get(url, headers=headers, timeout=10)
     resp.raise_for_status()
-    data = resp.json()
-    return data.get("result", {})
+    return resp.json()
 
 def format_open_hours(opening_hours: dict) -> list:
-    """將 Google 開放時間轉換為 [[start_h, end_h], ...] 格式"""
+    """
+    將 Google 開放時間轉換為 [[start_h, end_h], ...] 格式
+    相容新版 API（regularOpeningHours）與舊版 API（opening_hours）
+    """
     if not opening_hours:
         return [[18, 26]]  # 預設晚上 6 點到凌晨 2 點
     periods = opening_hours.get("periods", [])
@@ -269,8 +287,15 @@ def format_open_hours(opening_hours: dict) -> list:
         o = p.get("open", {})
         c = p.get("close", {})
         if o and c:
-            open_h = int(o.get("time", "1800")[:2]) + int(o.get("time", "1800")[2:]) / 60
-            close_h = int(c.get("time", "0200")[:2]) + int(c.get("time", "0200")[2:]) / 60
+            # 新版 API：{"hour": 18, "minute": 0}；舊版：{"time": "1800"}
+            if "hour" in o:
+                open_h = o.get("hour", 18) + o.get("minute", 0) / 60
+                close_h = c.get("hour", 2) + c.get("minute", 0) / 60
+            else:
+                t_open = o.get("time", "1800")
+                t_close = c.get("time", "0200")
+                open_h = int(t_open[:2]) + int(t_open[2:]) / 60
+                close_h = int(t_close[:2]) + int(t_close[2:]) / 60
             if close_h < open_h:
                 close_h += 24  # 跨午夜
             result.append([open_h, close_h])
@@ -301,42 +326,53 @@ def main():
         print(f"  → 找到 {len(results)} 筆，過濾後處理...")
 
         for place in results:
-            place_id = place.get("place_id")
+            # Places API (New) 使用 "id" 而不是 "place_id"
+            place_id = place.get("id")
             if not place_id or place_id in seen_place_ids:
                 continue
             # 基本篩選：評分 >= 3.8，評論數 >= 20（放寬以涵蓋二三線城市酒吧）
             rating = place.get("rating", 0)
-            review_count = place.get("user_ratings_total", 0)
+            review_count = place.get("userRatingCount", 0)
             if rating < 3.8 or review_count < 20:
                 continue
 
             seen_place_ids.add(place_id)
 
             # 取得詳細資料
+            place_name = place.get("displayName", {}).get("text", "")
             try:
                 details = get_place_details(place_id)
-                time.sleep(0.3)  # 避免超過 API rate limit
+                time.sleep(0.3)
             except Exception as e:
-                print(f"  ⚠ 詳細資料失敗 ({place.get('name')}): {e}")
+                print(f"  ⚠ 詳細資料失敗 ({place_name}): {e}")
                 details = place
 
-            name = details.get("name", place.get("name", ""))
-            address = details.get("formatted_address", place.get("formatted_address", ""))
-            geometry = details.get("geometry", place.get("geometry", {}))
-            loc = geometry.get("location", {})
+            # 新版 API 欄位名稱
+            name = details.get("displayName", {}).get("text", place_name)
+            address = details.get("formattedAddress", place.get("formattedAddress", ""))
+            loc_obj = details.get("location", place.get("location", {}))
             rating = details.get("rating", rating)
-            review_count = details.get("user_ratings_total", review_count)
-            price_level = details.get("price_level", 2)
-            opening_hours = details.get("opening_hours", {})
-            website = details.get("website", "")
-            phone = details.get("international_phone_number", "")
+            review_count = details.get("userRatingCount", review_count)
+            # priceLevel: "PRICE_LEVEL_INEXPENSIVE"=1, "MODERATE"=2, "EXPENSIVE"=3, "VERY_EXPENSIVE"=4
+            price_raw = details.get("priceLevel", "PRICE_LEVEL_MODERATE")
+            price_level_map = {
+                "PRICE_LEVEL_FREE": 1, "PRICE_LEVEL_INEXPENSIVE": 1,
+                "PRICE_LEVEL_MODERATE": 2, "PRICE_LEVEL_EXPENSIVE": 3,
+                "PRICE_LEVEL_VERY_EXPENSIVE": 4,
+            }
+            price_level = price_level_map.get(price_raw, 2) if isinstance(price_raw, str) else (price_raw or 2)
+            opening_hours = details.get("regularOpeningHours", {})
+            website = details.get("websiteUri", "")
+            phone = details.get("internationalPhoneNumber", "")
+            # 新版照片：name = "places/ChIJ.../photos/AXCi..."
             photos = details.get("photos", [])
-            photo_refs = [p.get("photo_reference", "") for p in photos[:3] if p.get("photo_reference")]
+            photo_refs = [p["name"] for p in photos[:10] if p.get("name")]
 
             district = district_from_address(address)
             cat = guess_cat(name, details.get("types", []))
             style = guess_style(name)
             nightly_score = google_score_to_nightly(rating, review_count)
+            # 新版 opening_hours 格式相容處理
             open_hours = format_open_hours(opening_hours)
 
             # 價格標示
@@ -381,8 +417,9 @@ def main():
                 "open_hours": open_hours,
                 "addr_zh": address,
                 "addr_en": address,
-                "hours_zh": opening_hours.get("weekday_text", [""])[0] if opening_hours.get("weekday_text") else "",
-                "hours_en": opening_hours.get("weekday_text", [""])[0] if opening_hours.get("weekday_text") else "",
+                # 新版 API 用 weekdayDescriptions，舊版用 weekday_text
+                "hours_zh": (opening_hours.get("weekdayDescriptions") or opening_hours.get("weekday_text") or [""])[0],
+                "hours_en": (opening_hours.get("weekdayDescriptions") or opening_hours.get("weekday_text") or [""])[0],
                 "price": price_level or 2,
                 "price_zh": price_str,
                 "price_en": price_str,
@@ -395,8 +432,8 @@ def main():
                 "website": website,
                 "phone": phone,
                 "photo_refs": photo_refs,
-                "lat": loc.get("lat", 0),
-                "lng": loc.get("lng", 0),
+                "lat": loc_obj.get("latitude", loc_obj.get("lat", 0)),
+                "lng": loc_obj.get("longitude", loc_obj.get("lng", 0)),
             }
             bars.append(bar)
             bar_id += 1
