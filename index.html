@@ -929,6 +929,34 @@ async function loadBars(){
       });
     });
     console.log(`✓ Loaded ${BARS.length} bars from bars.json`);
+
+    // ── 更新首頁 Spotlight 為真實第一名 ──────────────────────────
+    if(BARS.length>0){
+      const b0=BARS[0];
+      const sp=document.querySelector('.spotlight[data-route="detail"]');
+      if(sp){
+        sp.dataset.bar=b0.id;
+        const h3=sp.querySelector('h3');if(h3)h3.textContent=b0.name;
+        const sb=sp.querySelector('.score-badge b');if(sb)sb.textContent=b0.score.toFixed(1);
+        const sub=sp.querySelector('.sub[data-i18n="spot.sub"]');
+        if(sub)sub.textContent=`${b0.district} · ${b0.catLabel.zh} · ${b0.styleLabel.zh}`;
+      }
+      // 本月之選按鈕
+      const heroBtn=document.querySelector('[data-route="detail"][data-i18n="hero.cta2"]');
+      if(heroBtn)heroBtn.dataset.bar=b0.id;
+    }
+
+    // ── 更新首頁編輯精選為真實 2～4 名 ──────────────────────────
+    document.querySelectorAll('.pick[data-route="detail"]').forEach((pick,i)=>{
+      const b=BARS[i+1];if(!b)return;
+      pick.dataset.bar=b.id;
+      const h4=pick.querySelector('h4');if(h4)h4.textContent=b.name;
+      const psub=pick.querySelector('.psub');
+      if(psub)psub.textContent=`${b.district} · ${b.catLabel.zh} · ${b.styleLabel.zh}`;
+      const fscore=pick.querySelector('.fscore');
+      if(fscore)fscore.innerHTML=`${b.score.toFixed(1)}<span>idx</span>`;
+    });
+
   }catch(e){
     // bars.json 載入失敗時（例如直接開啟 file:// 本機檔案）維持原有硬編碼資料
     console.warn('bars.json not loaded, using built-in data.',e.message);
