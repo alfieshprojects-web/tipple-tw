@@ -833,7 +833,7 @@ window.addEventListener('popstate',e=>{
   else{_render('home',{});}
 });
 // 頁面初始化時讀 hash
-(function initRoute(){
+function initRoute(){
   const h=location.hash;
   if(!h||h==='#'){_render('home',{});return;}
   const dm=h.match(/^#detail\/(\d+)$/);
@@ -841,7 +841,7 @@ window.addEventListener('popstate',e=>{
   const r=h.replace('#','');
   if(['list','rank','style'].includes(r)){_render(r,{});return;}
   _render('home',{});
-})();
+}
 document.addEventListener('click',e=>{
   const l=e.target.closest('[data-route]');
   if(!l)return;
@@ -1245,15 +1245,8 @@ async function loadBars(){
     console.warn('bars.json not loaded, using built-in data.',e.message);
   }
   applyI18n();renderRanks();initCountUps();
-  // 資料載入後重新執行 hash routing，確保頁面正確顯示
-  const h=location.hash;
-  if(!h||h==='#'){renderList();renderRankPage();}
-  else{
-    const dm=h.match(/^#detail\/(\d+)$/);
-    if(dm){currentBarId=+dm[1];renderDetail();}
-    else if(h==='#list'){renderList();}
-    else if(h==='#rank'){renderRankPage();}
-  }
+  // 資料載入完後才執行 routing，確保 BARS 已填充
+  initRoute();
   setTimeout(checkReveal,80);
 }
 
