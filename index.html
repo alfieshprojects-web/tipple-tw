@@ -342,6 +342,12 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .page.active{display:block;animation:fadeIn .28s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
+/* ===== AD BANNERS ===== */
+.ad-slot{width:100%;display:flex;justify-content:center;align-items:center;margin:28px 0;min-height:90px}
+.ad-slot-inner{width:100%;max-width:728px;min-height:90px;background:var(--bg-2);border:1px dashed var(--line-2);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:11px;letter-spacing:.12em;text-transform:uppercase;position:relative;overflow:hidden}
+.ad-slot-inner::before{content:'廣告 AD';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.3;font-size:11px;letter-spacing:.2em;pointer-events:none}
+@media(max-width:640px){.ad-slot{min-height:50px}.ad-slot-inner{min-height:50px;max-width:320px}}
+
 /* Scroll-to-top */
 #scroll-top{position:fixed;bottom:26px;right:26px;width:42px;height:42px;border-radius:50%;background:var(--bg-3);border:1px solid var(--line-2);display:grid;place-items:center;cursor:pointer;opacity:0;transform:translateY(10px);transition:var(--ease);z-index:50}
 #scroll-top.vis{opacity:1;transform:none}
@@ -564,12 +570,16 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <div class="filter-group"><span class="filter-lbl" data-i18n="filter.area">AREA</span>
           <div class="chips" id="area-chips">
             <button class="chip active" data-area="all" data-i18n="area.all">全部</button>
-            <button class="chip" data-area="taipei">Taipei 台北</button>
-            <button class="chip" data-area="taichung">Taichung 台中</button>
           </div>
         </div>
         <div class="filter-group"><span class="filter-lbl" data-i18n="filter.time">NOW</span>
           <div class="chips"><button class="chip" id="open-now-chip" data-i18n="filter.open">現在營業中</button></div>
+        </div>
+      </div>
+      <!-- 廣告版位 A：列表頁頂部 728×90 -->
+      <div class="ad-slot" id="ad-list-top">
+        <div class="ad-slot-inner">
+          <!-- 置換成 Google AdSense / 自售廣告 code -->
         </div>
       </div>
       <div class="bar-grid" id="bar-grid"></div>
@@ -597,6 +607,12 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <button class="chip" data-cat="whisky" data-i18n="cat.whisky">威士忌吧</button>
         <button class="chip" data-cat="speakeasy" data-i18n="cat.speakeasy">Speakeasy</button>
         <button class="chip" data-cat="craft" data-i18n="cat.craft">精釀</button>
+      </div>
+      <!-- 廣告版位 B：排行榜中段 -->
+      <div class="ad-slot" id="ad-rank-mid">
+        <div class="ad-slot-inner">
+          <!-- 置換成 Google AdSense / 自售廣告 code -->
+        </div>
       </div>
       <div id="rank-page-list"></div>
     </div>
@@ -676,6 +692,12 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         </div>
         <div class="tabs" id="platform-tabs"></div>
         <div id="platform-panels"></div>
+      </div>
+      <!-- 廣告版位 C：詳情頁底部 -->
+      <div class="ad-slot" id="ad-detail-bottom">
+        <div class="ad-slot-inner">
+          <!-- 置換成 Google AdSense / 自售廣告 code -->
+        </div>
       </div>
       <div style="margin-top:44px;text-align:center;color:var(--muted-2);font-size:10px;letter-spacing:.16em" data-i18n="detail.disclaimer">本頁評論由各平台公開內容自動匯整，僅供參考</div>
     </div>
@@ -804,7 +826,7 @@ function renderRanks(cat='all'){
     <div class="rn">01</div>
     <div class="ri"><h4>${ln?top.zh:top.name}</h4><div class="meta">${top.district} · ${ln?top.catLabel.zh:top.catLabel.en}</div>
       <div class="tags">${top.tags.map(t=>`<span class="tag">${t}</span>`).join('')}${ob?' '+ob:''}</div></div>
-    <div class="rs"><b>${top.score.toFixed(1)}</b><span>idx</span></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><div class="rs"><b>${top.score.toFixed(1)}</b><span>idx</span></div><div style="font-size:10px;color:var(--muted)">${top.reviews.toLocaleString()} ${ln?'則':'reviews'}</div></div>
   </div>`;
   listEl.innerHTML=rest.map((b,i)=>{
     const idx=i+2,cls=idx===2?'r2':idx===3?'r3':'',ob2=isOpen(b)?`<span class="open-badge" style="font-size:8px;padding:2px 6px">${I18N[lang]['open.now']}</span>`:'';
@@ -812,7 +834,7 @@ function renderRanks(cat='all'){
       <div class="rn">${String(idx).padStart(2,'0')}</div>
       <div class="ri"><h4>${ln?b.zh:b.name}</h4><div class="meta">${b.district} · ${ln?b.catLabel.zh:b.catLabel.en}</div>
         <div class="tags">${b.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}${ob2?' '+ob2:''}</div></div>
-      <div class="rs"><b>${b.score.toFixed(1)}</b><span>idx</span></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="rs"><b>${b.score.toFixed(1)}</b><span>idx</span></div><div style="font-size:10px;color:var(--muted)">${b.reviews.toLocaleString()} ${ln?'則':'reviews'}</div></div>
     </div>`;
   }).join('');
   checkReveal();
@@ -886,7 +908,7 @@ function renderList(){
     return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
       <div class="bc-img ${b.img}" ${cardPhoto}><div class="bc-indicator">${opInd}</div></div>
       <div class="bc-body">
-        <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div class="bc-sc">${b.score.toFixed(1)}<span>idx</span></div></div>
+        <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="bc-sc">${b.score.toFixed(1)}<span>idx</span></div><div style="font-size:10px;color:var(--muted);letter-spacing:.04em">${b.reviews.toLocaleString()} ${ln?'則評論':'reviews'}</div></div></div>
         <div class="bc-meta">${meta}</div>
         <div class="bc-tags">${b.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
         <div class="bc-plat"><span class="dot"></span>${b.reviews.toLocaleString()} ${ln?'則跨平台評論':'reviews across 7 platforms'}</div>
@@ -975,7 +997,8 @@ function bindChips(id,key){
     filters[key]=b.dataset[key]||'all';renderList();
   });
 }
-bindChips('cat-chips','cat');bindChips('style-chips','style');bindChips('area-chips','area');
+bindChips('cat-chips','cat');bindChips('style-chips','style');
+// area-chips 在 loadBars() 動態建立後才綁定
 
 document.getElementById('rank-chips')?.addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;
@@ -1057,6 +1080,39 @@ async function loadBars(){
       });
     });
     console.log(`✓ Loaded ${BARS.length} bars from bars.json`);
+
+    // ── 動態建立地區 chips ────────────────────────────────────
+    const AREA_LABELS={
+      taipei:     {zh:'台北',    en:'Taipei'},
+      newtaipei:  {zh:'新北',    en:'New Taipei'},
+      taoyuan:    {zh:'桃園',    en:'Taoyuan'},
+      hsinchu:    {zh:'新竹',    en:'Hsinchu'},
+      taichung:   {zh:'台中',    en:'Taichung'},
+      changhua:   {zh:'彰化',    en:'Changhua'},
+      chiayi:     {zh:'嘉義',    en:'Chiayi'},
+      tainan:     {zh:'台南',    en:'Tainan'},
+      kaohsiung:  {zh:'高雄',    en:'Kaohsiung'},
+      pingtung:   {zh:'屏東',    en:'Pingtung'},
+      yilan:      {zh:'宜蘭',    en:'Yilan'},
+      hualien:    {zh:'花蓮',    en:'Hualien'},
+      taitung:    {zh:'台東',    en:'Taitung'},
+    };
+    // 計算各地區數量，依數量排序
+    const areaCounts={};
+    BARS.forEach(b=>{if(b.area)areaCounts[b.area]=(areaCounts[b.area]||0)+1});
+    const sortedAreas=Object.entries(areaCounts).sort((a,b)=>b[1]-a[1]);
+    const areaChips=document.getElementById('area-chips');
+    if(areaChips){
+      sortedAreas.forEach(([area,count])=>{
+        const lbl=AREA_LABELS[area];if(!lbl)return;
+        const btn=document.createElement('button');
+        btn.className='chip';
+        btn.dataset.area=area;
+        btn.innerHTML=`<span class="zh-lbl">${lbl.zh}</span><span class="en-lbl"> ${lbl.en}</span> <span class="count">${count}</span>`;
+        areaChips.appendChild(btn);
+      });
+      bindChips('area-chips','area');
+    }
 
     // ── 更新首頁 Spotlight 為真實第一名 ──────────────────────────
     if(BARS.length>0){

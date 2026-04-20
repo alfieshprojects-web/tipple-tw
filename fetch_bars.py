@@ -126,17 +126,12 @@ def guess_style(name: str) -> str:
 
 def google_score_to_nightly(google_rating: float, review_count: int) -> float:
     """
-    將 Google Maps 5 分制轉換為 NIGHTLY 10 分制，
-    同時用 Bayesian 平均修正低評論數的虛高問題。
+    Google Maps 5 分制 × 2 = TIPPLE 10 分制
+    直接對應，透明易懂。
     """
     if google_rating is None:
-        return 7.5
-    # 轉換為 10 分
-    raw = google_rating * 2
-    # Bayesian 平均（prior = 7.5 分，prior strength = 50 則）
-    prior_mean, prior_n = 7.5, 50
-    bayes = (prior_mean * prior_n + raw * review_count) / (prior_n + review_count)
-    return round(min(10.0, max(6.0, bayes)), 1)
+        return 0.0
+    return round(google_rating * 2, 1)
 
 def district_from_address(address: str) -> dict:
     """從地址猜測行政區"""
