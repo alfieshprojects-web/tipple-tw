@@ -1,23 +1,16 @@
 """
-NIGHTLY — 酒吧資料爬蟲腳本
+TIPPLE — 酒吧資料爬蟲腳本 v2.0
 =====================================
-用途：從 Google Places API 抓取台灣酒吧資料，輸出 bars.json
+用途：從 Google Places API 抓取全台灣酒吧資料，輸出 bars.json
 
 執行前準備：
   1. 安裝依賴：pip install requests
   2. 在下方填入你的 Google Places API Key
   3. 執行：python fetch_bars.py
 
-取得 Google Places API Key 步驟：
-  1. 前往 https://console.cloud.google.com/
-  2. 建立新專案（或選現有專案）
-  3. 搜尋並啟用「Places API (New)」
-  4. 前往「憑證」→「建立憑證」→「API 金鑰」
-  5. 複製 API Key，貼到下方 GOOGLE_API_KEY
-
 費用提醒：
-  - 每月有 $200 免費額度（約可查詢 5,000 次 Nearby Search）
-  - 這支腳本一次跑完約 50 間酒吧，費用遠低於免費額度
+  - 每月有 $200 免費額度
+  - 此腳本一次約消耗 $5–15，遠低於免費上限
 """
 
 import requests
@@ -28,23 +21,72 @@ from datetime import datetime
 
 # ============================================================
 # ★ 在這裡填入你的 API Key ★
-GOOGLE_API_KEY = "YOUR_GOOGLE_PLACES_API_KEY_HERE"
+GOOGLE_API_KEY = "AIzaSyCpm-WmlRkoytWw7NLanyjWBZ82U-aUqqI"
 # ============================================================
 
 OUTPUT_FILE = "bars.json"
 
-# 搜尋關鍵字與範圍（以台北市中心為圓心，半徑 8 公里）
+# ── 全台灣搜尋定點 ────────────────────────────────────────────
+# 每個城市用多個關鍵字搜尋，並搭配分頁抓滿 60 筆/查詢
+
+CITIES = [
+    # 台北市各區
+    {"name": "台北大安",       "loc": "25.0330,121.5490", "r": 4000},
+    {"name": "台北信義",       "loc": "25.0400,121.5650", "r": 4000},
+    {"name": "台北中山",       "loc": "25.0560,121.5250", "r": 4000},
+    {"name": "台北松山",       "loc": "25.0560,121.5550", "r": 3500},
+    {"name": "台北中正",       "loc": "25.0415,121.5100", "r": 3500},
+    {"name": "台北士林",       "loc": "25.0930,121.5240", "r": 4000},
+    {"name": "台北內湖",       "loc": "25.0650,121.5850", "r": 4000},
+    # 新北市
+    {"name": "新北板橋",       "loc": "25.0000,121.4600", "r": 4000},
+    {"name": "新北新店",       "loc": "24.9670,121.5380", "r": 4000},
+    {"name": "新北淡水",       "loc": "25.1700,121.4500", "r": 4000},
+    # 桃園
+    {"name": "桃園市區",       "loc": "24.9936,121.3010", "r": 6000},
+    # 新竹
+    {"name": "新竹市",         "loc": "24.8138,120.9675", "r": 5000},
+    # 台中
+    {"name": "台中西區",       "loc": "24.1600,120.6700", "r": 5000},
+    {"name": "台中南屯",       "loc": "24.1400,120.6300", "r": 5000},
+    {"name": "台中北屯",       "loc": "24.1900,120.7000", "r": 5000},
+    # 彰化
+    {"name": "彰化市",         "loc": "24.0800,120.5400", "r": 5000},
+    # 嘉義
+    {"name": "嘉義市",         "loc": "23.4800,120.4490", "r": 5000},
+    # 台南
+    {"name": "台南中西區",     "loc": "22.9930,120.2040", "r": 5000},
+    {"name": "台南安平",       "loc": "22.9900,120.1700", "r": 5000},
+    # 高雄
+    {"name": "高雄三民",       "loc": "22.6270,120.3100", "r": 5000},
+    {"name": "高雄前金",       "loc": "22.6350,120.2900", "r": 4000},
+    {"name": "高雄左營",       "loc": "22.6900,120.3000", "r": 5000},
+    # 屏東
+    {"name": "屏東市",         "loc": "22.6700,120.4900", "r": 5000},
+    # 宜蘭
+    {"name": "宜蘭市",         "loc": "24.7500,121.7500", "r": 5000},
+    # 花蓮
+    {"name": "花蓮市",         "loc": "23.9800,121.6000", "r": 5000},
+    # 台東
+    {"name": "台東市",         "loc": "22.7583,121.1444", "r": 5000},
+]
+
+KEYWORDS = [
+    "cocktail bar",
+    "調酒吧",
+    "whisky bar 威士忌",
+    "sake bar 清酒",
+    "wine bar 葡萄酒",
+    "speakeasy bar",
+    "craft beer bar 精釀",
+    "餐酒館 bistro bar",
+]
+
+# 展開成完整搜尋清單
 SEARCHES = [
-    {"query": "cocktail bar taipei",         "location": "25.0478,121.5319", "radius": 8000},
-    {"query": "whisky bar taipei",           "location": "25.0478,121.5319", "radius": 8000},
-    {"query": "sake bar taipei",             "location": "25.0478,121.5319", "radius": 8000},
-    {"query": "wine bar taipei",             "location": "25.0478,121.5319", "radius": 8000},
-    {"query": "speakeasy bar taipei",        "location": "25.0478,121.5319", "radius": 8000},
-    {"query": "調酒吧 台北",                  "location": "25.0478,121.5319", "radius": 8000},
-    {"query": "清酒吧 台北",                  "location": "25.0478,121.5319", "radius": 8000},
-    {"query": "cocktail bar taichung",       "location": "24.1477,120.6736", "radius": 6000},
-    {"query": "cocktail bar tainan",         "location": "22.9999,120.2270", "radius": 6000},
-    {"query": "cocktail bar kaohsiung",      "location": "22.6273,120.3014", "radius": 6000},
+    {"query": f"{kw} {city['name']}", "location": city["loc"], "radius": city["r"]}
+    for city in CITIES
+    for kw in KEYWORDS
 ]
 
 # 類型與風格推斷規則（根據名稱/關鍵字猜測）
@@ -99,14 +141,49 @@ def google_score_to_nightly(google_rating: float, review_count: int) -> float:
 def district_from_address(address: str) -> dict:
     """從地址猜測行政區"""
     area_map = {
+        # 台北市
         "大安": ("Da'an", "taipei"), "信義": ("Xinyi", "taipei"),
         "中山": ("Zhongshan", "taipei"), "松山": ("Songshan", "taipei"),
         "內湖": ("Neihu", "taipei"), "南港": ("Nangang", "taipei"),
         "士林": ("Shilin", "taipei"), "北投": ("Beitou", "taipei"),
         "中正": ("Zhongzheng", "taipei"), "萬華": ("Wanhua", "taipei"),
         "文山": ("Wenshan", "taipei"), "大同": ("Datong", "taipei"),
-        "台中市": ("Taichung City", "taichung"), "台南市": ("Tainan City", "tainan"),
-        "高雄市": ("Kaohsiung City", "kaohsiung"),
+        # 新北市
+        "板橋": ("Banqiao", "newtaipei"), "新店": ("Xindian", "newtaipei"),
+        "中和": ("Zhonghe", "newtaipei"), "永和": ("Yonghe", "newtaipei"),
+        "三重": ("Sanchong", "newtaipei"), "新莊": ("Xinzhuang", "newtaipei"),
+        "淡水": ("Tamsui", "newtaipei"), "汐止": ("Xizhi", "newtaipei"),
+        # 桃園市
+        "桃園": ("Taoyuan", "taoyuan"), "中壢": ("Zhongli", "taoyuan"),
+        # 新竹
+        "新竹": ("Hsinchu", "hsinchu"),
+        # 台中市
+        "西區": ("West Dist.", "taichung"), "北區": ("North Dist.", "taichung"),
+        "南屯": ("Nantun", "taichung"), "西屯": ("Xitun", "taichung"),
+        "北屯": ("Beitun", "taichung"), "豐原": ("Fengyuan", "taichung"),
+        "台中市": ("Taichung", "taichung"),
+        # 彰化
+        "彰化": ("Changhua", "changhua"),
+        # 嘉義
+        "嘉義": ("Chiayi", "chiayi"),
+        # 台南市
+        "中西區": ("West Central", "tainan"), "東區": ("East Dist.", "tainan"),
+        "安平": ("Anping", "tainan"), "永康": ("Yongkang", "tainan"),
+        "台南市": ("Tainan", "tainan"),
+        # 高雄市
+        "三民": ("Sanmin", "kaohsiung"), "苓雅": ("Lingya", "kaohsiung"),
+        "前金": ("Qianjin", "kaohsiung"), "新興": ("Xinxing", "kaohsiung"),
+        "左營": ("Zuoying", "kaohsiung"), "楠梓": ("Nanzih", "kaohsiung"),
+        "鹽埕": ("Yancheng", "kaohsiung"), "前鎮": ("Qianzhen", "kaohsiung"),
+        "高雄市": ("Kaohsiung", "kaohsiung"),
+        # 屏東
+        "屏東": ("Pingtung", "pingtung"),
+        # 宜蘭
+        "宜蘭": ("Yilan", "yilan"),
+        # 花蓮
+        "花蓮": ("Hualien", "hualien"),
+        # 台東
+        "台東": ("Taitung", "taitung"),
     }
     for zh, (en, area) in area_map.items():
         if zh in address:
@@ -114,17 +191,36 @@ def district_from_address(address: str) -> dict:
     # 預設
     if "台北" in address:
         return {"zh": "台北", "en": "Taipei", "area": "taipei"}
+    if "新北" in address:
+        return {"zh": "新北", "en": "New Taipei", "area": "newtaipei"}
+    if "桃園" in address:
+        return {"zh": "桃園", "en": "Taoyuan", "area": "taoyuan"}
+    if "新竹" in address:
+        return {"zh": "新竹", "en": "Hsinchu", "area": "hsinchu"}
     if "台中" in address:
         return {"zh": "台中", "en": "Taichung", "area": "taichung"}
+    if "彰化" in address:
+        return {"zh": "彰化", "en": "Changhua", "area": "changhua"}
+    if "嘉義" in address:
+        return {"zh": "嘉義", "en": "Chiayi", "area": "chiayi"}
     if "台南" in address:
         return {"zh": "台南", "en": "Tainan", "area": "tainan"}
     if "高雄" in address:
         return {"zh": "高雄", "en": "Kaohsiung", "area": "kaohsiung"}
+    if "屏東" in address:
+        return {"zh": "屏東", "en": "Pingtung", "area": "pingtung"}
+    if "宜蘭" in address:
+        return {"zh": "宜蘭", "en": "Yilan", "area": "yilan"}
+    if "花蓮" in address:
+        return {"zh": "花蓮", "en": "Hualien", "area": "hualien"}
+    if "台東" in address:
+        return {"zh": "台東", "en": "Taitung", "area": "taitung"}
     return {"zh": "台灣", "en": "Taiwan", "area": "taipei"}
 
 def search_places(query: str, location: str, radius: int) -> list:
-    """Google Places Text Search API"""
+    """Google Places Text Search API — 含分頁，最多抓 3 頁（60 筆）"""
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
+    all_results = []
     params = {
         "query": query,
         "location": location,
@@ -133,13 +229,24 @@ def search_places(query: str, location: str, radius: int) -> list:
         "key": GOOGLE_API_KEY,
         "language": "zh-TW",
     }
-    resp = requests.get(url, params=params, timeout=10)
-    resp.raise_for_status()
-    data = resp.json()
-    if data.get("status") not in ("OK", "ZERO_RESULTS"):
-        print(f"  ⚠ API error: {data.get('status')} — {data.get('error_message','')}")
-        return []
-    return data.get("results", [])
+    for page in range(3):  # 最多翻 3 頁
+        resp = requests.get(url, params=params, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        status = data.get("status")
+        if status == "ZERO_RESULTS":
+            break
+        if status != "OK":
+            print(f"  ⚠ API error: {status} — {data.get('error_message','')}")
+            break
+        all_results.extend(data.get("results", []))
+        next_token = data.get("next_page_token")
+        if not next_token:
+            break
+        # Google 要求等 2 秒後才能用 next_page_token
+        time.sleep(2)
+        params = {"pagetoken": next_token, "key": GOOGLE_API_KEY}
+    return all_results
 
 def get_place_details(place_id: str) -> dict:
     """Google Places Details API — 取得詳細資料"""
@@ -180,7 +287,7 @@ def main():
         print("   取得方式：https://console.cloud.google.com/")
         return
 
-    print("🍸 NIGHTLY 酒吧資料爬蟲")
+    print("🍸 TIPPLE 酒吧資料爬蟲 v2.0")
     print(f"   輸出檔案：{OUTPUT_FILE}")
     print(f"   開始時間：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
@@ -202,10 +309,10 @@ def main():
             place_id = place.get("place_id")
             if not place_id or place_id in seen_place_ids:
                 continue
-            # 基本篩選：評分 >= 4.0，評論數 >= 30
+            # 基本篩選：評分 >= 3.8，評論數 >= 20（放寬以涵蓋二三線城市酒吧）
             rating = place.get("rating", 0)
             review_count = place.get("user_ratings_total", 0)
-            if rating < 4.0 or review_count < 30:
+            if rating < 3.8 or review_count < 20:
                 continue
 
             seen_place_ids.add(place_id)
@@ -228,6 +335,8 @@ def main():
             opening_hours = details.get("opening_hours", {})
             website = details.get("website", "")
             phone = details.get("international_phone_number", "")
+            photos = details.get("photos", [])
+            photo_refs = [p.get("photo_reference", "") for p in photos[:3] if p.get("photo_reference")]
 
             district = district_from_address(address)
             cat = guess_cat(name, details.get("types", []))
@@ -290,6 +399,7 @@ def main():
                 "tags": [],
                 "website": website,
                 "phone": phone,
+                "photo_refs": photo_refs,
                 "lat": loc.get("lat", 0),
                 "lng": loc.get("lng", 0),
             }
