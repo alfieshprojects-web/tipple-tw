@@ -243,12 +243,14 @@ section.block{padding:78px 0;border-bottom:1px solid var(--line);position:relati
 @media(max-width:560px){.bar-grid{grid-template-columns:1fr}}
 .bar-card{border-radius:var(--radius);overflow:hidden;background:var(--bg-2);border:1px solid var(--line);transition:var(--ease);cursor:pointer}
 .bar-card:hover{border-color:var(--gold-3);transform:translateY(-4px);box-shadow:var(--shadow)}
-.bc-img{position:relative;aspect-ratio:16/9}
-.bc-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(0,0,0,.68) 100%)}
+.bc-img{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--bg-3)}
+.bc-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.72) 100%);pointer-events:none;z-index:1}
 .bc-img.v1{background:radial-gradient(circle at 30% 30%,rgba(201,169,106,.24),transparent 54%),radial-gradient(circle at 70% 70%,rgba(201,169,106,.08),transparent 54%),var(--bg-3)}
 .bc-img.v2{background:radial-gradient(circle at 62% 30%,rgba(207,210,214,.18),transparent 54%),radial-gradient(circle at 28% 78%,rgba(201,169,106,.12),transparent 54%),var(--bg-3)}
 .bc-img.v3{background:radial-gradient(circle at 40% 52%,rgba(130,90,200,.16),transparent 54%),radial-gradient(circle at 78% 20%,rgba(201,169,106,.18),transparent 54%),var(--bg-3)}
 .bc-img.v4{background:radial-gradient(circle at 20% 32%,rgba(70,148,168,.17),transparent 54%),radial-gradient(circle at 70% 70%,rgba(201,169,106,.14),transparent 54%),var(--bg-3)}
+.bc-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .45s ease}
+.bar-card:hover .bc-photo{transform:scale(1.04)}
 .bc-indicator{position:absolute;top:11px;right:11px;z-index:1}
 .bc-body{padding:15px 17px 19px}
 .bc-row1{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -956,17 +958,17 @@ function renderList(){
     grid.innerHTML=`<div class="empty-state"><div class="esi">${ln?'找不到符合的酒吧':'No bars match'}</div><p>${ln?'換個篩選條件試試？':'Try adjusting your filters.'}</p></div>`;return;
   }
   grid.innerHTML=filtered.map(b=>{
-    const meta=ln?`${b.district}<span class="dot">·</span>${b.catLabel.zh}<span class="dot">·</span>${b.styleLabel.zh}`:`${b.district}<span class="dot">·</span>${b.catLabel.en}<span class="dot">·</span>${b.styleLabel.en}`;
+    const meta=ln?`${b.district}<span class="dot">·</span>${b.catLabel.zh}`:`${b.district}<span class="dot">·</span>${b.catLabel.en}`;
     const opInd=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
-    const cardPhoto=b.photoRefs&&b.photoRefs[0]&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE'
-      ?`style="background-image:url('${photoUrl(b.photoRefs[0],400)}');background-size:cover;background-position:center"`:'';
+    const hasPhoto=b.photoRefs&&b.photoRefs[0]&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE';
+    const photoImg=hasPhoto?`<img class="bc-photo" src="${photoUrl(b.photoRefs[0],600)}" alt="${b.name}" loading="lazy" onerror="this.remove()">`:'';
     return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
-      <div class="bc-img ${b.img}" ${cardPhoto}><div class="bc-indicator">${opInd}</div></div>
+      <div class="bc-img ${b.img}">${photoImg}<div class="bc-indicator" style="z-index:2">${opInd}</div></div>
       <div class="bc-body">
-        <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="bc-sc">${b.score.toFixed(1)}<span>idx</span></div><div style="font-size:10px;color:var(--muted);letter-spacing:.04em">${b.reviews.toLocaleString()} ${ln?'則評論':'reviews'}</div></div></div>
+        <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="bc-sc">${b.score.toFixed(1)}<span>idx</span></div><div style="font-size:10px;color:var(--muted);letter-spacing:.04em">${b.reviews.toLocaleString()} ${ln?'則':'rev.'}</div></div></div>
         <div class="bc-meta">${meta}</div>
         <div class="bc-tags">${b.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-        <div class="bc-plat"><span class="dot"></span>${b.reviews.toLocaleString()} ${ln?'則跨平台評論':'reviews across 7 platforms'}</div>
+        <div class="bc-plat"><span class="dot"></span>${b.reviews.toLocaleString()} ${ln?'則跨平台評論':'cross-platform reviews'}</div>
       </div>
     </div>`;
   }).join('');
