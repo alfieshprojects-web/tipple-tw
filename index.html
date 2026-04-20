@@ -707,9 +707,9 @@ const BARS=[
 ];
 
 /* ===== GOOGLE PHOTO KEY (限制來源：tipple-tw.netlify.app) ===== */
-const GPHOTO_KEY='YOUR_BROWSER_API_KEY_HERE';
+const GPHOTO_KEY='AIzaSyC-YZRHWyYTv0-BQf0JJ4RNtZzFYAERCWQ';
 function photoUrl(ref,maxw=800){
-  if(!ref||GPHOTO_KEY==='AIzaSyC-YZRHWyYTv0-BQf0JJ4RNtZzFYAERCWQ')return'';
+  if(!ref||GPHOTO_KEY==='YOUR_BROWSER_API_KEY_HERE')return'';
   return`https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxw}&photoreference=${ref}&key=${GPHOTO_KEY}`;
 }
 
