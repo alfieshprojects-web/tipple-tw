@@ -808,14 +808,7 @@ function applyI18n(){
 }
 
 /* ===== ROUTING ===== */
-let prevRoute='home';
-let currentRoute='home';
-function go(route,opts={}){
-  // 進 detail 前記住從哪來；其他頁互相切換也更新 prevRoute
-  if(route==='detail'){
-    prevRoute=currentRoute;
-  }
-  currentRoute=route;
+function _render(route,opts={}){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+route).classList.add('active');
   document.querySelectorAll('.nav a,.drawer a').forEach(a=>a.classList.toggle('active',a.dataset.route===route));
@@ -827,12 +820,33 @@ function go(route,opts={}){
   window.scrollTo({top:0,behavior:'smooth'});
   setTimeout(checkReveal,60);
 }
+function go(route,opts={},push=true){
+  if(push){
+    const hash=route==='detail'?`#detail/${opts.barId||0}`:`#${route==='home'?'':route}`;
+    history.pushState({route,opts},'',(hash==='#')?location.pathname:hash);
+  }
+  _render(route,opts);
+}
+// 瀏覽器上一頁／下一頁
+window.addEventListener('popstate',e=>{
+  if(e.state){_render(e.state.route,e.state.opts||{});}
+  else{_render('home',{});}
+});
+// 頁面初始化時讀 hash
+(function initRoute(){
+  const h=location.hash;
+  if(!h||h==='#'){_render('home',{});return;}
+  const dm=h.match(/^#detail\/(\d+)$/);
+  if(dm){currentBarId=+dm[1];_render('detail',{barId:+dm[1]});return;}
+  const r=h.replace('#','');
+  if(['list','rank','style'].includes(r)){_render(r,{});return;}
+  _render('home',{});
+})();
 document.addEventListener('click',e=>{
   const l=e.target.closest('[data-route]');
   if(!l)return;
   e.preventDefault();
-  // 返回鍵：回到進入 detail 之前的頁面
-  if(l.classList.contains('detail-back')){go(prevRoute);return;}
+  if(l.classList.contains('detail-back')){history.back();return;}
   go(l.dataset.route,l.dataset.bar?{barId:+l.dataset.bar}:{});
 });
 
@@ -961,10 +975,9 @@ function renderList(){
 /* ===== DETAIL ===== */
 function renderDetail(){
   const b=BARS.find(x=>x.id===currentBarId)||BARS[0],ln=lang==='zh';
-  // 動態更新返回按鈕文字
-  const backLabel={home:ln?'首頁':'Home',list:ln?'探索':'Discover',rank:ln?'排行榜':'Rankings',style:ln?'依風格':'By Style'};
+  // 返回按鈕文字
   const backEl=document.getElementById('detail-back-label');
-  if(backEl)backEl.textContent='← '+(backLabel[prevRoute]||(ln?'返回':'Back'));
+  if(backEl)backEl.textContent=ln?'← 返回':'← Back';
   document.getElementById('d-name').textContent=b.name;
   document.getElementById('d-zhname').textContent=b.zh;
   document.getElementById('d-cat').textContent=ln?b.catLabel.zh:b.catLabel.en;
@@ -1231,7 +1244,16 @@ async function loadBars(){
     // bars.json 載入失敗時（例如直接開啟 file:// 本機檔案）維持原有硬編碼資料
     console.warn('bars.json not loaded, using built-in data.',e.message);
   }
-  applyI18n();renderRanks();renderList();renderRankPage();renderDetail();initCountUps();
+  applyI18n();renderRanks();initCountUps();
+  // 資料載入後重新執行 hash routing，確保頁面正確顯示
+  const h=location.hash;
+  if(!h||h==='#'){renderList();renderRankPage();}
+  else{
+    const dm=h.match(/^#detail\/(\d+)$/);
+    if(dm){currentBarId=+dm[1];renderDetail();}
+    else if(h==='#list'){renderList();}
+    else if(h==='#rank'){renderRankPage();}
+  }
   setTimeout(checkReveal,80);
 }
 
