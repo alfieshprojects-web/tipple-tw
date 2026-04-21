@@ -247,6 +247,7 @@ section.block{padding:78px 0;border-bottom:1px solid var(--line);position:relati
 .vibe-groups{display:flex;flex-direction:column;gap:10px;flex:1}
 .vibe-sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .vibe-sub-lbl{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:14px;font-weight:600;color:var(--gold-2);min-width:32px;flex-shrink:0;line-height:1;padding-top:5px}
+.district-chips-row{padding-left:2px;border-left:2px solid var(--gold-2);opacity:.9}
 /* 手機版：標籤獨佔一行 */
 @media(max-width:600px){
   .filter-group{flex-direction:column;gap:6px}
@@ -612,55 +613,49 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
             <button class="chip" data-cat="rum_agave" data-i18n="cat.rum_agave">蘭姆/龍舌蘭</button>
           </div>
         </div>
-        <div class="filter-group filter-group--vibe">
-          <div class="vibe-groups" id="vibe-filter">
-            <!-- 氛圍 -->
-            <div class="vibe-sub">
-              <span class="vibe-sub-lbl" data-i18n="filter.vibe_atm">氛圍</span>
-              <div class="chips">
-                <button class="chip active" data-style="all" data-group="atm">全部</button>
-                <button class="chip" data-style="jazz" data-i18n="vibe.jazz">爵士現場</button>
-                <button class="chip" data-style="dj" data-i18n="vibe.dj">DJ 電音</button>
-                <button class="chip" data-style="lounge" data-i18n="vibe.lounge">沙發放鬆</button>
-                <button class="chip" data-style="dive" data-i18n="vibe.dive">Dive Bar</button>
-                <button class="chip" data-style="theme" data-i18n="vibe.theme">主題酒吧</button>
-                <button class="chip" data-style="rooftop" data-i18n="vibe.rooftop">頂樓景觀</button>
-                <button class="chip" data-style="hotel" data-i18n="vibe.hotel">飯店酒吧</button>
-                <button class="chip" data-style="listen" data-i18n="vibe.listen">音樂鑑賞</button>
-              </div>
-            </div>
-            <!-- 偏好 -->
-            <div class="vibe-sub">
-              <span class="vibe-sub-lbl" data-i18n="filter.vibe_pref">偏好</span>
-              <div class="chips">
-                <button class="chip active" data-style="all" data-group="pref">全部</button>
-                <button class="chip" data-style="group" data-i18n="vibe.group">朋友聚會</button>
-                <button class="chip" data-style="solo" data-i18n="vibe.solo">一人友善</button>
-                <button class="chip" data-style="afterwork" data-i18n="vibe.afterwork">下班小酌</button>
-                <button class="chip" data-style="party" data-i18n="vibe.party">派對熱鬧</button>
-                <button class="chip" data-style="date" data-i18n="vibe.date">約會導向</button>
-              </div>
-            </div>
-            <!-- 特色 -->
-            <div class="vibe-sub">
-              <span class="vibe-sub-lbl" data-i18n="filter.vibe_feat">特色</span>
-              <div class="chips">
-                <button class="chip active" data-style="all" data-group="feat">全部</button>
-                <button class="chip" data-style="zero_abv" data-i18n="vibe.zero_abv">無酒精</button>
-                <button class="chip" data-style="low_abv" data-i18n="vibe.low_abv">低酒精</button>
-                <button class="chip" data-style="sustainable" data-i18n="vibe.sustainable">永續在地</button>
-                <button class="chip" data-style="experimental" data-i18n="vibe.experimental">實驗調酒</button>
-                <button class="chip" data-style="tasting" data-i18n="vibe.tasting">品飲體驗</button>
-                <button class="chip" data-style="chefs_table" data-i18n="vibe.chefs_table">餐酒融合</button>
-                <button class="chip" data-style="private" data-i18n="vibe.private">預約私人</button>
-              </div>
-            </div>
+        <div class="filter-group">
+          <span class="filter-lbl" data-i18n="filter.vibe_atm">氛圍</span>
+          <div class="chips" id="atm-chips">
+            <button class="chip active" data-atm="all">全部</button>
+            <button class="chip" data-atm="jazz" data-i18n="vibe.jazz">爵士現場</button>
+            <button class="chip" data-atm="dj" data-i18n="vibe.dj">DJ 電音</button>
+            <button class="chip" data-atm="lounge" data-i18n="vibe.lounge">沙發放鬆</button>
+            <button class="chip" data-atm="dive" data-i18n="vibe.dive">Dive Bar</button>
+            <button class="chip" data-atm="theme" data-i18n="vibe.theme">主題酒吧</button>
+            <button class="chip" data-atm="rooftop" data-i18n="vibe.rooftop">頂樓景觀</button>
+            <button class="chip" data-atm="hotel" data-i18n="vibe.hotel">飯店酒吧</button>
+            <button class="chip" data-atm="listen" data-i18n="vibe.listen">音樂鑑賞</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-lbl" data-i18n="filter.vibe_pref">偏好</span>
+          <div class="chips" id="pref-chips">
+            <button class="chip active" data-pref="all">全部</button>
+            <button class="chip" data-pref="group" data-i18n="vibe.group">朋友聚會</button>
+            <button class="chip" data-pref="solo" data-i18n="vibe.solo">一人友善</button>
+            <button class="chip" data-pref="afterwork" data-i18n="vibe.afterwork">下班小酌</button>
+            <button class="chip" data-pref="party" data-i18n="vibe.party">派對熱鬧</button>
+            <button class="chip" data-pref="date" data-i18n="vibe.date">約會導向</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-lbl" data-i18n="filter.vibe_feat">特色</span>
+          <div class="chips" id="feat-chips">
+            <button class="chip active" data-feat="all">全部</button>
+            <button class="chip" data-feat="zero_abv" data-i18n="vibe.zero_abv">無酒精</button>
+            <button class="chip" data-feat="low_abv" data-i18n="vibe.low_abv">低酒精</button>
+            <button class="chip" data-feat="sustainable" data-i18n="vibe.sustainable">永續在地</button>
+            <button class="chip" data-feat="experimental" data-i18n="vibe.experimental">實驗調酒</button>
+            <button class="chip" data-feat="tasting" data-i18n="vibe.tasting">品飲體驗</button>
+            <button class="chip" data-feat="chefs_table" data-i18n="vibe.chefs_table">餐酒融合</button>
+            <button class="chip" data-feat="private" data-i18n="vibe.private">預約私人</button>
           </div>
         </div>
         <div class="filter-group"><span class="filter-lbl" data-i18n="filter.area">AREA</span>
           <div class="chips" id="area-chips">
             <button class="chip active" data-area="all" data-i18n="area.all">全部</button>
           </div>
+          <div class="chips district-chips-row" id="district-chips" style="display:none;margin-top:8px"></div>
         </div>
         <div class="filter-group">
           <span class="filter-lbl" data-i18n="filter.time">時段</span>
@@ -872,7 +867,7 @@ function photoUrl(ref,maxw=1200){
 
 /* ===== STATE ===== */
 let lang='zh',currentBarId=1;
-let filters={cat:'all',style:'all',area:'all',openNow:false,timeSlot:'all'};
+let filters={cat:'all',atm:'all',pref:'all',feat:'all',area:'all',district:'all',openNow:false,timeSlot:'all'};
 const TIME_SLOTS={morning:[10,14],afternoon:[14,18],evening:[18,26]};
 function opensIn(bar,start,end){return(bar.openHours||[]).some(([s,e])=>s<end&&e>start);}
 
@@ -1080,12 +1075,13 @@ function renderList(){
   const ln=lang==='zh';
   const filtered=BARS.filter(b=>{
     if(filters.cat!=='all'&&b.cat!==filters.cat)return false;
-    // Vibe filter：檢查 tags 陣列（新資料）或舊版 style 欄位（向下相容）
-    if(filters.style!=='all'){
-      const hasVibe=(b.tags||[]).includes(filters.style)||b.style===filters.style;
-      if(!hasVibe)return false;
-    }
+    // 氛圍 / 偏好 / 特色 三組獨立 AND 過濾
+    const tags=b.tags||[];
+    if(filters.atm!=='all'&&!tags.includes(filters.atm))return false;
+    if(filters.pref!=='all'&&!tags.includes(filters.pref))return false;
+    if(filters.feat!=='all'&&!tags.includes(filters.feat))return false;
     if(filters.area!=='all'&&b.area!==filters.area)return false;
+    if(filters.district!=='all'&&b.districtZh!==filters.district)return false;
     if(filters.openNow&&!isOpen(b))return false;
     if(filters.timeSlot!=='all'){const[ts,te]=TIME_SLOTS[filters.timeSlot]||[];if(ts!=null&&!opensIn(b,ts,te))return false;}
     return true;
@@ -1264,32 +1260,27 @@ function bindChips(id,key){
   });
 }
 bindChips('cat-chips','cat');
-// Vibe filter：跨多個 .chips 容器，統一綁在 #vibe-filter
-const vibeFilterEl=document.getElementById('vibe-filter');
-function syncVibeChips(){
-  // 同步所有 vibe chips 的 active 狀態
-  const cur=filters.style;
-  vibeFilterEl.querySelectorAll('[data-style]').forEach(x=>{
-    if(x.dataset.style==='all'){
-      // 每組「全部」—— 只有沒有選任何 vibe 時亮
-      x.classList.toggle('active',cur==='all');
+// 氛圍 / 偏好 / 特色 三組獨立 toggle（再點已選 → 回全部）
+function bindChipsToggle(id,key){
+  const c=document.getElementById(id);if(!c)return;
+  c.addEventListener('click',e=>{
+    const b=e.target.closest('.chip');if(!b)return;
+    const val=b.dataset[key]||'all';
+    const reselect=val!=='all'&&b.classList.contains('active');
+    c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+    if(reselect||val==='all'){
+      c.querySelector(`[data-${key}="all"]`)?.classList.add('active');
+      filters[key]='all';
     } else {
-      x.classList.toggle('active',x.dataset.style===cur);
+      b.classList.add('active');
+      filters[key]=val;
     }
+    renderList();
   });
 }
-
-vibeFilterEl?.addEventListener('click',e=>{
-  const b=e.target.closest('[data-style]');if(!b)return;
-  const clicked=b.dataset.style;
-  if(clicked==='all'||clicked===filters.style){
-    filters.style='all';   // 點「全部」或再點已選中 → 重置
-  } else {
-    filters.style=clicked;
-  }
-  syncVibeChips();
-  renderList();
-});
+bindChipsToggle('atm-chips','atm');
+bindChipsToggle('pref-chips','pref');
+bindChipsToggle('feat-chips','feat');
 // area-chips 在 loadBars() 動態建立後才綁定
 
 document.getElementById('rank-chips')?.addEventListener('click',e=>{
@@ -1510,7 +1501,9 @@ async function loadBars(){
         cat:b.cat,
         style:b.style,
         area:b.area,
-        district:`${b.district_en} · ${b.district_zh}`,
+        districtZh:b.district_zh||'',
+        districtEn:b.district_en||'',
+        district:b.district_zh?`${b.district_zh}`:(b.district_en||''),
         score:b.google_rating||b.score,
         reviews:b.reviews,
         openHours:b.open_hours||[],
@@ -1554,37 +1547,99 @@ async function loadBars(){
       if(countEl)countEl.textContent=count;
     });
 
-    // ── 動態建立地區 chips ────────────────────────────────────
+    // ── 動態建立地區 chips（雙層：城市 + 行政區） ──────────────
     const AREA_LABELS={
-      taipei:     {zh:'台北',    en:'Taipei'},
-      newtaipei:  {zh:'新北',    en:'New Taipei'},
-      taoyuan:    {zh:'桃園',    en:'Taoyuan'},
-      hsinchu:    {zh:'新竹',    en:'Hsinchu'},
-      taichung:   {zh:'台中',    en:'Taichung'},
-      changhua:   {zh:'彰化',    en:'Changhua'},
-      chiayi:     {zh:'嘉義',    en:'Chiayi'},
-      tainan:     {zh:'台南',    en:'Tainan'},
-      kaohsiung:  {zh:'高雄',    en:'Kaohsiung'},
-      pingtung:   {zh:'屏東',    en:'Pingtung'},
-      yilan:      {zh:'宜蘭',    en:'Yilan'},
-      hualien:    {zh:'花蓮',    en:'Hualien'},
-      taitung:    {zh:'台東',    en:'Taitung'},
+      taipei:     {zh:'台北市',  en:'Taipei'},
+      newtaipei:  {zh:'新北市',  en:'New Taipei'},
+      taoyuan:    {zh:'桃園市',  en:'Taoyuan'},
+      hsinchu:    {zh:'新竹市',  en:'Hsinchu'},
+      miaoli:     {zh:'苗栗縣',  en:'Miaoli'},
+      taichung:   {zh:'台中市',  en:'Taichung'},
+      changhua:   {zh:'彰化縣',  en:'Changhua'},
+      nantou:     {zh:'南投縣',  en:'Nantou'},
+      yunlin:     {zh:'雲林縣',  en:'Yunlin'},
+      chiayi:     {zh:'嘉義市',  en:'Chiayi'},
+      tainan:     {zh:'台南市',  en:'Tainan'},
+      kaohsiung:  {zh:'高雄市',  en:'Kaohsiung'},
+      pingtung:   {zh:'屏東縣',  en:'Pingtung'},
+      yilan:      {zh:'宜蘭縣',  en:'Yilan'},
+      hualien:    {zh:'花蓮縣',  en:'Hualien'},
+      taitung:    {zh:'台東縣',  en:'Taitung'},
+      keelung:    {zh:'基隆市',  en:'Keelung'},
     };
-    // 計算各地區數量，依數量排序
+    // 計算各城市數量，依數量排序
     const areaCounts={};
     BARS.forEach(b=>{if(b.area)areaCounts[b.area]=(areaCounts[b.area]||0)+1});
     const sortedAreas=Object.entries(areaCounts).sort((a,b)=>b[1]-a[1]);
     const areaChips=document.getElementById('area-chips');
+    const districtRow=document.getElementById('district-chips');
+
+    // 建立城市 chips
     if(areaChips){
       sortedAreas.forEach(([area,count])=>{
         const lbl=AREA_LABELS[area];if(!lbl)return;
         const btn=document.createElement('button');
         btn.className='chip';
         btn.dataset.area=area;
-        btn.innerHTML=`<span class="zh-lbl">${lbl.zh}</span><span class="en-lbl"> ${lbl.en}</span> <span class="count">${count}</span>`;
+        btn.innerHTML=`${lbl.zh} <span class="count">${count}</span>`;
         areaChips.appendChild(btn);
       });
-      bindChips('area-chips','area');
+    }
+
+    // 建立行政區 chips（依選中城市動態更新）
+    function buildDistrictChips(selectedArea){
+      if(!districtRow)return;
+      if(!selectedArea||selectedArea==='all'){
+        districtRow.style.display='none';
+        districtRow.innerHTML='';
+        filters.district='all';
+        return;
+      }
+      // 收集該城市的所有行政區
+      const distCount={};
+      BARS.forEach(b=>{
+        if(b.area===selectedArea&&b.districtZh){
+          distCount[b.districtZh]=(distCount[b.districtZh]||0)+1;
+        }
+      });
+      const sorted=Object.entries(distCount).sort((a,b)=>b[1]-a[1]);
+      if(!sorted.length){districtRow.style.display='none';return;}
+      // 重置行政區 filter
+      filters.district='all';
+      districtRow.innerHTML='';
+      // 「全部」chip
+      const allBtn=document.createElement('button');
+      allBtn.className='chip active';allBtn.dataset.district='all';
+      allBtn.textContent='全部行政區';
+      districtRow.appendChild(allBtn);
+      // 各行政區 chip
+      sorted.forEach(([dz,cnt])=>{
+        const btn=document.createElement('button');
+        btn.className='chip';btn.dataset.district=dz;
+        btn.innerHTML=`${dz} <span class="count">${cnt}</span>`;
+        districtRow.appendChild(btn);
+      });
+      districtRow.style.display='flex';
+      // 綁定點擊
+      districtRow.onclick=(e)=>{
+        const b=e.target.closest('[data-district]');if(!b)return;
+        districtRow.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        filters.district=b.dataset.district||'all';
+        renderList();
+      };
+    }
+
+    // 城市 chips 點擊
+    if(areaChips){
+      areaChips.addEventListener('click',e=>{
+        const b=e.target.closest('[data-area]');if(!b)return;
+        areaChips.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        filters.area=b.dataset.area||'all';
+        buildDistrictChips(filters.area);
+        renderList();
+      });
     }
 
     // ── 工具：注入照片 ────────────────────────────────────────────
