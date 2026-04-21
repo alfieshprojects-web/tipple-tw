@@ -87,8 +87,23 @@ DISTRICT_ZH = {
     "Zhongzheng": "中正區", "Ren'ai":      "仁愛區",
 }
 
+NEWTAIPEI_DISTRICTS_EN = [
+    'Banqiao','Sanchong','Zhonghe','Yonghe','Xinzhuang','Tucheng',
+    'Luzhou','Tamsui','Xindian','Xizhi','Linkou','Shulin',
+    'Sanxia','Yingge','Taishan','Wugu','Bali','Ruifang',
+    'Shenkeng','Shiding','Pinglin','Shuangxi','Gongliao','Pingxi',
+]
+
 def parse_city(addr: str) -> dict | None:
-    """從地址解析城市，回傳 CITY_MAP 中的 dict 或 None"""
+    """從地址解析城市，回傳 CITY_MAP 中的 dict 或 None。
+    新北市優先：若地址含明確新北行政區，直接歸入新北。"""
+    # 優先判斷新北（避免被誤歸台北）
+    if "New Taipei" in addr or "新北市" in addr:
+        return {**CITY_MAP["New Taipei"], "en": "New Taipei"}
+    for d in NEWTAIPEI_DISTRICTS_EN:
+        if f"{d} District" in addr:
+            return {**CITY_MAP["New Taipei"], "en": "New Taipei"}
+    # 一般城市判斷
     for city_en, info in CITY_MAP.items():
         if city_en + " City" in addr or city_en + " County" in addr:
             return {**info, "en": city_en}
