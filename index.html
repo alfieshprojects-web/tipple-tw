@@ -301,40 +301,6 @@ section.block{padding:78px 0;border-bottom:1px solid var(--line);position:relati
 .score-card .sc-rev{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--silver);letter-spacing:.04em}
 .score-card .sc-rev b{color:var(--gold-2)}
 
-/* Platform progress bars */
-.platform-bars{display:flex;flex-direction:column;gap:11px;padding:26px;border-radius:var(--radius);background:var(--bg-2);border:1px solid var(--line)}
-.pb-title{font-size:9px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
-.pb-row{display:grid;grid-template-columns:76px 1fr 50px;gap:10px;align-items:center}
-.pb-name{font-size:11px;letter-spacing:.05em;color:var(--silver);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pb-track{height:4px;background:var(--bg-4);border-radius:999px;overflow:hidden}
-.pb-fill{height:100%;border-radius:999px;background:var(--gold-grad);transform-origin:left;transform:scaleX(0);transition:transform .95s cubic-bezier(.4,0,.2,1)}
-.pb-score{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--gold-2);text-align:right}
-
-/* Platform tabs */
-.platform-tabs{margin-top:42px}
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
-.tabs::-webkit-scrollbar{display:none}
-.ptab{padding:12px 17px;font-size:12px;color:var(--muted);letter-spacing:.05em;border-bottom:2px solid transparent;white-space:nowrap;transition:var(--ease);cursor:pointer}
-.ptab:hover{color:var(--text)}
-.ptab.active{color:var(--gold-2);border-bottom-color:var(--gold)}
-.ptab .cnt{margin-left:5px;color:var(--muted-2);font-size:10px}
-.ptab.active .cnt{color:var(--gold-3)}
-.tab-panel{padding:24px 0;display:none}
-.tab-panel.active{display:block;animation:fadeIn .22s ease}
-
-/* Reviews */
-.review{display:grid;grid-template-columns:42px 1fr;gap:13px;padding:19px 21px;border-radius:var(--radius);background:var(--bg-2);border:1px solid var(--line);margin-bottom:11px;transition:var(--ease)}
-.review:hover{border-color:var(--line-2)}
-.rv-av{width:42px;height:42px;border-radius:50%;background:var(--bg-3);border:1px solid var(--line-2);display:grid;place-items:center;font-family:'Cormorant Garamond',serif;color:var(--silver);font-size:16px;font-weight:600}
-.rv-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.rv-name{font-size:13px;font-weight:500}
-.rv-src{font-size:9px;letter-spacing:.22em;color:var(--gold-2);text-transform:uppercase;padding:2px 7px;border:1px solid var(--gold-3);border-radius:4px}
-.rv-date{font-size:10px;color:var(--muted-2);margin-left:auto}
-.rv-stars{margin-top:4px;color:var(--gold);font-size:12px;letter-spacing:2px}
-.rv-body{margin-top:9px;font-size:13px;color:var(--silver);line-height:1.62}
-.rv-ext{margin-top:9px;font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
-.rv-ext a{color:var(--silver);border-bottom:1px solid var(--line-2);padding-bottom:1px;transition:var(--ease)}
-.rv-ext a:hover{color:var(--gold-2)}
 
 /* Footer */
 footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05em}
@@ -434,15 +400,14 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
       <div>
         <span class="hero-eyebrow reveal" data-i18n="hero.eyebrow">A NIGHT WORTH HAVING</span>
         <h1 class="reveal reveal-d1" data-i18n-html="hero.title">台灣酒吧的<br/><em>夜之指南針</em></h1>
-        <p class="lead reveal reveal-d2" data-i18n="hero.lead">聚合 Google Maps、PTT、Dcard 與媒體評論，為你找出真正值得一去的台灣酒吧。</p>
+        <p class="lead reveal reveal-d2" data-i18n="hero.lead">聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。</p>
         <div class="hero-cta reveal reveal-d2">
           <button class="btn btn-primary" data-route="list"><span data-i18n="hero.cta1">開始探索</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
           <button class="btn btn-ghost" data-route="detail" data-bar="1" data-i18n="hero.cta2">本月之選</button>
         </div>
         <div class="hero-stats reveal reveal-d3">
-          <div class="stat"><span class="num count-up" data-target="2847">0</span><span class="lbl" data-i18n="stat.bars">收錄酒吧</span></div>
-          <div class="stat"><span class="num count-up" data-target="142" data-suffix="K">0</span><span class="lbl" data-i18n="stat.reviews">匯整評論</span></div>
-          <div class="stat"><span class="num count-up" data-target="14">0</span><span class="lbl" data-i18n="stat.sources">資料來源</span></div>
+          <div class="stat"><span class="num count-up" id="stat-bars-num" data-target="1090">0</span><span class="lbl" data-i18n="stat.bars">收錄酒吧</span></div>
+          <div class="stat"><span class="num count-up" data-target="1">0</span><span class="lbl" data-i18n="stat.sources">資料來源</span></div>
         </div>
       </div>
       <div class="spotlight reveal reveal-d2" data-route="detail" data-bar="1">
@@ -460,10 +425,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
   <section class="sources">
     <div class="container sources-row">
       <span class="src-label" data-i18n="sources.label">Sourced From</span>
-      <span class="src-logo">Google Maps</span><span class="src-logo">Instagram</span>
-      <span class="src-logo">Facebook</span><span class="src-logo">X</span>
-      <span class="src-logo">PTT</span><span class="src-logo">Dcard</span>
-      <span class="src-logo">GQ</span><span class="src-logo">Elle</span><span class="src-logo">Popdaily</span>
+      <span class="src-logo">Google Maps</span>
     </div>
   </section>
 
@@ -473,7 +435,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <div>
           <span class="eyebrow" data-i18n="rank.eyebrow">Top of the Index</span>
           <h2 data-i18n="rank.title">本月綜合排行榜</h2>
-          <p class="desc" data-i18n="rank.desc">綜合各大平台與媒體評分加權計算，每週更新。</p>
+          <p class="desc" data-i18n="rank.desc">以 Google Maps 評分（×2）換算為 TIPPLE 指數，依評分高低排序。</p>
         </div>
         <a class="more" data-route="list" data-i18n="rank.more">View All →</a>
       </div>
@@ -495,24 +457,24 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
     <div class="container">
       <div class="section-head reveal">
         <div>
-          <span class="eyebrow" data-i18n="picks.eyebrow">From the Editors</span>
-          <h2 data-i18n="picks.title">編輯精選 · 本週話題</h2>
-          <p class="desc" data-i18n="picks.desc">GQ、Elle、Popdaily 與 PTT／Dcard 熱議浮上的酒吧。</p>
+          <span class="eyebrow" data-i18n="picks.eyebrow">精選推薦</span>
+          <h2 data-i18n="picks.title">高分精選 · 本週推薦</h2>
+          <p class="desc" data-i18n="picks.desc">根據 Google Maps 評分，為你推薦近期評價最高的酒吧。</p>
         </div>
         <a class="more" data-route="list" data-i18n="picks.more">All Picks →</a>
       </div>
       <div class="picks">
         <div class="pick reveal" data-route="detail" data-bar="2">
-          <div class="img p-img-1"><span class="pill" data-i18n="picks.tag1">★ GQ FEATURED</span><span class="fscore">9.2<span>idx</span></span></div>
-          <div class="pbody"><h4>Bar Mood</h4><div class="psub" data-i18n="picks.sub2">大安 · Speakeasy · Modern Asian</div><p class="quote" data-i18n="picks.q2">把台灣本土風土帶入分子調酒，是亞洲 50 大酒吧裡最具識別度的一間。</p><p class="qsrc" data-i18n="picks.qs2">— GQ TAIWAN, MAR 2026</p></div>
+          <div class="img p-img-1"><span class="fscore">9.2<span>idx</span></span></div>
+          <div class="pbody"><h4>Bar Mood</h4><div class="psub" data-i18n="picks.sub2">大安 · Speakeasy · Modern Asian</div></div>
         </div>
         <div class="pick reveal reveal-d1" data-route="detail" data-bar="3">
-          <div class="img p-img-2"><span class="pill" data-i18n="picks.tag2">★ DCARD HOT</span><span class="fscore">8.9<span>idx</span></span></div>
-          <div class="pbody"><h4>AHA Saloon</h4><div class="psub" data-i18n="picks.sub3">中山 · Cocktail Bar · Craft</div><p class="quote" data-i18n="picks.q3">調酒師會問你今天的心情，再為你客製。氛圍沉穩、不浮誇，第一次去就被收買。</p><p class="qsrc" data-i18n="picks.qs3">— DCARD 美食版, 2.3K LIKES</p></div>
+          <div class="img p-img-2"><span class="fscore">8.9<span>idx</span></span></div>
+          <div class="pbody"><h4>AHA Saloon</h4><div class="psub" data-i18n="picks.sub3">中山 · Cocktail Bar · Craft</div></div>
         </div>
         <div class="pick reveal reveal-d2" data-route="detail" data-bar="4">
-          <div class="img p-img-3"><span class="pill" data-i18n="picks.tag3">★ ELLE COVER</span><span class="fscore">9.0<span>idx</span></span></div>
-          <div class="pbody"><h4>Room by Le Kief</h4><div class="psub" data-i18n="picks.sub4">中山 · Cocktail Bar · Theatre</div><p class="quote" data-i18n="picks.q4">每季更新劇場式 menu，去一次像看 90 分鐘浸沒式演出。</p><p class="qsrc" data-i18n="picks.qs4">— ELLE TAIWAN, FEB 2026</p></div>
+          <div class="img p-img-3"><span class="fscore">9.0<span>idx</span></span></div>
+          <div class="pbody"><h4>Room by Le Kief</h4><div class="psub" data-i18n="picks.sub4">中山 · Cocktail Bar · Theatre</div></div>
         </div>
       </div>
     </div>
@@ -619,7 +581,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <div>
           <span class="eyebrow" data-i18n="rank.eyebrow">Top of the Index</span>
           <h2 data-i18n="rank.title">本月綜合排行榜</h2>
-          <p class="desc" data-i18n="rank.desc">綜合各大平台與媒體評分加權計算，每週更新。</p>
+          <p class="desc" data-i18n="rank.desc">以 Google Maps 評分（×2）換算為 TIPPLE 指數，依評分高低排序。</p>
         </div>
       </div>
       <div class="chips reveal" style="margin-bottom:26px" id="rank-page-chips">
@@ -711,27 +673,21 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <div class="score-card">
           <div class="sc-lbl" data-i18n="detail.idx">TIPPLE INDEX</div>
           <div class="sc-big" id="d-score">—</div>
-          <div class="sc-out" data-i18n="detail.outof">滿分 10 · 加權平均</div>
-          <div class="sc-rev"><span data-i18n="detail.basedon">基於</span> <b id="d-reviews"></b> <span data-i18n="detail.reviews">則跨平台評論</span></div>
-        </div>
-        <div class="platform-bars" id="platform-bars">
-          <div class="pb-title" data-i18n="detail.platforms">各平台分數</div>
+          <div class="sc-out" data-i18n="detail.outof">Google 評分 × 2</div>
+          <div class="sc-rev"><span data-i18n="detail.basedon">基於</span> <b id="d-reviews"></b> <span data-i18n="detail.reviews">則 Google 評論</span></div>
         </div>
       </div>
-      <div class="platform-tabs">
-        <div class="section-head" style="margin-bottom:0;border:0;padding-bottom:0">
-          <div><span class="eyebrow" data-i18n="detail.tabs.eyebrow">All Voices</span><h2 data-i18n="detail.tabs.title">分平台評價</h2></div>
-        </div>
-        <div class="tabs" id="platform-tabs"></div>
-        <div id="platform-panels"></div>
+      <div style="margin-top:20px">
+        <a id="d-gmaps-link" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line-2);color:var(--muted);font-size:13px;letter-spacing:.04em;transition:var(--ease);text-decoration:none" onmouseover="this.style.borderColor='var(--gold-3)';this.style.color='var(--gold-2)'" onmouseout="this.style.borderColor='var(--line-2)';this.style.color='var(--muted)'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span data-i18n="detail.gmaps">在 Google Maps 查看</span>
+        </a>
       </div>
       <!-- 廣告版位 C：詳情頁底部 -->
-      <div class="ad-slot" id="ad-detail-bottom">
-        <div class="ad-slot-inner">
-          <!-- 置換成 Google AdSense / 自售廣告 code -->
-        </div>
+      <div class="ad-slot" id="ad-detail-bottom" style="margin-top:32px">
+        <div class="ad-slot-inner"></div>
       </div>
-      <div style="margin-top:44px;text-align:center;color:var(--muted-2);font-size:10px;letter-spacing:.16em" data-i18n="detail.disclaimer">本頁評論由各平台公開內容自動匯整，僅供參考</div>
+      <div style="margin-top:28px;text-align:center;color:var(--muted-2);font-size:10px;letter-spacing:.16em" data-i18n="detail.disclaimer">評分資料來自 Google Maps，僅供參考</div>
     </div>
   </section>
 </main>
@@ -742,14 +698,14 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 
 <script>
 /* ===== I18N ===== */
-const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依風格','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps、PTT、Dcard 與媒體評論，為你找出真正值得一去的台灣酒吧。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'綜合各大平台與媒體評分加權計算，每週更新。','rank.more':'看完整排行 →','picks.eyebrow':'編輯精選','picks.title':'編輯精選 · 本週話題','picks.desc':'GQ、Elle、Popdaily 與 PTT／Dcard 熱議浮上的酒吧。','picks.more':'更多精選 →','picks.tag1':'★ GQ 推薦','picks.tag2':'★ DCARD 熱門','picks.tag3':'★ ELLE 封面','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','picks.q2':'把台灣本土風土帶入分子調酒，是亞洲 50 大酒吧裡最具識別度的一間。','picks.q3':'調酒師會問你今天的心情，再為你客製。氛圍沉穩、不浮誇，第一次去就被收買。','picks.q4':'每季更新劇場式 menu，去一次像看 90 分鐘浸沒式演出。','picks.qs2':'— GQ TAIWAN, 2026 / 03','picks.qs3':'— DCARD 美食版, 2.3K LIKES','picks.qs4':'— ELLE TAIWAN, 2026 / 02','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'隱藏 · 私密','style.s2':'職人 · 手作','style.s3':'日式 · 沉穩','style.s4':'奢華 · 飯店','style.s5':'輕鬆 · 站立','style.s6':'頂樓 · 城景','style.s7':'實驗 · 分子','style.s8':'古典 · 傳承','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.style':'風格','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','cat.all':'全部','cat.cocktail':'調酒吧','cat.bistro':'餐酒館','cat.wine':'紅酒吧','cat.sake':'清酒吧','cat.whisky':'威士忌吧','cat.speakeasy':'Speakeasy','cat.craft':'精釀','style.all':'全部','filter.speak':'隱藏','filter.craft':'職人手作','filter.jp':'日式','filter.luxe':'奢華','filter.casual':'輕鬆','filter.roof':'頂樓','filter.exp':'實驗','filter.classic':'古典','area.all':'全部','detail.back':'返回','detail.idx':'TIPPLE 指數','detail.outof':'滿分 10 · 加權平均','detail.basedon':'基於','detail.reviews':'則跨平台評論','detail.platforms':'各平台分數','detail.tabs.eyebrow':'所有聲音','detail.tabs.title':'分平台評價','detail.disclaimer':'本頁評論由各平台公開內容自動匯整，僅供參考','open.now':'現在營業','closed.now':'暫停營業'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Style','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'We pull reviews from Google Maps, PTT, Dcard and top media so you find bars actually worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Weighted blend of every platform, refreshed weekly.','rank.more':'View All →','picks.eyebrow':'From the Editors','picks.title':"Editor's Picks · This Week",'picks.desc':'Bars surfaced through GQ, Elle, Popdaily and PTT & Dcard.','picks.more':'All Picks →','picks.tag1':'★ GQ FEATURED','picks.tag2':'★ DCARD HOT','picks.tag3':'★ ELLE COVER','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','picks.q2':"Bringing Taiwanese terroir into molecular cocktails — Asia's 50 Best's most distinctive entry.",'picks.q3':'The bartender asks how your day was, then builds the drink. Calm, never showy.','picks.q4':'A new theatrical menu each season — going feels like a 90-minute immersive show.','picks.qs2':'— GQ TAIWAN, MAR 2026','picks.qs3':'— DCARD FOOD, 2.3K LIKES','picks.qs4':'— ELLE TAIWAN, FEB 2026','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Hidden · Private','style.s2':'Craft · Made by hand','style.s3':'Japanese · Calm','style.s4':'Luxe · Hotel','style.s5':'Casual · Standing','style.s6':'Rooftop · Skyline','style.s7':'Experimental · Molecular','style.s8':'Classic · Heritage','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.style':'STYLE','filter.area':'AREA','filter.time':'NOW','filter.open':'Open now','filter.openon':'✓ Open now','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.bistro':'Bistro Bar','cat.wine':'Wine Bar','cat.sake':'Sake Bar','cat.whisky':'Whisky Bar','cat.speakeasy':'Speakeasy','cat.craft':'Craft Beer','style.all':'All','filter.speak':'Speakeasy','filter.craft':'Craft','filter.jp':'Japanese','filter.luxe':'Luxe','filter.casual':'Casual','filter.roof':'Rooftop','filter.exp':'Experimental','filter.classic':'Classic','area.all':'All','detail.back':'Back','detail.idx':'TIPPLE INDEX','detail.outof':'Out of 10 · Weighted','detail.basedon':'Based on','detail.reviews':'reviews across platforms','detail.platforms':'Platform Scores','detail.tabs.eyebrow':'All Voices','detail.tabs.title':'Reviews by Platform','detail.disclaimer':'Reviews aggregated from public sources. For reference only.','open.now':'Open now','closed.now':'Closed'}};
+const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依風格','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'以 Google Maps 評分（×2）換算為 TIPPLE 指數，依評分高低排序。','rank.more':'看完整排行 →','picks.eyebrow':'精選推薦','picks.title':'高分精選 · 本週推薦','picks.desc':'根據 Google Maps 評分，為你推薦近期評價最高的酒吧。','picks.more':'更多精選 →','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'隱藏 · 私密','style.s2':'職人 · 手作','style.s3':'日式 · 沉穩','style.s4':'奢華 · 飯店','style.s5':'輕鬆 · 站立','style.s6':'頂樓 · 城景','style.s7':'實驗 · 分子','style.s8':'古典 · 傳承','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.style':'風格','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','cat.all':'全部','cat.cocktail':'調酒吧','cat.bistro':'餐酒館','cat.wine':'紅酒吧','cat.sake':'清酒吧','cat.whisky':'威士忌吧','cat.speakeasy':'Speakeasy','cat.craft':'精釀','style.all':'全部','filter.speak':'隱藏','filter.craft':'職人手作','filter.jp':'日式','filter.luxe':'奢華','filter.casual':'輕鬆','filter.roof':'頂樓','filter.exp':'實驗','filter.classic':'古典','area.all':'全部','detail.back':'返回','detail.idx':'TIPPLE 指數','detail.outof':'Google 評分 × 2','detail.basedon':'基於','detail.reviews':'則 Google 評論','detail.disclaimer':'評分資料來自 Google Maps，僅供參考','open.now':'現在營業','closed.now':'暫停營業'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Style','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'Aggregating Google Maps ratings across 1,090 bars in Taiwan — find the one worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'TIPPLE Index = Google Maps rating × 2. Bars ranked highest to lowest.','rank.more':'View All →','picks.eyebrow':'Top Picks','picks.title':'Top Picks · This Week','picks.desc':'Highest-rated bars on Google Maps right now.','picks.more':'All Picks →','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Hidden · Private','style.s2':'Craft · Made by hand','style.s3':'Japanese · Calm','style.s4':'Luxe · Hotel','style.s5':'Casual · Standing','style.s6':'Rooftop · Skyline','style.s7':'Experimental · Molecular','style.s8':'Classic · Heritage','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.style':'STYLE','filter.area':'AREA','filter.time':'NOW','filter.open':'Open now','filter.openon':'✓ Open now','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.bistro':'Bistro Bar','cat.wine':'Wine Bar','cat.sake':'Sake Bar','cat.whisky':'Whisky Bar','cat.speakeasy':'Speakeasy','cat.craft':'Craft Beer','style.all':'All','filter.speak':'Speakeasy','filter.craft':'Craft','filter.jp':'Japanese','filter.luxe':'Luxe','filter.casual':'Casual','filter.roof':'Rooftop','filter.exp':'Experimental','filter.classic':'Classic','area.all':'All','detail.back':'Back','detail.idx':'TIPPLE INDEX','detail.outof':'Google rating × 2','detail.basedon':'Based on','detail.reviews':'Google reviews','detail.disclaimer':'Ratings sourced from Google Maps. For reference only.','open.now':'Open now','closed.now':'Closed'}};
 
 /* ===== DATA ===== */
 const BARS=[
-  {id:1,name:'Indulge Experimental Bistro',zh:'Indulge 實驗創新餐酒館',cat:'bistro',style:'experimental',area:'taipei',district:"Da'an · 大安",score:9.4,reviews:3217,openHours:[[19,26]],addr:{zh:'台北市大安區復興南路一段 219 巷 11 號',en:"No.11, Ln. 219, Sec. 1, Fuxing S. Rd., Taipei"},hours:{zh:'19:00 – 02:00 · 週一公休',en:'19:00 – 02:00 · Closed Mon'},price:{zh:'$$$ · 單杯 NT$450 起',en:'$$$ · From NT$450'},catLabel:{zh:'餐酒館',en:'Bistro Bar'},styleLabel:{zh:'實驗派',en:'Experimental'},img:'v1',tags:['Experimental','Asia 50 Best','GQ Featured']},
+  {id:1,name:'Indulge Experimental Bistro',zh:'Indulge 實驗創新餐酒館',cat:'bistro',style:'experimental',area:'taipei',district:"Da'an · 大安",score:9.4,reviews:3217,openHours:[[19,26]],addr:{zh:'台北市大安區復興南路一段 219 巷 11 號',en:"No.11, Ln. 219, Sec. 1, Fuxing S. Rd., Taipei"},hours:{zh:'19:00 – 02:00 · 週一公休',en:'19:00 – 02:00 · Closed Mon'},price:{zh:'$$$ · 單杯 NT$450 起',en:'$$$ · From NT$450'},catLabel:{zh:'餐酒館',en:'Bistro Bar'},styleLabel:{zh:'實驗派',en:'Experimental'},img:'v1',tags:['Experimental','Cocktail Bar']},
   {id:2,name:'Bar Mood',zh:'Bar Mood Taipei 吧沐',cat:'cocktail',style:'speakeasy',area:'taipei',district:"Da'an · 大安",score:9.2,reviews:2418,openHours:[[19,26]],addr:{zh:'台北市大安區安和路一段 102 巷 10 號',en:"No.10, Ln. 102, Sec. 1, Anhe Rd., Taipei"},hours:{zh:'19:00 – 02:00',en:'19:00 – 02:00'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'隱藏感',en:'Speakeasy'},img:'v2',tags:['Speakeasy','Modern Asian','Asia 50 Best']},
-  {id:3,name:'AHA Saloon',zh:'AHA Saloon 啊哈酒場',cat:'cocktail',style:'craft',area:'taipei',district:'Zhongshan · 中山',score:8.9,reviews:1922,openHours:[[19.5,26.5]],addr:{zh:'台北市中山區市民大道三段 8 號',en:'No.8, Sec. 3, Civic Blvd., Taipei'},hours:{zh:'19:30 – 02:30',en:'19:30 – 02:30'},price:{zh:'$$',en:'$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'職人手作',en:'Craft'},img:'v3',tags:['Craft','Bartender Driven','Dcard Hot']},
-  {id:4,name:'Room by Le Kief',zh:'Room by Le Kief',cat:'cocktail',style:'experimental',area:'taipei',district:'Zhongshan · 中山',score:9.0,reviews:1655,openHours:[[19,25.5]],addr:{zh:'台北市中山區明水路 535 號',en:'No.535, Mingshui Rd., Taipei'},hours:{zh:'19:00 – 01:30',en:'19:00 – 01:30'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'劇場式',en:'Theatre'},img:'v1',tags:['Theatre','Tasting Menu','Elle Cover']},
+  {id:3,name:'AHA Saloon',zh:'AHA Saloon 啊哈酒場',cat:'cocktail',style:'craft',area:'taipei',district:'Zhongshan · 中山',score:8.9,reviews:1922,openHours:[[19.5,26.5]],addr:{zh:'台北市中山區市民大道三段 8 號',en:'No.8, Sec. 3, Civic Blvd., Taipei'},hours:{zh:'19:30 – 02:30',en:'19:30 – 02:30'},price:{zh:'$$',en:'$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'職人手作',en:'Craft'},img:'v3',tags:['Craft','Bartender Driven']},
+  {id:4,name:'Room by Le Kief',zh:'Room by Le Kief',cat:'cocktail',style:'experimental',area:'taipei',district:'Zhongshan · 中山',score:9.0,reviews:1655,openHours:[[19,25.5]],addr:{zh:'台北市中山區明水路 535 號',en:'No.535, Mingshui Rd., Taipei'},hours:{zh:'19:00 – 01:30',en:'19:00 – 01:30'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'劇場式',en:'Theatre'},img:'v1',tags:['Theatre','Tasting Menu']},
   {id:5,name:'Draft Land',zh:'Draft Land',cat:'cocktail',style:'casual',area:'taipei',district:"Da'an · 大安",score:8.5,reviews:2840,openHours:[[15,24]],addr:{zh:'台北市大安區忠孝東路四段 181 巷 7 弄 1 號',en:'No.1, Aly. 7, Ln. 181, Sec. 4, Zhongxiao E. Rd., Taipei'},hours:{zh:'15:00 – 24:00',en:'15:00 – 24:00'},price:{zh:'$$ · NT$200',en:'$$ · NT$200 / cocktail'},catLabel:{zh:'調酒吧',en:'Cocktail Bar'},styleLabel:{zh:'輕鬆站立',en:'Casual'},img:'v4',tags:['On Tap','Casual','Crowd Favorite']},
   {id:6,name:'East End',zh:'East End 威士忌吧',cat:'whisky',style:'classic',area:'taipei',district:'Songshan · 松山',score:8.8,reviews:980,openHours:[[20,27]],addr:{zh:'台北市松山區敦化北路 165 巷 6 號',en:'No.6, Ln. 165, Dunhua N. Rd., Taipei'},hours:{zh:'20:00 – 03:00',en:'20:00 – 03:00'},price:{zh:'$$$$',en:'$$$$'},catLabel:{zh:'威士忌吧',en:'Whisky Bar'},styleLabel:{zh:'古典',en:'Classic'},img:'v3',tags:['Whisky','Cigar Friendly','Heritage']},
   {id:7,name:'Sake Bar Ukai',zh:'鵜飼 清酒小酒場',cat:'sake',style:'japanese',area:'taipei',district:'Zhongshan · 中山',score:8.7,reviews:540,openHours:[[18,24]],addr:{zh:'台北市中山區林森北路 119 巷 22 號',en:'No.22, Ln. 119, Linsen N. Rd., Taipei'},hours:{zh:'18:00 – 24:00 · 週日公休',en:'18:00 – 24:00 · Closed Sun'},price:{zh:'$$$',en:'$$$'},catLabel:{zh:'清酒吧',en:'Sake Bar'},styleLabel:{zh:'日式',en:'Japanese'},img:'v2',tags:['Junmai','Japanese','Quiet']},
@@ -772,38 +728,14 @@ function photoUrl(ref,maxw=1200){
   return`https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxw}&photoreference=${ref}&key=${GPHOTO_KEY}`;
 }
 
-const PLATFORMS=[
-  {key:'google',name:'Google Maps',short:'GMaps',ico:'G'},
-  {key:'instagram',name:'Instagram',short:'IG',ico:'IG'},
-  {key:'facebook',name:'Facebook',short:'FB',ico:'FB'},
-  {key:'x',name:'X / Twitter',short:'X',ico:'X'},
-  {key:'ptt',name:'PTT',short:'PTT',ico:'P'},
-  {key:'dcard',name:'Dcard',short:'Dcard',ico:'D'},
-  {key:'media',name:'Media · GQ / Elle',short:'Media',ico:'M'}
-];
-
-const SAMPLE_REVIEWS={
-  google:[{name:'Lucas Chen',date:'2026/03/22',stars:5,body:{zh:'酒單像短篇小說，調酒師會問你想要什麼樣的故事。Signature 那杯「島嶼之夜」必喝。',en:'The menu reads like a short story. The signature "Island Nights" is a must.'},ext:'View on Google Maps'},{name:'Yvonne L.',date:'2026/03/14',stars:5,body:{zh:'空間不大但氛圍極好，週末建議提前訂位。',en:'Small space, exquisite atmosphere. Book ahead on weekends.'},ext:'View on Google Maps'},{name:'Marcus W.',date:'2026/02/27',stars:4,body:{zh:'價位偏高但物有所值。一個人來吧台位也不會尷尬。',en:'Pricier side but worth it. Solo at the bar feels welcome.'},ext:'View on Google Maps'}],
-  instagram:[{name:'@taipei_drinks',date:'2026/04/03',stars:5,body:{zh:'今晚最美的一杯 ✨ 那層金箔是真的會在嘴裡融化。',en:'Tonight\'s most beautiful pour ✨ the gold leaf actually melts.'},ext:'View on Instagram'},{name:'@bar_geek_tw',date:'2026/03/29',stars:4,body:{zh:'喜歡這種「微醺實驗室」的感覺。',en:'Love the tasting lab vibe.'},ext:'View on Instagram'}],
-  facebook:[{name:'Joyce Huang',date:'2026/03/10',stars:5,body:{zh:'說了一句「她不喜歡太甜」，最後出來的那杯讓她差點哭出來。服務真的不一樣。',en:'I just mentioned "not too sweet" and the drink nearly made her cry. Service on another level.'},ext:'View on Facebook'}],
-  x:[{name:'@cocktail_anon',date:'2026/04/01',stars:5,body:{zh:'Indulge 還是 Indulge。十年了，標準從沒掉過。',en:'Indulge is still Indulge. Ten years in and the standard never slipped.'},ext:'View on X'}],
-  ptt:[{name:'PTT [Drink] sukidayo3',date:'2026/03/22',stars:5,body:{zh:'去過全台灣大部分前 50，Indulge 還是最穩定的那間。帶香港朋友去，他現場訂了下次。',en:"I've been to most of Taiwan's top 50. Indulge is the most consistent."},ext:'View on PTT'}],
-  dcard:[{name:'Dcard 美食版',date:'2026/03/30',stars:5,body:{zh:'初次去就被收買 🥹 服務生記得我朋友的名字（只去過一次）。',en:"First visit and they had me 🥹 the host remembered my friend's name from one prior visit."},ext:'View on Dcard'}],
-  media:[{name:'GQ Taiwan',date:'2026/03/01',stars:5,body:{zh:'「把台灣本土風土帶入分子調酒，是亞洲 50 大酒吧裡最具識別度的一間。」',en:'"Bringing Taiwanese terroir into molecular cocktails — the most distinctive entry on Asia\'s 50 Best."'},ext:'Read on GQ.com.tw'},{name:'Elle Taiwan',date:'2026/02/14',stars:5,body:{zh:'「劇場式 menu 與味覺敘事，Indulge 重新定義了台北的高端調酒體驗。」',en:'"With its theatrical menu, Indulge redefines Taipei\'s high-end cocktail experience."'},ext:'Read on Elle.com.tw'}]
-};
-
 /* ===== STATE ===== */
-let lang='zh',currentBarId=1,activePlatform='google';
+let lang='zh',currentBarId=1;
 let filters={cat:'all',style:'all',area:'all',openNow:false};
 
 /* ===== HELPERS ===== */
 function isOpen(bar){
   const now=new Date(),h=now.getHours()+now.getMinutes()/60,ha=h<6?h+24:h;
   return (bar.openHours||[]).some(([s,e])=>ha>=s&&ha<e);
-}
-function platData(barId){
-  const seed=barId*7+11,r=i=>Math.sin(seed+i*1.7)*.5+.5,base=BARS.find(b=>b.id===barId)?.score||8.5;
-  return PLATFORMS.map((p,i)=>({...p,score:Math.max(7.2,Math.min(9.8,+(base+(r(i)-.5)*.8).toFixed(1))),count:Math.round(80+r(i+9)*1500)}));
 }
 
 /* ===== I18N ===== */
@@ -973,7 +905,7 @@ function renderList(){
         <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="bc-sc">${b.score.toFixed(1)}<span>idx</span></div><div style="font-size:10px;color:var(--muted);letter-spacing:.04em">${b.reviews.toLocaleString()} ${ln?'則':'rev.'}</div></div></div>
         <div class="bc-meta">${meta}</div>
         <div class="bc-tags">${b.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-        <div class="bc-plat"><span class="dot"></span>${b.reviews.toLocaleString()} ${ln?'則跨平台評論':'cross-platform reviews'}</div>
+        <div class="bc-plat"><span class="dot"></span>${b.reviews.toLocaleString()} ${ln?'則 Google 評論':'Google reviews'}</div>
       </div>
     </div>`;
   }).join('');
@@ -1055,36 +987,14 @@ function renderDetail(){
   const scoreEl=document.getElementById('d-score');
   animCount(scoreEl,0,b.score,900,v=>v.toFixed(1));
 
-  // Platform bars
-  const pd=platData(b.id);
-  const pbEl=document.getElementById('platform-bars');
-  pbEl.innerHTML=`<div class="pb-title">${I18N[lang]['detail.platforms']}</div>`+
-    pd.map(p=>`<div class="pb-row"><div class="pb-name">${p.name}</div><div class="pb-track"><div class="pb-fill" data-s="${p.score}"></div></div><div class="pb-score">${p.score.toFixed(1)}</div></div>`).join('');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    pbEl.querySelectorAll('.pb-fill').forEach(el=>el.style.transform=`scaleX(${+el.dataset.s/10})`);
-  }));
-
-  // Tabs
-  document.getElementById('platform-tabs').innerHTML=pd.map(p=>`<button class="ptab ${activePlatform===p.key?'active':''}" data-tab="${p.key}">${p.name}<span class="cnt">${p.count.toLocaleString()}</span></button>`).join('');
-  document.getElementById('platform-panels').innerHTML=pd.map(p=>{
-    const revs=SAMPLE_REVIEWS[p.key]||[];
-    const items=revs.map(r=>`<div class="review"><div class="rv-av">${(r.name[0]||'?').toUpperCase()}</div><div>
-      <div class="rv-head"><span class="rv-name">${r.name}</span><span class="rv-src">${p.short}</span><span class="rv-date">${r.date}</span></div>
-      <div class="rv-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
-      <div class="rv-body">${ln?r.body.zh:r.body.en}</div>
-      <div class="rv-ext">↗ <a href="#">${r.ext}</a></div>
-    </div></div>`).join('');
-    const empty=`<div class="empty-state" style="padding:36px"><p>${ln?'此平台暫無樣本評論（Demo 資料）':'No sample reviews (demo data)'}</p></div>`;
-    return`<div class="tab-panel ${activePlatform===p.key?'active':''}" data-panel="${p.key}">${items||empty}</div>`;
-  }).join('');
-
-  document.querySelectorAll('#platform-tabs .ptab').forEach(t=>{
-    t.addEventListener('click',()=>{
-      activePlatform=t.dataset.tab;
-      document.querySelectorAll('#platform-tabs .ptab').forEach(x=>x.classList.toggle('active',x.dataset.tab===activePlatform));
-      document.querySelectorAll('#platform-panels .tab-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===activePlatform));
-    });
-  });
+  // Google Maps 連結
+  const gmLink=document.getElementById('d-gmaps-link');
+  if(gmLink&&b.googlePlaceId){
+    gmLink.href=`https://www.google.com/maps/place/?q=place_id:${b.googlePlaceId}`;
+    gmLink.style.display='inline-flex';
+  } else if(gmLink){
+    gmLink.style.display='none';
+  }
 }
 
 /* ===== ANIMATE COUNT ===== */
@@ -1182,10 +1092,26 @@ async function loadBars(){
         styleLabel:{zh:b.style_zh,en:b.style_en},
         img:b.img||'v1',
         tags:b.tags||[],
-        photoRefs:b.photo_refs||[]
+        photoRefs:b.photo_refs||[],
+        googlePlaceId:b.google_place_id||''
       });
     });
     console.log(`✓ Loaded ${BARS.length} bars from bars.json`);
+
+    // ── 更新首頁英雄統計數字 ─────────────────────────────────────
+    const statEl=document.getElementById('stat-bars-num');
+    if(statEl)statEl.dataset.target=String(BARS.length);
+
+    // ── 更新首頁排行榜 chips 計數 ─────────────────────────────────
+    const catCountMap={};
+    BARS.forEach(b=>{catCountMap[b.cat]=(catCountMap[b.cat]||0)+1});
+    document.querySelectorAll('#rank-chips .chip').forEach(chip=>{
+      const cat=chip.dataset.cat;
+      if(!cat)return;
+      const count=cat==='all'?BARS.length:(catCountMap[cat]||0);
+      const countEl=chip.querySelector('.count');
+      if(countEl)countEl.textContent=count;
+    });
 
     // ── 動態建立地區 chips ────────────────────────────────────
     const AREA_LABELS={
