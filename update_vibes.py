@@ -108,29 +108,46 @@ VIBE_KEYWORDS = {
 
 # ── 分類主函式 ────────────────────────────────────────────────────────────────
 def classify_vibes(bar: dict) -> list:
-    """分析酒吧名稱 + 評論，回傳符合的 vibe 列表"""
-    # 收集全部文字
-    texts = [
+    """
+    分析酒吧名稱 + AI 摘要（generativeSummary）+ 評論，回傳符合的 vibe 列表。
+
+    加權策略：
+      - review_summary（Google AI 彙整所有評論）: 權重 ×3
+      - 個別評論文字: 權重 ×1
+      - 酒吧名稱 / 地址: 權重 ×1
+    閾值：
+      - 有 review_summary 時：score >= 2（避免雜訊）
+      - 無 review_summary 時：score >= 1
+    """
+    summary = bar.get("review_summary", "").lower()
+    has_summary = bool(summary)
+
+    # 基礎文字（權重 1）
+    base_texts = [
         bar.get("name", ""),
         bar.get("zh", ""),
-        bar.get("addr_zh", ""),
-        bar.get("addr_en", ""),
     ]
     for r in bar.get("review_list", []):
-        texts.append(r.get("text", ""))
-
-    combined = " ".join(texts).lower()
+        base_texts.append(r.get("text", ""))
+    base = " ".join(base_texts).lower()
 
     detected = []
     for vibe, kws in VIBE_KEYWORDS.items():
         score = 0
         for kw in kws["zh"] + kws["en"]:
-            if kw.lower() in combined:
+            kw_l = kw.lower()
+            # review_summary 命中：權重 ×3
+            if has_summary and kw_l in summary:
+                score += 3
+            # 評論 / 名稱命中：權重 ×1
+            if kw_l in base:
                 score += 1
-        if score >= 1:   # 只要出現 1 個關鍵字就算符合
+
+        threshold = 2 if has_summary else 1
+        if score >= threshold:
             detected.append((vibe, score))
 
-    # 依命中次數排序，取前 6 個 vibe
+    # 依命中分數排序，取前 6 個 vibe
     detected.sort(key=lambda x: x[1], reverse=True)
     return [v for v, _ in detected[:6]]
 
