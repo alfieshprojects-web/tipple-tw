@@ -376,6 +376,18 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .carousel-dot.active{background:var(--gold);width:18px;border-radius:3px}
 .carousel-count{position:absolute;top:12px;right:12px;background:rgba(10,10,12,.65);color:var(--silver);font-size:11px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px);letter-spacing:.05em;z-index:10}
 @media(max-width:640px){.photo-carousel{height:220px}}
+
+/* ── Nearby page ── */
+.nearby-hero{text-align:center;padding:60px 0 36px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.nearby-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;border-radius:999px;background:var(--gold-grad);color:#0a0a0c;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;letter-spacing:.06em;cursor:pointer;border:none;transition:var(--ease);box-shadow:0 6px 24px rgba(201,169,106,.28)}
+.nearby-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(201,169,106,.4)}
+.nearby-btn:disabled{opacity:.55;pointer-events:none}
+.nearby-btn svg{width:18px;height:18px;flex-shrink:0}
+.nearby-status{font-size:13px;color:var(--muted);letter-spacing:.04em;min-height:20px;text-align:center}
+.nearby-radius{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+.nearby-radius-lbl{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.nearby-results{padding-bottom:60px}
+.nearby-dist{font-size:11px;color:var(--gold-3);letter-spacing:.06em;margin-top:3px;font-family:'Inter',sans-serif}
 </style>
 </head>
 <body>
@@ -392,6 +404,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
       <a data-route="list" data-i18n="nav.discover">Discover</a>
       <a data-route="rank" data-i18n="nav.rank">Rankings</a>
       <a data-route="style" data-i18n="nav.style">By Style</a>
+      <a data-route="nearby" id="nav-nearby" data-i18n="nav.nearby">附近</a>
     </nav>
     <div class="search-wrap">
       <div class="search">
@@ -418,6 +431,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
   <a data-route="list" data-i18n="nav.discover">Discover</a>
   <a data-route="rank" data-i18n="nav.rank">Rankings</a>
   <a data-route="style" data-i18n="nav.style">By Style</a>
+  <a data-route="nearby" data-i18n="nav.nearby">附近</a>
   <div class="drawer-lang">
     <div class="lang-sw" style="display:inline-flex">
       <button class="active" data-lang="zh">繁中</button>
@@ -704,6 +718,40 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
   </section>
 </main>
 
+<!-- ========== NEARBY PAGE (附近酒吧) ========== -->
+<main id="page-nearby" class="page">
+  <section class="block" style="padding-top:46px;padding-bottom:0">
+    <div class="container">
+      <div class="section-head reveal">
+        <div>
+          <span class="eyebrow" data-i18n="nearby.eyebrow">Nearby</span>
+          <h2 data-i18n="nearby.title">附近的酒吧</h2>
+          <p class="desc" data-i18n="nearby.desc">開啟定位，找到走路可達的那一間。</p>
+        </div>
+      </div>
+      <div class="nearby-hero">
+        <button class="nearby-btn" id="nearby-locate-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 4"/></svg>
+          <span data-i18n="nearby.locate">取得我的位置</span>
+        </button>
+        <div class="nearby-status" id="nearby-status"></div>
+        <div class="nearby-radius" id="nearby-radius-chips" style="display:none">
+          <span class="nearby-radius-lbl" data-i18n="nearby.radius">範圍</span>
+          <div class="chips">
+            <button class="chip" data-radius="500">500m</button>
+            <button class="chip active" data-radius="1000">1km</button>
+            <button class="chip" data-radius="2000">2km</button>
+            <button class="chip" data-radius="5000">5km</button>
+          </div>
+        </div>
+      </div>
+      <div class="nearby-results">
+        <div class="bar-grid" id="nearby-grid"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
 <!-- ========== DETAIL PAGE ========== -->
 <main id="page-detail" class="page">
   <section class="block" style="padding-top:36px">
@@ -771,7 +819,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 
 <script>
 /* ===== I18N ===== */
-const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依類型','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'直接採用 Google Maps 原始評分（滿分 5 分），依評分高低排序。','rank.more':'看完整排行 →','picks.eyebrow':'精選推薦','picks.title':'高分精選 · 本週推薦','picks.desc':'根據 Google Maps 評分，為你推薦近期評價最高的酒吧。','picks.more':'更多精選 →','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'頂樓 · 城市夜景','style.s2':'爵士 · 現場演奏','style.s3':'DJ · 電子聲浪','style.s4':'Lounge · 沙發放鬆','style.s5':'實驗 · 分子調酒','style.s6':'品飲 · 侍酒體驗','style.s7':'隱藏 · 預約制','style.s8':'飯店 · 精品吧','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.vibe':'VIBE','filter.vibe_atm':'氛圍','filter.vibe_pref':'偏好','filter.vibe_feat':'特色','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','filter.morning':'早午（10:00–14:00）','filter.afternoon':'下午（14:00–18:00）','filter.evening':'晚上（18:00–02:00）','cat.all':'全部','cat.cocktail':'調酒吧','cat.speakeasy':'Speakeasy','cat.gin':'琴酒吧','cat.whisky':'威士忌吧','cat.rum_agave':'蘭姆/龍舌蘭','cat.wine':'紅酒吧','cat.craft':'精釀啤酒','cat.sake':'清酒吧','cat.bistro':'餐酒館','vibe.all':'全部氛圍','vibe.rooftop':'頂樓景觀','vibe.jazz':'爵士現場','vibe.dj':'DJ 電音','vibe.listen':'音樂鑑賞','vibe.lounge':'沙發放鬆','vibe.dive':'Dive Bar','vibe.theme':'主題酒吧','vibe.hotel':'飯店酒吧','vibe.hidden':'隱藏私密','vibe.date':'約會導向','vibe.party':'派對熱鬧','vibe.group':'朋友聚會','vibe.solo':'一人友善','vibe.afterwork':'下班小酌','vibe.experimental':'實驗調酒','vibe.tasting':'品飲體驗','vibe.zero_abv':'無酒精','vibe.low_abv':'低酒精','vibe.sustainable':'永續在地','vibe.chefs_table':'餐酒融合','vibe.private':'預約私人','type.eyebrow':'依類型','type.title':'依類型找酒吧','type.desc':'從飲品種類出發，找到今晚的那一杯。','type.viewall':'看全部 →','area.all':'全部','detail.back':'返回','detail.idx':'Google 評分','detail.outof':'滿分 5 分','detail.basedon':'基於','detail.reviews':'則 Google 評論','detail.disclaimer':'評分資料來自 Google Maps，僅供參考','open.now':'現在營業','closed.now':'暫停營業'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Type','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'Aggregating Google Maps ratings across 1,090 bars in Taiwan — find the one worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Google Maps ratings out of 5. Bars ranked highest to lowest.','rank.more':'View All →','picks.eyebrow':'Top Picks','picks.title':'Top Picks · This Week','picks.desc':'Highest-rated bars on Google Maps right now.','picks.more':'All Picks →','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Rooftop · City at night','style.s2':'Jazz · Live music','style.s3':'DJ · Electronic sound','style.s4':'Lounge · Deep sofas','style.s5':'Experimental · Molecular','style.s6':'Tasting · Pairing room','style.s7':'Hidden · Reservation only','style.s8':'Hotel · Refined bar','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.vibe':'VIBE','filter.vibe_atm':'Atmosphere','filter.vibe_pref':'Preference','filter.vibe_feat':'Features','filter.area':'AREA','filter.time':'時段','filter.open':'Open now','filter.openon':'✓ Open now','filter.morning':'Morning（10:00–14:00）','filter.afternoon':'Afternoon（14:00–18:00）','filter.evening':'Evening（18:00–02:00）','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.speakeasy':'Speakeasy','cat.gin':'Gin Bar','cat.whisky':'Whisky Bar','cat.rum_agave':'Rum & Agave','cat.wine':'Wine Bar','cat.craft':'Craft Beer','cat.sake':'Sake Bar','cat.bistro':'Bistro Bar','vibe.all':'All Vibes','vibe.rooftop':'Rooftop','vibe.jazz':'Jazz Bar','vibe.dj':'DJ / Club','vibe.listen':'Listen Bar','vibe.lounge':'Lounge','vibe.dive':'Dive Bar','vibe.theme':'Theme Bar','vibe.hotel':'Hotel Bar','vibe.hidden':'Hidden','vibe.date':'Date Bar','vibe.party':'Party Bar','vibe.group':'Group Bar','vibe.solo':'Solo-friendly','vibe.afterwork':'Afterwork','vibe.experimental':'Experimental','vibe.tasting':'Tasting Room','vibe.zero_abv':'Zero ABV','vibe.low_abv':'Low ABV','vibe.sustainable':'Sustainable','vibe.chefs_table':"Chef's Table",'vibe.private':'Private Bar','type.eyebrow':'By Category','type.title':'Bars by Type','type.desc':'Start with the drink, find the bar.','type.viewall':'View All →','area.all':'All','detail.back':'Back','detail.idx':'Google Rating','detail.outof':'out of 5','detail.basedon':'Based on','detail.reviews':'Google reviews','detail.disclaimer':'Ratings sourced from Google Maps. For reference only.','open.now':'Open now','closed.now':'Closed'}};
+const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依類型','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'直接採用 Google Maps 原始評分（滿分 5 分），依評分高低排序。','rank.more':'看完整排行 →','picks.eyebrow':'精選推薦','picks.title':'高分精選 · 本週推薦','picks.desc':'根據 Google Maps 評分，為你推薦近期評價最高的酒吧。','picks.more':'更多精選 →','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'頂樓 · 城市夜景','style.s2':'爵士 · 現場演奏','style.s3':'DJ · 電子聲浪','style.s4':'Lounge · 沙發放鬆','style.s5':'實驗 · 分子調酒','style.s6':'品飲 · 侍酒體驗','style.s7':'隱藏 · 預約制','style.s8':'飯店 · 精品吧','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.vibe':'VIBE','filter.vibe_atm':'氛圍','filter.vibe_pref':'偏好','filter.vibe_feat':'特色','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','filter.morning':'早午（10:00–14:00）','filter.afternoon':'下午（14:00–18:00）','filter.evening':'晚上（18:00–02:00）','cat.all':'全部','cat.cocktail':'調酒吧','cat.speakeasy':'Speakeasy','cat.gin':'琴酒吧','cat.whisky':'威士忌吧','cat.rum_agave':'蘭姆/龍舌蘭','cat.wine':'紅酒吧','cat.craft':'精釀啤酒','cat.sake':'清酒吧','cat.bistro':'餐酒館','vibe.all':'全部氛圍','vibe.rooftop':'頂樓景觀','vibe.jazz':'爵士現場','vibe.dj':'DJ 電音','vibe.listen':'音樂鑑賞','vibe.lounge':'沙發放鬆','vibe.dive':'Dive Bar','vibe.theme':'主題酒吧','vibe.hotel':'飯店酒吧','vibe.hidden':'隱藏私密','vibe.date':'約會導向','vibe.party':'派對熱鬧','vibe.group':'朋友聚會','vibe.solo':'一人友善','vibe.afterwork':'下班小酌','vibe.experimental':'實驗調酒','vibe.tasting':'品飲體驗','vibe.zero_abv':'無酒精','vibe.low_abv':'低酒精','vibe.sustainable':'永續在地','vibe.chefs_table':'餐酒融合','vibe.private':'預約私人','type.eyebrow':'依類型','type.title':'依類型找酒吧','type.desc':'從飲品種類出發，找到今晚的那一杯。','type.viewall':'看全部 →','area.all':'全部','detail.back':'返回','detail.idx':'Google 評分','detail.outof':'滿分 5 分','detail.basedon':'基於','detail.reviews':'則 Google 評論','detail.disclaimer':'評分資料來自 Google Maps，僅供參考','open.now':'現在營業','closed.now':'暫停營業','nav.nearby':'附近','nearby.eyebrow':'附近酒吧','nearby.title':'附近的酒吧','nearby.desc':'開啟定位，找到走路可達的那一間。','nearby.locate':'取得我的位置','nearby.locating':'定位中…','nearby.radius':'範圍','nearby.found':' 間酒吧在附近','nearby.none':'這個範圍內找不到酒吧','nearby.denied':'無法取得定位權限，請在瀏覽器設定中允許','nearby.error':'定位失敗，請稍後再試','nearby.m':'公尺','nearby.km':'公里'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Type','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'Aggregating Google Maps ratings across 1,090 bars in Taiwan — find the one worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Google Maps ratings out of 5. Bars ranked highest to lowest.','rank.more':'View All →','picks.eyebrow':'Top Picks','picks.title':'Top Picks · This Week','picks.desc':'Highest-rated bars on Google Maps right now.','picks.more':'All Picks →','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Rooftop · City at night','style.s2':'Jazz · Live music','style.s3':'DJ · Electronic sound','style.s4':'Lounge · Deep sofas','style.s5':'Experimental · Molecular','style.s6':'Tasting · Pairing room','style.s7':'Hidden · Reservation only','style.s8':'Hotel · Refined bar','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.vibe':'VIBE','filter.vibe_atm':'Atmosphere','filter.vibe_pref':'Preference','filter.vibe_feat':'Features','filter.area':'AREA','filter.time':'時段','filter.open':'Open now','filter.openon':'✓ Open now','filter.morning':'Morning（10:00–14:00）','filter.afternoon':'Afternoon（14:00–18:00）','filter.evening':'Evening（18:00–02:00）','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.speakeasy':'Speakeasy','cat.gin':'Gin Bar','cat.whisky':'Whisky Bar','cat.rum_agave':'Rum & Agave','cat.wine':'Wine Bar','cat.craft':'Craft Beer','cat.sake':'Sake Bar','cat.bistro':'Bistro Bar','vibe.all':'All Vibes','vibe.rooftop':'Rooftop','vibe.jazz':'Jazz Bar','vibe.dj':'DJ / Club','vibe.listen':'Listen Bar','vibe.lounge':'Lounge','vibe.dive':'Dive Bar','vibe.theme':'Theme Bar','vibe.hotel':'Hotel Bar','vibe.hidden':'Hidden','vibe.date':'Date Bar','vibe.party':'Party Bar','vibe.group':'Group Bar','vibe.solo':'Solo-friendly','vibe.afterwork':'Afterwork','vibe.experimental':'Experimental','vibe.tasting':'Tasting Room','vibe.zero_abv':'Zero ABV','vibe.low_abv':'Low ABV','vibe.sustainable':'Sustainable','vibe.chefs_table':"Chef's Table",'vibe.private':'Private Bar','type.eyebrow':'By Category','type.title':'Bars by Type','type.desc':'Start with the drink, find the bar.','type.viewall':'View All →','area.all':'All','detail.back':'Back','detail.idx':'Google Rating','detail.outof':'out of 5','detail.basedon':'Based on','detail.reviews':'Google reviews','detail.disclaimer':'Ratings sourced from Google Maps. For reference only.','open.now':'Open now','closed.now':'Closed','nav.nearby':'Nearby','nearby.eyebrow':'Nearby Bars','nearby.title':'Bars Near You','nearby.desc':'Enable location to find bars within walking distance.','nearby.locate':'Get My Location','nearby.locating':'Locating…','nearby.radius':'Radius','nearby.found':' bars nearby','nearby.none':'No bars found in this area','nearby.denied':'Location permission denied. Please enable in browser settings.','nearby.error':'Location failed. Please try again.','nearby.m':'m','nearby.km':'km'}};
 
 /* ===== DATA ===== */
 const BARS=[
@@ -831,6 +879,7 @@ function _render(route,opts={}){
   if(route==='list')renderList();
   if(route==='rank')renderRankPage();
   if(route==='style'){renderTypePage();applyI18n();}
+  if(route==='nearby'){applyI18n();setTimeout(checkReveal,60);}
   window.scrollTo({top:0,behavior:'smooth'});
   setTimeout(checkReveal,60);
 }
@@ -853,7 +902,7 @@ function initRoute(){
   const dm=h.match(/^#detail\/(\d+)$/);
   if(dm){currentBarId=+dm[1];_render('detail',{barId:+dm[1]});return;}
   const r=h.replace('#','');
-  if(['list','rank','style'].includes(r)){_render(r,{});return;}
+  if(['list','rank','style','nearby'].includes(r)){_render(r,{});return;}
   _render('home',{});
 }
 document.addEventListener('click',e=>{
@@ -1187,6 +1236,93 @@ document.getElementById('time-chips')?.addEventListener('click',e=>{
 });
 const onNowChip=document.getElementById('open-now-chip');
 
+/* ===== NEARBY (附近酒吧) ===== */
+let userLat=null,userLng=null,nearbyRadius=1000;
+
+// Haversine 公式：計算兩點間距離（公尺）
+function haversine(lat1,lng1,lat2,lng2){
+  const R=6371000,toRad=d=>d*Math.PI/180;
+  const dLat=toRad(lat2-lat1),dLng=toRad(lng2-lng1);
+  const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function fmtDist(m,ln){
+  if(m<1000)return`${Math.round(m)}${ln?'公尺':'m'}`;
+  return`${(m/1000).toFixed(1)}${ln?'公里':'km'}`;
+}
+
+function renderNearbyGrid(){
+  const ln=lang==='zh';
+  const grid=document.getElementById('nearby-grid');
+  const status=document.getElementById('nearby-status');
+  if(!grid||userLat===null)return;
+  const withDist=BARS
+    .filter(b=>b.lat&&b.lng)
+    .map(b=>({...b,dist:haversine(userLat,userLng,b.lat,b.lng)}))
+    .filter(b=>b.dist<=nearbyRadius)
+    .sort((a,b2)=>a.dist-b2.dist);
+  if(status){
+    status.textContent=withDist.length
+      ?`${withDist.length}${I18N[lang]['nearby.found']}`
+      :I18N[lang]['nearby.none'];
+  }
+  if(!withDist.length){grid.innerHTML='';return;}
+  grid.innerHTML=withDist.map(b=>{
+    const meta=ln?`${b.district}<span class="dot">·</span>${b.catLabel.zh}`:`${b.district}<span class="dot">·</span>${b.catLabel.en}`;
+    const opInd=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
+    const hasPhoto=b.photoRefs&&b.photoRefs[0]&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE';
+    const photoImg=hasPhoto?`<img class="bc-photo" src="${photoUrl(b.photoRefs[0],600)}" alt="${b.name}" loading="lazy" onerror="this.remove()">`:'';
+    const distLabel=`<div class="nearby-dist">📍 ${fmtDist(b.dist,ln)}</div>`;
+    return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
+      <div class="bc-img ${b.img}">${photoImg}<div class="bc-indicator" style="z-index:2">${opInd}</div></div>
+      <div class="bc-body">
+        <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="bc-sc">${b.score.toFixed(1)}<span>/ 5</span></div></div></div>
+        <div class="bc-meta">${meta}</div>
+        ${distLabel}
+        <div class="bc-tags">${b.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 定位按鈕
+document.getElementById('nearby-locate-btn')?.addEventListener('click',()=>{
+  if(!navigator.geolocation){
+    const s=document.getElementById('nearby-status');
+    if(s)s.textContent=I18N[lang]['nearby.error'];
+    return;
+  }
+  const btn=document.getElementById('nearby-locate-btn');
+  const status=document.getElementById('nearby-status');
+  btn.disabled=true;
+  if(status)status.textContent=I18N[lang]['nearby.locating'];
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      userLat=pos.coords.latitude;
+      userLng=pos.coords.longitude;
+      btn.disabled=false;
+      const radEl=document.getElementById('nearby-radius-chips');
+      if(radEl)radEl.style.display='flex';
+      renderNearbyGrid();
+    },
+    err=>{
+      btn.disabled=false;
+      if(status)status.textContent=err.code===1?I18N[lang]['nearby.denied']:I18N[lang]['nearby.error'];
+    },
+    {enableHighAccuracy:true,timeout:10000}
+  );
+});
+
+// 範圍 chips
+document.getElementById('nearby-radius-chips')?.addEventListener('click',e=>{
+  const b=e.target.closest('[data-radius]');if(!b)return;
+  document.querySelectorAll('#nearby-radius-chips [data-radius]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  nearbyRadius=+b.dataset.radius;
+  renderNearbyGrid();
+});
+
 /* ===== LANG ===== */
 document.querySelectorAll('[data-lang]').forEach(b=>{
   b.addEventListener('click',()=>{
@@ -1250,14 +1386,25 @@ async function loadBars(){
         img:b.img||'v1',
         tags:(b.vibes||b.tags||[]),   // vibes 為新格式，tags 向下相容
         photoRefs:b.photo_refs||[],
-        googlePlaceId:b.google_place_id||''
+        googlePlaceId:b.google_place_id||'',
+        lat:b.lat||null,
+        lng:b.lng||null
       });
     });
     console.log(`✓ Loaded ${BARS.length} bars from bars.json`);
 
     // ── 更新首頁英雄統計數字 ─────────────────────────────────────
+    // 動態更新首頁數字（stat card + hero 段落文字）
     const statEl=document.getElementById('stat-bars-num');
     if(statEl)statEl.dataset.target=String(BARS.length);
+    // hero lead 文字中的酒吧數量也同步更新
+    const heroLead=document.querySelector('[data-i18n="hero.lead"]');
+    if(heroLead){
+      const cnt=BARS.length.toLocaleString();
+      heroLead.innerHTML=heroLead.innerHTML
+        .replace(/[\d,，]+\s*間酒吧/,`${cnt} 間酒吧`)
+        .replace(/[\d,]+\s*bars/i,`${cnt} bars`);
+    }
 
     // ── 更新首頁排行榜 chips 計數 ─────────────────────────────────
     const catCountMap={};
