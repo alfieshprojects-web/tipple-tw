@@ -377,6 +377,24 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .carousel-count{position:absolute;top:12px;right:12px;background:rgba(10,10,12,.65);color:var(--silver);font-size:11px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px);letter-spacing:.05em;z-index:10}
 @media(max-width:640px){.photo-carousel{height:220px}}
 
+/* ── Reviews ── */
+.reviews-section{margin-top:36px;padding-top:28px;border-top:1px solid var(--line)}
+.reviews-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold-2);margin-bottom:18px;letter-spacing:.04em}
+.review-card{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px;transition:var(--ease)}
+.review-card:last-child{margin-bottom:0}
+.review-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.review-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg-4);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--gold-2);flex-shrink:0}
+.review-meta{flex:1;min-width:0}
+.review-author{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.review-time{font-size:10px;color:var(--muted);letter-spacing:.04em;margin-top:1px}
+.review-stars{display:flex;gap:2px;flex-shrink:0}
+.review-star{font-size:11px;color:var(--gold)}
+.review-star.off{color:var(--line-2)}
+.review-text{font-size:13px;color:var(--silver);line-height:1.65;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.review-text.expanded{-webkit-line-clamp:unset;overflow:visible}
+.review-expand{font-size:11px;color:var(--gold-3);cursor:pointer;margin-top:6px;letter-spacing:.04em;display:none}
+.review-expand.show{display:block}
+
 /* ── Nearby page ── */
 .nearby-hero{text-align:center;padding:60px 0 36px;display:flex;flex-direction:column;align-items:center;gap:18px}
 .nearby-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;border-radius:999px;background:var(--gold-grad);color:#0a0a0c;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;letter-spacing:.06em;cursor:pointer;border:none;transition:var(--ease);box-shadow:0 6px 24px rgba(201,169,106,.28)}
@@ -808,6 +826,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
       <div class="ad-slot" id="ad-detail-bottom" style="margin-top:32px">
         <div class="ad-slot-inner"></div>
       </div>
+      <div id="d-reviews-section" class="reviews-section" style="display:none"></div>
       <div style="margin-top:28px;text-align:center;color:var(--muted-2);font-size:10px;letter-spacing:.16em" data-i18n="detail.disclaimer">評分資料來自 Google Maps，僅供參考</div>
     </div>
   </section>
@@ -1175,6 +1194,55 @@ function renderDetail(){
   } else if(gmLink){
     gmLink.style.display='none';
   }
+
+  // 評論區塊
+  const revSec=document.getElementById('d-reviews-section');
+  if(revSec){
+    const reviews=b.reviewList||[];
+    if(reviews.length){
+      const title=lang==='zh'?'Google 評論':'Google Reviews';
+      const stars=n=>[1,2,3,4,5].map(i=>`<span class="review-star${i<=n?'':' off'}">★</span>`).join('');
+      revSec.innerHTML=`<div class="reviews-title">${title}</div>`
+        +reviews.map(r=>{
+          const initial=(r.author||'?')[0].toUpperCase();
+          return`<div class="review-card">
+            <div class="review-header">
+              <div class="review-avatar">${initial}</div>
+              <div class="review-meta">
+                <div class="review-author">${r.author||'匿名'}</div>
+                <div class="review-time">${r.time||''}</div>
+              </div>
+              <div class="review-stars">${stars(r.rating||0)}</div>
+            </div>
+            <div class="review-text">${r.text||''}</div>
+            <div class="review-expand">展開 ↓</div>
+          </div>`;
+        }).join('');
+      revSec.style.display='block';
+      // 展開/收合
+      revSec.querySelectorAll('.review-text').forEach(el=>{
+        requestAnimationFrame(()=>{
+          if(el.scrollHeight>el.clientHeight+4){
+            const btn=el.nextElementSibling;
+            if(btn)btn.classList.add('show');
+          }
+        });
+        el.addEventListener('click',()=>{
+          el.classList.toggle('expanded');
+          const btn=el.nextElementSibling;
+          if(btn)btn.textContent=el.classList.contains('expanded')?'收合 ↑':'展開 ↓';
+        });
+      });
+      revSec.querySelectorAll('.review-expand').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const txt=btn.previousElementSibling;
+          if(txt){txt.classList.toggle('expanded');btn.textContent=txt.classList.contains('expanded')?'收合 ↑':'展開 ↓';}
+        });
+      });
+    } else {
+      revSec.style.display='none';
+    }
+  }
 }
 
 /* ===== ANIMATE COUNT ===== */
@@ -1388,7 +1456,8 @@ async function loadBars(){
         photoRefs:b.photo_refs||[],
         googlePlaceId:b.google_place_id||'',
         lat:b.lat||null,
-        lng:b.lng||null
+        lng:b.lng||null,
+        reviewList:b.review_list||[]
       });
     });
     console.log(`✓ Loaded ${BARS.length} bars from bars.json`);
