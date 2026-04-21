@@ -103,8 +103,10 @@ KEYWORDS = [
     "craft beer bar 精釀",
     "餐酒館 bistro bar",
     "gin bar 琴酒",
-    "highball bar",
-    "beer bar 啤酒吧",
+    "rum bar 蘭姆",
+    "tequila bar 龍舌蘭",
+    "jazz bar 爵士",
+    "lounge bar",
 ]
 
 # 展開成完整搜尋清單
@@ -116,43 +118,116 @@ SEARCHES = [
 
 # 類型與風格推斷規則（根據名稱/關鍵字猜測）
 def guess_cat(name: str, types: list) -> str:
+    """
+    主類型判斷（依飲品種類，8大核心 + bistro）
+    優先順序：特定烈酒 > 精釀 > Speakeasy > 餐酒館 > 調酒吧
+    """
     n = name.lower()
-    if any(k in n for k in ["whisky", "whiskey", "bourbon", "scotch", "威士忌"]):
+    # 威士忌（含 Highball 風格）
+    if any(k in n for k in ["whisky", "whiskey", "bourbon", "scotch", "威士忌", "highball", "ハイボール"]):
         return "whisky"
-    if any(k in n for k in ["sake", "清酒", "日本酒"]):
+    # 清酒
+    if any(k in n for k in ["sake", "清酒", "日本酒", "izakaya", "居酒屋"]):
         return "sake"
-    if any(k in n for k in ["wine", "葡萄酒", "紅酒", "白酒"]):
+    # 葡萄酒
+    if any(k in n for k in ["wine", "葡萄酒", "紅酒", "白酒", "champagne", "prosecco", "bubbles"]):
         return "wine"
-    if any(k in n for k in ["gin", "琴酒", "juniper"]):
+    # 琴酒
+    if any(k in n for k in ["gin", "琴酒", "genever", "juniper"]):
         return "gin"
-    if any(k in n for k in ["highball", "ハイボール", "high ball"]):
-        return "highball"
-    if any(k in n for k in ["craft", "brew", "精釀"]):
+    # 蘭姆 / 龍舌蘭
+    if any(k in n for k in ["rum", "rhum", "ron", "蘭姆", "tequila", "mezcal", "agave", "龍舌蘭", "sotol"]):
+        return "rum_agave"
+    # 精釀啤酒（craft 優先於一般 beer）
+    if any(k in n for k in ["craft", "brew", "精釀", "taproom"]):
         return "craft"
-    if any(k in n for k in ["beer", "pub", "啤酒", "酒館"]) and not any(k in n for k in ["cocktail", "調酒"]):
-        return "beer"
-    if any(k in n for k in ["speakeasy", "hidden", "secret", "隱藏"]):
+    # 一般啤酒吧（pub style）
+    if any(k in n for k in ["beer", "pub", "啤酒", "pint", "ale", "lager", "stout"]) \
+            and not any(k in n for k in ["cocktail", "調酒", "bar"]):
+        return "craft"
+    # Speakeasy
+    if any(k in n for k in ["speakeasy", "hidden", "secret", "basement", "underground"]):
         return "speakeasy"
-    if any(k in n for k in ["bistro", "餐酒館", "dining"]):
+    # 餐酒館
+    if any(k in n for k in ["bistro", "餐酒館", "brasserie", "tavern", "gastropub"]):
         return "bistro"
     return "cocktail"  # 預設
 
-def guess_style(name: str) -> str:
+
+def guess_vibes(name: str, types: list, address: str = "") -> list:
+    """
+    氛圍 / 體驗標籤（多選，存入 tags 欄位）
+    涵蓋：音樂型、社交型、環境型、概念型
+    """
     n = name.lower()
-    if any(k in n for k in ["speakeasy", "hidden", "secret", "basement"]):
-        return "speakeasy"
+    vibes = []
+
+    # ── 音樂 & 表演 ──
+    if any(k in n for k in ["jazz", "爵士"]):
+        vibes.append("jazz")
+    if any(k in n for k in ["dj", "club", "電音", "electronic", "rave", "techno", "house"]):
+        vibes.append("dj")
+    if any(k in n for k in ["live", "band", "concert", "vinyl", "record", "黑膠", "現場", "hifi", "hi-fi"]):
+        vibes.append("listen")
+
+    # ── 環境 & 空間 ──
+    if any(k in n for k in ["rooftop", "sky", "roof", "頂樓", "空中", "terrasse", "terrace", "天台"]):
+        vibes.append("rooftop")
+    if any(k in n for k in ["hotel", "grand", "palace", "resort", "飯店", "酒店", "旅館", "inn"]) \
+            or "lodging" in types:
+        vibes.append("hotel")
+    if any(k in n for k in ["lounge", "沙發", "relax", "chill", "comfort"]):
+        vibes.append("lounge")
+    if any(k in n for k in ["dive", "老", "old school", "classic pub", "traditional", "老派"]):
+        vibes.append("dive")
+    if any(k in n for k in ["theme", "主題", "昭和", "showa", "retro", "復古", "film", "電影", "anime"]):
+        vibes.append("theme")
+    if any(k in n for k in ["speakeasy", "hidden", "secret", "basement", "underground", "隱藏", "地下"]):
+        vibes.append("hidden")
+
+    # ── 社交行為 ──
+    if any(k in n for k in ["date", "romantic", "couple", "約會", "candlelight"]):
+        vibes.append("date")
+    if any(k in n for k in ["party", "派對", "celebration", "fiesta", "banquet"]):
+        vibes.append("party")
+    if any(k in n for k in ["solo", "bar seat", "counter", "吧台", "一人"]):
+        vibes.append("solo")
+    if any(k in n for k in ["afterwork", "after work", "下班", "happy hour"]):
+        vibes.append("afterwork")
+
+    # ── 概念 & 體驗 ──
+    if any(k in n for k in ["experimental", "lab", "molecular", "實驗", "avant"]):
+        vibes.append("experimental")
+    if any(k in n for k in ["tasting", "omakase", "品飲", "flight", "pairing"]):
+        vibes.append("tasting")
+    if any(k in n for k in ["zero", "無酒精", "sober", "mocktail", "alcohol-free", "0%"]):
+        vibes.append("zero_abv")
+    if any(k in n for k in ["low abv", "低酒精", "spritz", "low alcohol"]):
+        vibes.append("low_abv")
+    if any(k in n for k in ["sustainable", "local", "organic", "farm", "永續", "在地", "natural"]):
+        vibes.append("sustainable")
+    if any(k in n for k in ["chef", "kitchen", "dining", "food", "餐廚", "料理"]) \
+            and any(k in n for k in ["bar", "吧", "cocktail"]):
+        vibes.append("chefs_table")
+    if any(k in n for k in ["private", "reservation only", "預約", "私人", "member", "會員"]):
+        vibes.append("private")
+
+    return list(dict.fromkeys(vibes))  # 去重，保留順序
+
+def guess_style(name: str) -> str:
+    """
+    保留 style 欄位做向下相容，取 vibes[0] 或預設 craft
+    """
+    vibes = guess_vibes(name, [])
+    if vibes:
+        return vibes[0]
+    n = name.lower()
     if any(k in n for k in ["rooftop", "sky", "top", "頂樓"]):
         return "rooftop"
-    if any(k in n for k in ["japanese", "japan", "jp", "日式", "和風"]):
-        return "japanese"
-    if any(k in n for k in ["luxe", "luxury", "hotel", "grand", "palace"]):
-        return "luxe"
-    if any(k in n for k in ["craft", "artisan", "handcraft", "職人"]):
-        return "craft"
     if any(k in n for k in ["experimental", "lab", "molecular", "實驗"]):
         return "experimental"
-    if any(k in n for k in ["classic", "heritage", "traditional", "古典"]):
-        return "classic"
+    if any(k in n for k in ["hotel", "grand", "palace", "飯店"]):
+        return "hotel"
     return "craft"
 
 def google_score_to_nightly(google_rating: float, review_count: int) -> float:
@@ -399,8 +474,10 @@ def main():
             photo_refs = [p["name"] for p in photos[:10] if p.get("name")]
 
             district = district_from_address(address)
-            cat = guess_cat(name, details.get("types", []))
-            style = guess_style(name)
+            place_types = details.get("types", [])
+            cat = guess_cat(name, place_types)
+            vibes = guess_vibes(name, place_types, address)
+            style = vibes[0] if vibes else guess_style(name)
             nightly_score = google_score_to_nightly(rating, review_count)
             # 新版 opening_hours 格式相容處理
             open_hours = format_open_hours(opening_hours)
@@ -411,27 +488,39 @@ def main():
 
             # 類別中英文
             cat_labels = {
-                "cocktail": ("調酒吧", "Cocktail Bar"),
-                "bistro":   ("餐酒館", "Bistro Bar"),
-                "whisky":   ("威士忌吧", "Whisky Bar"),
-                "sake":     ("清酒吧", "Sake Bar"),
-                "wine":     ("紅酒吧", "Wine Bar"),
-                "craft":    ("精釀啤酒吧", "Craft Beer Bar"),
-                "speakeasy":("Speakeasy", "Speakeasy"),
-                "gin":      ("琴酒吧", "Gin Bar"),
-                "highball": ("Highball Bar", "Highball Bar"),
-                "beer":     ("啤酒吧", "Beer Bar"),
+                "cocktail":  ("調酒吧",     "Cocktail Bar"),
+                "speakeasy": ("Speakeasy",   "Speakeasy"),
+                "gin":       ("琴酒吧",      "Gin Bar"),
+                "whisky":    ("威士忌吧",    "Whisky Bar"),
+                "rum_agave": ("蘭姆/龍舌蘭", "Rum & Agave"),
+                "wine":      ("紅酒吧",      "Wine Bar"),
+                "craft":     ("精釀啤酒吧",  "Craft Beer Bar"),
+                "sake":      ("清酒吧",      "Sake Bar"),
+                "bistro":    ("餐酒館",      "Bistro Bar"),
             }
-            style_labels = {
-                "experimental": ("實驗派", "Experimental"),
-                "japanese":     ("日式", "Japanese"),
-                "luxe":         ("奢華", "Luxe"),
-                "casual":       ("輕鬆", "Casual"),
-                "rooftop":      ("頂樓", "Rooftop"),
-                "classic":      ("古典", "Classic"),
-                "craft":        ("職人手作", "Craft"),
-                "speakeasy":    ("隱藏感", "Speakeasy"),
+            vibe_labels = {
+                "rooftop":     ("頂樓景觀",   "Rooftop"),
+                "jazz":        ("爵士現場",   "Jazz Bar"),
+                "dj":          ("DJ 電音",    "DJ / Club"),
+                "listen":      ("音樂鑑賞",   "Listen Bar"),
+                "lounge":      ("沙發放鬆",   "Lounge"),
+                "dive":        ("Dive Bar",   "Dive Bar"),
+                "theme":       ("主題酒吧",   "Theme Bar"),
+                "hotel":       ("飯店酒吧",   "Hotel Bar"),
+                "hidden":      ("隱藏私密",   "Hidden"),
+                "date":        ("約會導向",   "Date Bar"),
+                "party":       ("派對熱鬧",   "Party Bar"),
+                "solo":        ("一人友善",   "Solo-friendly"),
+                "afterwork":   ("下班小酌",   "Afterwork"),
+                "experimental":("實驗調酒",   "Experimental"),
+                "tasting":     ("品飲體驗",   "Tasting Room"),
+                "zero_abv":    ("無酒精",     "Zero ABV"),
+                "low_abv":     ("低酒精",     "Low ABV"),
+                "sustainable": ("永續在地",   "Sustainable"),
+                "chefs_table": ("餐酒融合",   "Chef's Table"),
+                "private":     ("預約私人",   "Private Bar"),
             }
+            style_labels = vibe_labels  # 向下相容
 
             bar = {
                 "id": bar_id,
@@ -458,10 +547,11 @@ def main():
                 "price_en": price_str,
                 "cat_zh": cat_labels.get(cat, ("調酒吧","Cocktail Bar"))[0],
                 "cat_en": cat_labels.get(cat, ("調酒吧","Cocktail Bar"))[1],
-                "style_zh": style_labels.get(style, ("職人手作","Craft"))[0],
-                "style_en": style_labels.get(style, ("職人手作","Craft"))[1],
+                "style_zh": vibe_labels.get(style, ("調酒吧","Cocktail Bar"))[0],
+                "style_en": vibe_labels.get(style, ("調酒吧","Cocktail Bar"))[1],
+                "vibes": vibes,
                 "img": f"v{(bar_id % 4) + 1}",
-                "tags": [],
+                "tags": vibes,
                 "website": website,
                 "phone": phone,
                 "photo_refs": photo_refs,

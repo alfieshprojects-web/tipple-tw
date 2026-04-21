@@ -302,6 +302,27 @@ section.block{padding:78px 0;border-bottom:1px solid var(--line);position:relati
 .score-card .sc-rev b{color:var(--gold-2)}
 
 
+/* ── Type page (依類型) ── */
+.cat-section{padding:44px 0;border-bottom:1px solid var(--line)}
+.cat-section:last-child{border-bottom:none}
+.cat-sec-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.cat-sec-head h3{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:30px;font-weight:500;line-height:1.1}
+.cat-count{font-size:13px;color:var(--muted);margin-left:8px;font-family:'Inter',sans-serif;font-weight:400}
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:880px){.cat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.cat-grid{grid-template-columns:1fr}}
+.cat-card{border-radius:var(--radius);overflow:hidden;background:var(--bg-2);border:1px solid var(--line);transition:var(--ease);cursor:pointer;display:flex;align-items:stretch;min-height:84px}
+.cat-card:hover{border-color:var(--gold-3);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.cat-card-img{width:84px;flex-shrink:0;background:var(--bg-3);position:relative;overflow:hidden}
+.cat-card-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.cat-card-rank{position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:700;color:var(--gold-2);z-index:1;line-height:1}
+.cat-card-body{padding:12px 13px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.cat-card-name{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.cat-card-meta{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-card-score{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 15px 0 8px;flex-shrink:0;gap:2px}
+.cat-card-score b{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold-2);font-weight:600;line-height:1}
+.cat-card-score span{font-size:8px;color:var(--muted);letter-spacing:.12em}
+
 /* Footer */
 footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05em}
 .footer-row{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end}
@@ -449,8 +470,9 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <button class="chip" data-cat="speakeasy" data-i18n="cat.speakeasy">Speakeasy <span class="count">—</span></button>
         <button class="chip" data-cat="craft" data-i18n="cat.craft">精釀 <span class="count">—</span></button>
         <button class="chip" data-cat="gin" data-i18n="cat.gin">琴酒吧 <span class="count">—</span></button>
-        <button class="chip" data-cat="highball" data-i18n="cat.highball">Highball <span class="count">—</span></button>
-        <button class="chip" data-cat="beer" data-i18n="cat.beer">啤酒吧 <span class="count">—</span></button>
+        <button class="chip" data-cat="rum_agave" data-i18n="cat.rum_agave">蘭姆/龍舌蘭 <span class="count">—</span></button>
+        <button class="chip" data-cat="bistro" data-i18n="cat.bistro">餐酒館 <span class="count">—</span></button>
+        <button class="chip" data-cat="speakeasy" data-i18n="cat.speakeasy">Speakeasy <span class="count">—</span></button>
       </div>
       <div id="ranks-featured"></div>
       <div class="ranks-grid" id="ranks-list"></div>
@@ -495,14 +517,14 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <a class="more" data-route="list" data-i18n="style.more">All Styles →</a>
       </div>
       <div class="styles">
-        <div class="style-card reveal" data-route="list"><div class="sc-bg s1"></div><span class="sc-num">01</span><div class="sc-label"><div class="sc-en">Speakeasy</div><div class="sc-zh" data-i18n="style.s1">隱藏 · 私密</div></div></div>
-        <div class="style-card reveal reveal-d1" data-route="list"><div class="sc-bg s2"></div><span class="sc-num">02</span><div class="sc-label"><div class="sc-en">Craft</div><div class="sc-zh" data-i18n="style.s2">職人 · 手作</div></div></div>
-        <div class="style-card reveal reveal-d2" data-route="list"><div class="sc-bg s3"></div><span class="sc-num">03</span><div class="sc-label"><div class="sc-en">Japanese</div><div class="sc-zh" data-i18n="style.s3">日式 · 沉穩</div></div></div>
-        <div class="style-card reveal reveal-d3" data-route="list"><div class="sc-bg s4"></div><span class="sc-num">04</span><div class="sc-label"><div class="sc-en">Luxe</div><div class="sc-zh" data-i18n="style.s4">奢華 · 飯店</div></div></div>
-        <div class="style-card reveal" data-route="list"><div class="sc-bg s5"></div><span class="sc-num">05</span><div class="sc-label"><div class="sc-en">Casual</div><div class="sc-zh" data-i18n="style.s5">輕鬆 · 站立</div></div></div>
-        <div class="style-card reveal reveal-d1" data-route="list"><div class="sc-bg s6"></div><span class="sc-num">06</span><div class="sc-label"><div class="sc-en">Rooftop</div><div class="sc-zh" data-i18n="style.s6">頂樓 · 城景</div></div></div>
-        <div class="style-card reveal reveal-d2" data-route="list"><div class="sc-bg s7"></div><span class="sc-num">07</span><div class="sc-label"><div class="sc-en">Experimental</div><div class="sc-zh" data-i18n="style.s7">實驗 · 分子</div></div></div>
-        <div class="style-card reveal reveal-d3" data-route="list"><div class="sc-bg s8"></div><span class="sc-num">08</span><div class="sc-label"><div class="sc-en">Classic</div><div class="sc-zh" data-i18n="style.s8">古典 · 傳承</div></div></div>
+        <div class="style-card reveal" data-route="list" data-style-filter="rooftop"><div class="sc-bg s1"></div><span class="sc-num">01</span><div class="sc-label"><div class="sc-en">Rooftop</div><div class="sc-zh" data-i18n="style.s1">頂樓 · 城市夜景</div></div></div>
+        <div class="style-card reveal reveal-d1" data-route="list" data-style-filter="jazz"><div class="sc-bg s2"></div><span class="sc-num">02</span><div class="sc-label"><div class="sc-en">Jazz Bar</div><div class="sc-zh" data-i18n="style.s2">爵士 · 現場演奏</div></div></div>
+        <div class="style-card reveal reveal-d2" data-route="list" data-style-filter="dj"><div class="sc-bg s3"></div><span class="sc-num">03</span><div class="sc-label"><div class="sc-en">DJ / Club</div><div class="sc-zh" data-i18n="style.s3">DJ · 電子聲浪</div></div></div>
+        <div class="style-card reveal reveal-d3" data-route="list" data-style-filter="lounge"><div class="sc-bg s4"></div><span class="sc-num">04</span><div class="sc-label"><div class="sc-en">Lounge</div><div class="sc-zh" data-i18n="style.s4">Lounge · 沙發放鬆</div></div></div>
+        <div class="style-card reveal" data-route="list" data-style-filter="experimental"><div class="sc-bg s5"></div><span class="sc-num">05</span><div class="sc-label"><div class="sc-en">Experimental</div><div class="sc-zh" data-i18n="style.s5">實驗 · 分子調酒</div></div></div>
+        <div class="style-card reveal reveal-d1" data-route="list" data-style-filter="tasting"><div class="sc-bg s6"></div><span class="sc-num">06</span><div class="sc-label"><div class="sc-en">Tasting Room</div><div class="sc-zh" data-i18n="style.s6">品飲 · 侍酒體驗</div></div></div>
+        <div class="style-card reveal reveal-d2" data-route="list" data-style-filter="hidden"><div class="sc-bg s7"></div><span class="sc-num">07</span><div class="sc-label"><div class="sc-en">Hidden</div><div class="sc-zh" data-i18n="style.s7">隱藏 · 預約制</div></div></div>
+        <div class="style-card reveal reveal-d3" data-route="list" data-style-filter="hotel"><div class="sc-bg s8"></div><span class="sc-num">08</span><div class="sc-label"><div class="sc-en">Hotel Bar</div><div class="sc-zh" data-i18n="style.s8">飯店 · 精品吧</div></div></div>
       </div>
     </div>
   </section>
@@ -543,21 +565,30 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
             <button class="chip" data-cat="speakeasy" data-i18n="cat.speakeasy">Speakeasy</button>
             <button class="chip" data-cat="craft" data-i18n="cat.craft">精釀</button>
             <button class="chip" data-cat="gin" data-i18n="cat.gin">琴酒吧</button>
-            <button class="chip" data-cat="highball" data-i18n="cat.highball">Highball</button>
-            <button class="chip" data-cat="beer" data-i18n="cat.beer">啤酒吧</button>
+            <button class="chip" data-cat="rum_agave" data-i18n="cat.rum_agave">蘭姆/龍舌蘭</button>
+            <button class="chip" data-cat="bistro" data-i18n="cat.bistro">餐酒館</button>
           </div>
         </div>
-        <div class="filter-group"><span class="filter-lbl" data-i18n="filter.style">STYLE</span>
+        <div class="filter-group"><span class="filter-lbl" data-i18n="filter.vibe">VIBE</span>
           <div class="chips" id="style-chips">
-            <button class="chip active" data-style="all" data-i18n="style.all">全部</button>
-            <button class="chip" data-style="speakeasy" data-i18n="filter.speak">隱藏</button>
-            <button class="chip" data-style="craft" data-i18n="filter.craft">職人手作</button>
-            <button class="chip" data-style="japanese" data-i18n="filter.jp">日式</button>
-            <button class="chip" data-style="luxe" data-i18n="filter.luxe">奢華</button>
-            <button class="chip" data-style="casual" data-i18n="filter.casual">輕鬆</button>
-            <button class="chip" data-style="rooftop" data-i18n="filter.roof">頂樓</button>
-            <button class="chip" data-style="experimental" data-i18n="filter.exp">實驗</button>
-            <button class="chip" data-style="classic" data-i18n="filter.classic">古典</button>
+            <button class="chip active" data-style="all" data-i18n="vibe.all">全部氛圍</button>
+            <button class="chip" data-style="rooftop" data-i18n="vibe.rooftop">頂樓景觀</button>
+            <button class="chip" data-style="jazz" data-i18n="vibe.jazz">爵士現場</button>
+            <button class="chip" data-style="dj" data-i18n="vibe.dj">DJ 電音</button>
+            <button class="chip" data-style="listen" data-i18n="vibe.listen">音樂鑑賞</button>
+            <button class="chip" data-style="lounge" data-i18n="vibe.lounge">沙發放鬆</button>
+            <button class="chip" data-style="dive" data-i18n="vibe.dive">Dive Bar</button>
+            <button class="chip" data-style="theme" data-i18n="vibe.theme">主題酒吧</button>
+            <button class="chip" data-style="hotel" data-i18n="vibe.hotel">飯店酒吧</button>
+            <button class="chip" data-style="hidden" data-i18n="vibe.hidden">隱藏私密</button>
+            <button class="chip" data-style="date" data-i18n="vibe.date">約會導向</button>
+            <button class="chip" data-style="solo" data-i18n="vibe.solo">一人友善</button>
+            <button class="chip" data-style="afterwork" data-i18n="vibe.afterwork">下班小酌</button>
+            <button class="chip" data-style="experimental" data-i18n="vibe.experimental">實驗調酒</button>
+            <button class="chip" data-style="tasting" data-i18n="vibe.tasting">品飲體驗</button>
+            <button class="chip" data-style="zero_abv" data-i18n="vibe.zero_abv">無酒精</button>
+            <button class="chip" data-style="sustainable" data-i18n="vibe.sustainable">永續在地</button>
+            <button class="chip" data-style="private" data-i18n="vibe.private">預約私人</button>
           </div>
         </div>
         <div class="filter-group"><span class="filter-lbl" data-i18n="filter.area">AREA</span>
@@ -615,28 +646,18 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
   </section>
 </main>
 
-<!-- ========== STYLE PAGE ========== -->
+<!-- ========== TYPE PAGE (依類型) ========== -->
 <main id="page-style" class="page">
-  <section class="block" style="padding-top:46px">
+  <section class="block" style="padding-top:46px;padding-bottom:0">
     <div class="container">
       <div class="section-head reveal">
         <div>
-          <span class="eyebrow" data-i18n="style.eyebrow">By Vibe</span>
-          <h2 data-i18n="style.title">依風格挑一間</h2>
-          <p class="desc" data-i18n="style.desc">心情決定夜晚，挑個氛圍再出發。</p>
+          <span class="eyebrow" data-i18n="type.eyebrow">By Category</span>
+          <h2 data-i18n="type.title">依類型找酒吧</h2>
+          <p class="desc" data-i18n="type.desc">從飲品種類出發，找到今晚的那一杯。</p>
         </div>
       </div>
-      <div class="styles">
-        <div class="style-card reveal" data-style-filter="speakeasy"><div class="sc-bg s1"></div><span class="sc-num">01</span><div class="sc-label"><div class="sc-en">Speakeasy</div><div class="sc-zh" data-i18n="style.s1">隱藏 · 私密</div></div></div>
-        <div class="style-card reveal reveal-d1" data-style-filter="craft"><div class="sc-bg s2"></div><span class="sc-num">02</span><div class="sc-label"><div class="sc-en">Craft</div><div class="sc-zh" data-i18n="style.s2">職人 · 手作</div></div></div>
-        <div class="style-card reveal reveal-d2" data-style-filter="japanese"><div class="sc-bg s3"></div><span class="sc-num">03</span><div class="sc-label"><div class="sc-en">Japanese</div><div class="sc-zh" data-i18n="style.s3">日式 · 沉穩</div></div></div>
-        <div class="style-card reveal reveal-d3" data-style-filter="luxe"><div class="sc-bg s4"></div><span class="sc-num">04</span><div class="sc-label"><div class="sc-en">Luxe</div><div class="sc-zh" data-i18n="style.s4">奢華 · 飯店</div></div></div>
-        <div class="style-card reveal" data-style-filter="casual"><div class="sc-bg s5"></div><span class="sc-num">05</span><div class="sc-label"><div class="sc-en">Casual</div><div class="sc-zh" data-i18n="style.s5">輕鬆 · 站立</div></div></div>
-        <div class="style-card reveal reveal-d1" data-style-filter="rooftop"><div class="sc-bg s6"></div><span class="sc-num">06</span><div class="sc-label"><div class="sc-en">Rooftop</div><div class="sc-zh" data-i18n="style.s6">頂樓 · 城景</div></div></div>
-        <div class="style-card reveal reveal-d2" data-style-filter="experimental"><div class="sc-bg s7"></div><span class="sc-num">07</span><div class="sc-label"><div class="sc-en">Experimental</div><div class="sc-zh" data-i18n="style.s7">實驗 · 分子</div></div></div>
-        <div class="style-card reveal reveal-d3" data-style-filter="classic"><div class="sc-bg s8"></div><span class="sc-num">08</span><div class="sc-label"><div class="sc-en">Classic</div><div class="sc-zh" data-i18n="style.s8">古典 · 傳承</div></div></div>
-      </div>
-      <p style="margin-top:32px;color:var(--muted);font-size:13px;text-align:center" data-i18n="style.click.hint">點選風格卡片，前往符合氛圍的酒吧列表</p>
+      <div id="type-page-list"></div>
     </div>
   </section>
 </main>
@@ -708,7 +729,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 
 <script>
 /* ===== I18N ===== */
-const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依風格','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'直接採用 Google Maps 原始評分（滿分 5 分），依評分高低排序。','rank.more':'看完整排行 →','picks.eyebrow':'精選推薦','picks.title':'高分精選 · 本週推薦','picks.desc':'根據 Google Maps 評分，為你推薦近期評價最高的酒吧。','picks.more':'更多精選 →','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'隱藏 · 私密','style.s2':'職人 · 手作','style.s3':'日式 · 沉穩','style.s4':'奢華 · 飯店','style.s5':'輕鬆 · 站立','style.s6':'頂樓 · 城景','style.s7':'實驗 · 分子','style.s8':'古典 · 傳承','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.style':'風格','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','cat.all':'全部','cat.cocktail':'調酒吧','cat.bistro':'餐酒館','cat.wine':'紅酒吧','cat.sake':'清酒吧','cat.whisky':'威士忌吧','cat.speakeasy':'Speakeasy','cat.craft':'精釀','cat.gin':'琴酒吧','cat.highball':'Highball','cat.beer':'啤酒吧','style.all':'全部','filter.speak':'隱藏','filter.craft':'職人手作','filter.jp':'日式','filter.luxe':'奢華','filter.casual':'輕鬆','filter.roof':'頂樓','filter.exp':'實驗','filter.classic':'古典','area.all':'全部','detail.back':'返回','detail.idx':'Google 評分','detail.outof':'滿分 5 分','detail.basedon':'基於','detail.reviews':'則 Google 評論','detail.disclaimer':'評分資料來自 Google Maps，僅供參考','open.now':'現在營業','closed.now':'暫停營業'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Style','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'Aggregating Google Maps ratings across 1,090 bars in Taiwan — find the one worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Google Maps ratings out of 5. Bars ranked highest to lowest.','rank.more':'View All →','picks.eyebrow':'Top Picks','picks.title':'Top Picks · This Week','picks.desc':'Highest-rated bars on Google Maps right now.','picks.more':'All Picks →','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Hidden · Private','style.s2':'Craft · Made by hand','style.s3':'Japanese · Calm','style.s4':'Luxe · Hotel','style.s5':'Casual · Standing','style.s6':'Rooftop · Skyline','style.s7':'Experimental · Molecular','style.s8':'Classic · Heritage','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.style':'STYLE','filter.area':'AREA','filter.time':'NOW','filter.open':'Open now','filter.openon':'✓ Open now','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.bistro':'Bistro Bar','cat.wine':'Wine Bar','cat.sake':'Sake Bar','cat.whisky':'Whisky Bar','cat.speakeasy':'Speakeasy','cat.craft':'Craft Beer','cat.gin':'Gin Bar','cat.highball':'Highball','cat.beer':'Beer Bar','style.all':'All','filter.speak':'Speakeasy','filter.craft':'Craft','filter.jp':'Japanese','filter.luxe':'Luxe','filter.casual':'Casual','filter.roof':'Rooftop','filter.exp':'Experimental','filter.classic':'Classic','area.all':'All','detail.back':'Back','detail.idx':'Google Rating','detail.outof':'out of 5','detail.basedon':'Based on','detail.reviews':'Google reviews','detail.disclaimer':'Ratings sourced from Google Maps. For reference only.','open.now':'Open now','closed.now':'Closed'}};
+const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依類型','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'直接採用 Google Maps 原始評分（滿分 5 分），依評分高低排序。','rank.more':'看完整排行 →','picks.eyebrow':'精選推薦','picks.title':'高分精選 · 本週推薦','picks.desc':'根據 Google Maps 評分，為你推薦近期評價最高的酒吧。','picks.more':'更多精選 →','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'頂樓 · 城市夜景','style.s2':'爵士 · 現場演奏','style.s3':'DJ · 電子聲浪','style.s4':'Lounge · 沙發放鬆','style.s5':'實驗 · 分子調酒','style.s6':'品飲 · 侍酒體驗','style.s7':'隱藏 · 預約制','style.s8':'飯店 · 精品吧','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.vibe':'氛圍','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','cat.all':'全部','cat.cocktail':'調酒吧','cat.speakeasy':'Speakeasy','cat.gin':'琴酒吧','cat.whisky':'威士忌吧','cat.rum_agave':'蘭姆/龍舌蘭','cat.wine':'紅酒吧','cat.craft':'精釀啤酒','cat.sake':'清酒吧','cat.bistro':'餐酒館','vibe.all':'全部氛圍','vibe.rooftop':'頂樓景觀','vibe.jazz':'爵士現場','vibe.dj':'DJ 電音','vibe.listen':'音樂鑑賞','vibe.lounge':'沙發放鬆','vibe.dive':'Dive Bar','vibe.theme':'主題酒吧','vibe.hotel':'飯店酒吧','vibe.hidden':'隱藏私密','vibe.date':'約會導向','vibe.party':'派對熱鬧','vibe.solo':'一人友善','vibe.afterwork':'下班小酌','vibe.experimental':'實驗調酒','vibe.tasting':'品飲體驗','vibe.zero_abv':'無酒精','vibe.sustainable':'永續在地','vibe.private':'預約私人','type.eyebrow':'依類型','type.title':'依類型找酒吧','type.desc':'從飲品種類出發，找到今晚的那一杯。','type.viewall':'看全部 →','area.all':'全部','detail.back':'返回','detail.idx':'Google 評分','detail.outof':'滿分 5 分','detail.basedon':'基於','detail.reviews':'則 Google 評論','detail.disclaimer':'評分資料來自 Google Maps，僅供參考','open.now':'現在營業','closed.now':'暫停營業'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Type','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'Aggregating Google Maps ratings across 1,090 bars in Taiwan — find the one worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Google Maps ratings out of 5. Bars ranked highest to lowest.','rank.more':'View All →','picks.eyebrow':'Top Picks','picks.title':'Top Picks · This Week','picks.desc':'Highest-rated bars on Google Maps right now.','picks.more':'All Picks →','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Rooftop · City at night','style.s2':'Jazz · Live music','style.s3':'DJ · Electronic sound','style.s4':'Lounge · Deep sofas','style.s5':'Experimental · Molecular','style.s6':'Tasting · Pairing room','style.s7':'Hidden · Reservation only','style.s8':'Hotel · Refined bar','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.vibe':'VIBE','filter.area':'AREA','filter.time':'NOW','filter.open':'Open now','filter.openon':'✓ Open now','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.speakeasy':'Speakeasy','cat.gin':'Gin Bar','cat.whisky':'Whisky Bar','cat.rum_agave':'Rum & Agave','cat.wine':'Wine Bar','cat.craft':'Craft Beer','cat.sake':'Sake Bar','cat.bistro':'Bistro Bar','vibe.all':'All Vibes','vibe.rooftop':'Rooftop','vibe.jazz':'Jazz Bar','vibe.dj':'DJ / Club','vibe.listen':'Listen Bar','vibe.lounge':'Lounge','vibe.dive':'Dive Bar','vibe.theme':'Theme Bar','vibe.hotel':'Hotel Bar','vibe.hidden':'Hidden','vibe.date':'Date Bar','vibe.party':'Party Bar','vibe.solo':'Solo-friendly','vibe.afterwork':'Afterwork','vibe.experimental':'Experimental','vibe.tasting':'Tasting Room','vibe.zero_abv':'Zero ABV','vibe.sustainable':'Sustainable','vibe.private':'Private Bar','type.eyebrow':'By Category','type.title':'Bars by Type','type.desc':'Start with the drink, find the bar.','type.viewall':'View All →','area.all':'All','detail.back':'Back','detail.idx':'Google Rating','detail.outof':'out of 5','detail.basedon':'Based on','detail.reviews':'Google reviews','detail.disclaimer':'Ratings sourced from Google Maps. For reference only.','open.now':'Open now','closed.now':'Closed'}};
 
 /* ===== DATA ===== */
 const BARS=[
@@ -765,7 +786,7 @@ function _render(route,opts={}){
   if(route==='detail'&&opts.barId){currentBarId=opts.barId;renderDetail()}
   if(route==='list')renderList();
   if(route==='rank')renderRankPage();
-  if(route==='style'){applyI18n();setTimeout(checkReveal,60);}
+  if(route==='style'){renderTypePage();applyI18n();}
   window.scrollTo({top:0,behavior:'smooth'});
   setTimeout(checkReveal,60);
 }
@@ -796,6 +817,16 @@ document.addEventListener('click',e=>{
   if(!l)return;
   e.preventDefault();
   if(l.classList.contains('detail-back')){history.back();return;}
+  // 依類型頁「看全部」— 帶 cat filter 跳到探索頁
+  if(l.dataset.catFilter){
+    filters.cat=l.dataset.catFilter;
+    // 更新 list 頁 cat chips 顯示
+    document.querySelectorAll('#cat-chips .chip').forEach(c=>{
+      c.classList.toggle('active',c.dataset.cat===l.dataset.catFilter);
+    });
+    go('list');
+    return;
+  }
   go(l.dataset.route,l.dataset.bar?{barId:+l.dataset.bar}:{});
 });
 
@@ -889,12 +920,57 @@ document.addEventListener('click',e=>{
   go('list');
 });
 
+/* ===== TYPE PAGE ===== */
+const CAT_ORDER=['cocktail','speakeasy','gin','whisky','rum_agave','wine','craft','sake','bistro'];
+
+function renderTypePage(){
+  const ln=lang==='zh';
+  const el=document.getElementById('type-page-list');
+  if(!el)return;
+  el.innerHTML=CAT_ORDER.map(cat=>{
+    const catBars=BARS.filter(b=>b.cat===cat).sort((a,b2)=>b2.score-a.score);
+    if(!catBars.length)return'';
+    const top6=catBars.slice(0,6);
+    const label=ln?(I18N.zh['cat.'+cat]||cat):(I18N.en['cat.'+cat]||cat);
+    const viewAll=ln?(I18N.zh['type.viewall']||'看全部 →'):(I18N.en['type.viewall']||'View All →');
+    const cards=top6.map((b,i)=>{
+      const rank=String(i+1).padStart(2,'0');
+      const hasPhoto=b.photoRefs&&b.photoRefs[0]&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE';
+      const imgHtml=hasPhoto
+        ?`<img src="${photoUrl(b.photoRefs[0],200)}" alt="${b.name}" loading="lazy" onerror="this.style.display='none'">`
+        :'';
+      const barName=ln?(b.zh||b.name):b.name;
+      const districtShort=(b.district||'').split('·')[0].trim();
+      return`<div class="cat-card" data-route="detail" data-bar="${b.id}">
+        <div class="cat-card-img">${imgHtml}<div class="cat-card-rank">${rank}</div></div>
+        <div class="cat-card-body">
+          <div class="cat-card-name">${barName}</div>
+          <div class="cat-card-meta">${districtShort}</div>
+        </div>
+        <div class="cat-card-score"><b>${b.score.toFixed(1)}</b><span>/ 5</span></div>
+      </div>`;
+    }).join('');
+    return`<div class="cat-section">
+      <div class="cat-sec-head">
+        <div><h3>${label}<span class="cat-count">${catBars.length}</span></h3></div>
+        <a class="more" data-route="list" data-cat-filter="${cat}">${viewAll}</a>
+      </div>
+      <div class="cat-grid">${cards}</div>
+    </div>`;
+  }).join('');
+  setTimeout(checkReveal,60);
+}
+
 /* ===== LIST ===== */
 function renderList(){
   const ln=lang==='zh';
   const filtered=BARS.filter(b=>{
     if(filters.cat!=='all'&&b.cat!==filters.cat)return false;
-    if(filters.style!=='all'&&b.style!==filters.style)return false;
+    // Vibe filter：檢查 tags 陣列（新資料）或舊版 style 欄位（向下相容）
+    if(filters.style!=='all'){
+      const hasVibe=(b.tags||[]).includes(filters.style)||b.style===filters.style;
+      if(!hasVibe)return false;
+    }
     if(filters.area!=='all'&&b.area!==filters.area)return false;
     if(filters.openNow&&!isOpen(b))return false;
     return true;
@@ -1101,7 +1177,7 @@ async function loadBars(){
         catLabel:{zh:b.cat_zh,en:b.cat_en},
         styleLabel:{zh:b.style_zh,en:b.style_en},
         img:b.img||'v1',
-        tags:b.tags||[],
+        tags:(b.vibes||b.tags||[]),   // vibes 為新格式，tags 向下相容
         photoRefs:b.photo_refs||[],
         googlePlaceId:b.google_place_id||''
       });
@@ -1195,10 +1271,12 @@ async function loadBars(){
     });
 
     // ── 風格卡片注入代表酒吧照片 ─────────────────────────────────
-    const styleOrder=['speakeasy','craft','japanese','luxe','casual','rooftop','experimental','classic'];
+    const styleOrder=['rooftop','jazz','dj','lounge','experimental','tasting','hidden','hotel'];
     document.querySelectorAll('.style-card').forEach((card,i)=>{
       const sty=styleOrder[i];if(!sty)return;
-      const rep=BARS.find(b=>b.style===sty&&b.photoRefs&&b.photoRefs[0]);
+      // 找有此 vibe tag 或 style 值的代表酒吧
+      const rep=BARS.find(b=>(b.tags||[]).includes(sty)&&b.photoRefs&&b.photoRefs[0])
+              ||BARS.find(b=>b.style===sty&&b.photoRefs&&b.photoRefs[0]);
       if(!rep)return;
       const scBg=card.querySelector('.sc-bg');
       injectPhoto(scBg,rep,'sc-photo');
