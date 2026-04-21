@@ -1196,7 +1196,10 @@ function renderDetail(){
   // 評論區塊
   const revSec=document.getElementById('d-reviews-section');
   if(revSec){
-    const reviews=b.reviewList||[];
+    const allReviews=b.reviewList||[];
+    const reviews=lang==='zh'
+      ? allReviews.filter(r=>!r.lang||!r.lang.startsWith('en'))
+      : allReviews;
     if(reviews.length){
       const title=lang==='zh'?'Google 評論':'Google Reviews';
       const stars=n=>[1,2,3,4,5].map(i=>`<span class="review-star${i<=n?'':' off'}">★</span>`).join('');
