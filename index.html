@@ -575,11 +575,6 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <div class="filter-group filter-group--vibe">
           <span class="filter-lbl" data-i18n="filter.vibe">VIBE</span>
           <div class="vibe-groups" id="vibe-filter">
-            <!-- 全部 -->
-            <div class="vibe-sub">
-              <span class="vibe-sub-lbl"></span>
-              <div class="chips"><button class="chip active" data-style="all" data-i18n="vibe.all">全部氛圍</button></div>
-            </div>
             <!-- 氛圍 -->
             <div class="vibe-sub">
               <span class="vibe-sub-lbl" data-i18n="filter.vibe_atm">氛圍</span>
@@ -1133,9 +1128,15 @@ bindChips('cat-chips','cat');
 const vibeFilterEl=document.getElementById('vibe-filter');
 vibeFilterEl?.addEventListener('click',e=>{
   const b=e.target.closest('[data-style]');if(!b)return;
+  const isActive=b.classList.contains('active');
   vibeFilterEl.querySelectorAll('[data-style]').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
-  filters.style=b.dataset.style||'all';
+  if(isActive){
+    // 再次點擊已選中 → 取消篩選
+    filters.style='all';
+  } else {
+    b.classList.add('active');
+    filters.style=b.dataset.style||'all';
+  }
   renderList();
 });
 // area-chips 在 loadBars() 動態建立後才綁定
