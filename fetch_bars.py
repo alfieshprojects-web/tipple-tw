@@ -25,11 +25,32 @@ from datetime import datetime
 GOOGLE_API_KEY = "AIzaSyCpm-WmlRkoytWw7NLanyjWBZ82U-aUqqI"
 # ============================================================
 
-OUTPUT_FILE = "bars.json"
+OUTPUT_FILE    = "bars.json"
+EXISTING_FILE  = "bars.json"   # 合併用：保留既有評論 / 照片
 
-# ── 全台灣搜尋定點 ────────────────────────────────────────────
-# 每個城市用多個關鍵字搜尋，並搭配分頁抓滿 60 筆/查詢
+# 篩選門檻
+MIN_RATING      = 4.0
+MIN_REVIEWS     = 100
 
+# 排除關鍵字（名稱含這些字就跳過）
+EXCLUDE_KEYWORDS = [
+    # 居酒屋類
+    "居酒屋", "izakaya", "いざかや", "焼き鳥", "yakitori",
+    # 餐廳類
+    "餐酒館", "bistro", "夜市", "night market", "觀光夜市", "小吃",
+    # 零售 / 電商
+    "買酒網", "酒條通", "酒訊", "宅配", "網購", "線上購買", "酒外送",
+    "威士忌專賣", "威士忌販賣", "洋酒販賣",
+    "清酒販賣", "日本酒販賣",
+    "葡萄酒販賣", "紅酒販賣", "白酒販賣",
+    # 無內用座位
+    "外帶專賣", "純外帶", "外帶不內用", "外送服務",
+]
+
+# 目標城市（僅這五大城市）
+TARGET_AREAS = {'taipei', 'newtaipei', 'taichung', 'tainan', 'kaohsiung'}
+
+# ── 五大城市搜尋定點 ──────────────────────────────────────────
 CITIES = [
     # 台北市各區
     {"name": "台北大安",       "loc": "25.0330,121.5490", "r": 4000},
@@ -50,26 +71,11 @@ CITIES = [
     {"name": "新北中和",       "loc": "24.9980,121.4850", "r": 3500},
     {"name": "新北永和",       "loc": "25.0130,121.5140", "r": 3000},
     {"name": "新北新莊",       "loc": "25.0360,121.4490", "r": 4000},
-    # 桃園
-    {"name": "桃園市區",       "loc": "24.9936,121.3010", "r": 6000},
-    {"name": "桃園中壢",       "loc": "24.9640,121.2250", "r": 5000},
-    # 新竹
-    {"name": "新竹市",         "loc": "24.8138,120.9675", "r": 5000},
-    # 苗栗
-    {"name": "苗栗市",         "loc": "24.5600,120.8200", "r": 5000},
     # 台中
     {"name": "台中西區",       "loc": "24.1600,120.6700", "r": 5000},
     {"name": "台中南屯",       "loc": "24.1400,120.6300", "r": 5000},
     {"name": "台中北屯",       "loc": "24.1900,120.7000", "r": 5000},
     {"name": "台中東區",       "loc": "24.1460,120.6980", "r": 4000},
-    # 南投
-    {"name": "南投市",         "loc": "23.9100,120.6800", "r": 5000},
-    # 彰化
-    {"name": "彰化市",         "loc": "24.0800,120.5400", "r": 5000},
-    # 雲林
-    {"name": "雲林斗六",       "loc": "23.7100,120.5400", "r": 5000},
-    # 嘉義
-    {"name": "嘉義市",         "loc": "23.4800,120.4490", "r": 5000},
     # 台南
     {"name": "台南中西區",     "loc": "22.9930,120.2040", "r": 5000},
     {"name": "台南安平",       "loc": "22.9900,120.1700", "r": 5000},
@@ -82,15 +88,6 @@ CITIES = [
     {"name": "高雄苓雅",       "loc": "22.6190,120.3120", "r": 4000},
     {"name": "高雄鹽埕",       "loc": "22.6250,120.2870", "r": 3500},
     {"name": "高雄新興",       "loc": "22.6310,120.3010", "r": 3500},
-    # 屏東
-    {"name": "屏東市",         "loc": "22.6700,120.4900", "r": 5000},
-    # 宜蘭
-    {"name": "宜蘭市",         "loc": "24.7500,121.7500", "r": 5000},
-    {"name": "宜蘭羅東",       "loc": "24.6770,121.7680", "r": 4000},
-    # 花蓮
-    {"name": "花蓮市",         "loc": "23.9800,121.6000", "r": 5000},
-    # 台東
-    {"name": "台東市",         "loc": "22.7583,121.1444", "r": 5000},
 ]
 
 KEYWORDS = [
@@ -412,13 +409,31 @@ def main():
         print("   取得方式：https://console.cloud.google.com/")
         return
 
-    print("🍸 TIPPLE 酒吧資料爬蟲 v2.0")
+    print("🍸 TIPPLE 酒吧資料爬蟲 v3.0")
+    print(f"   門檻：評分 >= {MIN_RATING}，評論數 >= {MIN_REVIEWS}")
+    print(f"   目標城市：台北 / 新北 / 台中 / 台南 / 高雄")
     print(f"   輸出檔案：{OUTPUT_FILE}")
     print(f"   開始時間：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
+    # ── 載入既有資料，保留評論 / 照片 ────────────────────────────
+    existing_by_pid = {}
+    max_existing_id = 0
+    try:
+        with open(EXISTING_FILE, "r", encoding="utf-8") as f:
+            raw = f.read()
+        existing_data = json.loads(raw)
+        for b in existing_data.get("bars", []):
+            pid = b.get("google_place_id")
+            if pid:
+                existing_by_pid[pid] = b
+            max_existing_id = max(max_existing_id, b.get("id", 0))
+        print(f"📂 載入既有資料：{len(existing_by_pid)} 間（保留評論 / 照片）\n")
+    except Exception:
+        print("📂 無既有資料，從頭建立\n")
+
     seen_place_ids = set()
     bars = []
-    bar_id = 1
+    bar_id = max_existing_id + 1
 
     for search in SEARCHES:
         print(f"🔍 搜尋：{search['query']}")
@@ -438,7 +453,10 @@ def main():
             # 基本篩選：評分 >= 3.8，評論數 >= 20（放寬以涵蓋二三線城市酒吧）
             rating = place.get("rating", 0)
             review_count = place.get("userRatingCount", 0)
-            if rating < 3.8 or review_count < 20:
+            if rating < MIN_RATING or review_count < MIN_REVIEWS:
+                continue
+            place_name_raw = place.get("displayName", {}).get("text", "").lower()
+            if any(kw in place_name_raw for kw in EXCLUDE_KEYWORDS):
                 continue
 
             seen_place_ids.add(place_id)
@@ -558,21 +576,49 @@ def main():
                 "lat": loc_obj.get("latitude", loc_obj.get("lat", 0)),
                 "lng": loc_obj.get("longitude", loc_obj.get("lng", 0)),
             }
+
+            # 如果既有資料有這間酒吧，保留評論 / 照片 / vibes
+            if place_id in existing_by_pid:
+                old = existing_by_pid[place_id]
+                bar["id"]             = old["id"]   # 保留原 ID
+                bar["review_list"]    = old.get("review_list", [])
+                bar["review_summary"] = old.get("review_summary", "")
+                if old.get("photo_refs"):            # 有照片就用舊的
+                    bar["photo_refs"] = old["photo_refs"]
+                if old.get("vibes"):                 # 有分類就用舊的
+                    bar["vibes"] = old["vibes"]
+                    bar["tags"]  = old["vibes"]
+                bar_id -= 1  # 不消耗新 ID
+            else:
+                bar["review_list"]    = []
+                bar["review_summary"] = ""
+
             bars.append(bar)
             bar_id += 1
-            print(f"  ✓ [{bar_id-1:03d}] {name} ({district['en']}) — {rating}★ → NIGHTLY {nightly_score}")
+            tag = "🔄" if place_id in existing_by_pid else "🆕"
+            print(f"  {tag} [{bar_id-1:03d}] {name} ({district['en']}) — {rating}★")
 
-    # 依 NIGHTLY Index 排序
+    # 依評分排序
     bars.sort(key=lambda b: b["score"], reverse=True)
+    # 重新連號 ID
+    for i, b in enumerate(bars, 1):
+        b["id"] = i
+
+    new_count      = sum(1 for b in bars if not b.get("review_list") and not existing_by_pid.get(b.get("google_place_id")))
+    carried_count  = sum(1 for b in bars if b.get("review_list"))
+    print(f"\n📊 統計：")
+    print(f"   新酒吧（需抓評論）：{new_count} 間")
+    print(f"   既有酒吧（保留評論）：{carried_count} 間")
 
     # 輸出 bars.json
     output = {
         "meta": {
-            "version": "1.0",
+            "version": "3.0",
             "updated": datetime.now().strftime("%Y-%m-%d"),
             "total": len(bars),
+            "min_rating": MIN_RATING,
+            "min_reviews": MIN_REVIEWS,
             "sources": ["google_maps"],
-            "note": "Generated by fetch_bars.py — NIGHTLY score is weighted from Google Maps rating"
         },
         "bars": bars
     }
