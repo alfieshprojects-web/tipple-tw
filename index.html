@@ -73,6 +73,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .sri-meta{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.03em}
 .sri-score{font-family:'Cormorant Garamond',serif;color:var(--gold-2);font-size:16px;font-weight:600}
 .sr-empty{padding:18px 16px;text-align:center;color:var(--muted);font-size:13px}
+.sri-snippet{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;max-width:280px;white-space:normal}
+.sri-snippet mark{background:rgba(201,169,106,.25);color:var(--gold-2);border-radius:2px;padding:0 2px;font-style:normal}
 
 /* Lang */
 .lang-sw{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--bg-2);flex-shrink:0}
@@ -382,6 +384,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .reviews-section{margin-top:36px;padding-top:28px;border-top:1px solid var(--line)}
 .reviews-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold-2);margin-bottom:18px;letter-spacing:.04em}
 .review-card{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px;transition:var(--ease)}
+.review-card.negative{border-color:rgba(180,60,60,.35);background:rgba(120,30,30,.18)}
 .review-card:last-child{margin-bottom:0}
 .review-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .review-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg-4);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--gold-2);flex-shrink:0}
@@ -611,6 +614,18 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
             <button class="chip" data-cat="craft" data-i18n="cat.craft">精釀</button>
             <button class="chip" data-cat="gin" data-i18n="cat.gin">琴酒吧</button>
             <button class="chip" data-cat="rum_agave" data-i18n="cat.rum_agave">蘭姆/龍舌蘭</button>
+          </div>
+        </div>
+        <!-- 調酒吧子分類（只在 cat=cocktail 時顯示）-->
+        <div class="filter-group" id="cocktail-sub-row" style="display:none">
+          <span class="filter-lbl">調酒風格</span>
+          <div class="chips" id="cocktail-sub-chips">
+            <button class="chip active" data-csub="all">全部</button>
+            <button class="chip" data-csub="classic">經典</button>
+            <button class="chip" data-csub="tea">茶酒</button>
+            <button class="chip" data-csub="creative">創意</button>
+            <button class="chip" data-csub="fruit">水果</button>
+            <button class="chip" data-csub="sweet">妹酒</button>
           </div>
         </div>
         <div class="filter-group">
@@ -867,7 +882,7 @@ function photoUrl(ref,maxw=1200){
 
 /* ===== STATE ===== */
 let lang='zh',currentBarId=1;
-let filters={cat:'all',atm:'all',pref:'all',feat:'all',area:'all',district:'all',openNow:false,timeSlot:'all'};
+let filters={cat:'all',cocktailSub:'all',atm:'all',pref:'all',feat:'all',area:'all',district:'all',openNow:false,timeSlot:'all'};
 const TIME_SLOTS={morning:[10,14],afternoon:[14,18],evening:[18,26]};
 function opensIn(bar,start,end){return(bar.openHours||[]).some(([s,e])=>s<end&&e>start);}
 
@@ -898,6 +913,9 @@ function _render(route,opts={}){
   if(route==='nearby'){applyI18n();initNearby();setTimeout(checkReveal,60);}
   window.scrollTo({top:0,behavior:'smooth'});
   setTimeout(checkReveal,60);
+  // === 插入這行 ===
+  if (typeof TippleTracker !== 'undefined') {
+      TippleTracker.trackPageChange(route, opts);
 }
 function go(route,opts={},push=true){
   if(push){
@@ -948,12 +966,48 @@ drwBg.addEventListener('click',closeDrawer);
 
 /* ===== SEARCH ===== */
 const sInput=document.getElementById('search-input'),sResults=document.getElementById('search-results'),sClear=document.getElementById('search-clear');
+
+// 從評論 / AI摘要中抽取命中片段（前後各 30 字）
+function getSnippet(b,tokens){
+  const sources=[
+    {text:b.reviewSummary,label:lang==='zh'?'AI摘要':'Summary'},
+    ...(b.reviewList||[]).map(r=>({text:r.text||'',label:lang==='zh'?`${r.author||'評論'}的評論`:`Review by ${r.author||'guest'}`}))
+  ];
+  for(const {text,label} of sources){
+    if(!text)continue;
+    const lo=text.toLowerCase();
+    for(const t of tokens){
+      const idx=lo.indexOf(t);
+      if(idx===-1)continue;
+      const s=Math.max(0,idx-28),e=Math.min(text.length,idx+t.length+40);
+      const snippet=(s>0?'…':'')+text.slice(s,e).replace(new RegExp(t,'gi'),m=>`<mark>${m}</mark>`)+(e<text.length?'…':'');
+      return `<div class="sri-snippet">${label}：${snippet}</div>`;
+    }
+  }
+  return '';
+}
+
 sInput.addEventListener('input',()=>{
   const q=sInput.value.trim().toLowerCase();
   sClear.style.display=q?'flex':'none';
   if(!q){sResults.style.display='none';return}
-  const m=BARS.filter(b=>(b.name+' '+b.zh+' '+b.district+' '+b.tags.join(' ')).toLowerCase().includes(q)).slice(0,6);
-  sResults.innerHTML=m.length?m.map(b=>`<div class="sri" data-route="detail" data-bar="${b.id}"><div><div class="sri-name">${b.name}</div><div class="sri-meta">${b.district} · ${lang==='zh'?b.catLabel.zh:b.catLabel.en}</div></div><div class="sri-score">${b.score.toFixed(1)}</div></div>`).join(''):`<div class="sr-empty">${lang==='zh'?'找不到符合的酒吧':'No bars found'}</div>`;
+  // 空白分詞，每個詞都要命中（AND 邏輯）
+  const tokens=q.split(/\s+/).filter(Boolean);
+  const m=BARS.filter(b=>tokens.every(t=>b._idx&&b._idx.includes(t))).slice(0,8);
+  const ln=lang==='zh';
+  sResults.innerHTML=m.length
+    ?m.map(b=>{
+        const snippet=getSnippet(b,tokens);
+        return`<div class="sri" data-route="detail" data-bar="${b.id}">
+          <div style="flex:1;min-width:0">
+            <div class="sri-name">${b.name}</div>
+            <div class="sri-meta">${b.district} · ${ln?b.catLabel.zh:b.catLabel.en}</div>
+            ${snippet}
+          </div>
+          <div class="sri-score">${b.score.toFixed(1)}</div>
+        </div>`;
+      }).join('')
+    :`<div class="sr-empty">${ln?'找不到符合的酒吧':'No bars found'}</div>`;
   sResults.style.display='block';
 });
 sClear.addEventListener('click',()=>{sInput.value='';sClear.style.display='none';sResults.style.display='none';sInput.focus()});
@@ -1075,6 +1129,8 @@ function renderList(){
   const ln=lang==='zh';
   const filtered=BARS.filter(b=>{
     if(filters.cat!=='all'&&b.cat!==filters.cat)return false;
+    // 調酒子分類（只在 cat=cocktail 時生效）
+    if(filters.cocktailSub!=='all'&&b.cocktailSub!==filters.cocktailSub)return false;
     // 氛圍 / 偏好 / 特色 三組獨立 AND 過濾
     const tags=b.tags||[];
     if(filters.atm!=='all'&&!tags.includes(filters.atm))return false;
@@ -1184,13 +1240,18 @@ function renderDetail(){
   const scoreEl=document.getElementById('d-score');
   animCount(scoreEl,0,b.score,900,v=>v.toFixed(1));
 
-  // Google Maps 連結
+  // Google Maps 連結（Maps URLs API 格式，可在手機正確開啟 App）
   const gmLink=document.getElementById('d-gmaps-link');
-  if(gmLink&&b.googlePlaceId){
-    gmLink.href=`https://www.google.com/maps/place/?q=place_id:${b.googlePlaceId}`;
-    gmLink.style.display='inline-flex';
-  } else if(gmLink){
-    gmLink.style.display='none';
+  if(gmLink){
+    if(b.googlePlaceId){
+      // query_place_id + query 組合：iOS/Android 均可直接喚起 Google Maps App
+      const q=encodeURIComponent(b.name);
+      gmLink.href=`https://www.google.com/maps/search/?api=1&query=${q}&query_place_id=${b.googlePlaceId}`;
+    } else if(b.lat&&b.lng){
+      // fallback：用座標開啟（無 place_id 時）
+      gmLink.href=`https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`;
+    }
+    gmLink.style.display=(b.googlePlaceId||b.lat)?'inline-flex':'none';
   }
 
   // 評論區塊
@@ -1206,7 +1267,7 @@ function renderDetail(){
       revSec.innerHTML=`<div class="reviews-title">${title}</div>`
         +reviews.map(r=>{
           const initial=(r.author||'?')[0].toUpperCase();
-          return`<div class="review-card">
+          return`<div class="review-card${r.rating===1?' negative':''}">`
             <div class="review-header">
               <div class="review-avatar">${initial}</div>
               <div class="review-meta">
@@ -1263,6 +1324,36 @@ function bindChips(id,key){
   });
 }
 bindChips('cat-chips','cat');
+// 調酒子分類：隨 cat 顯示/隱藏 + reset
+document.getElementById('cat-chips')?.addEventListener('click',e=>{
+  const b=e.target.closest('.chip');if(!b)return;
+  const isC=b.dataset.cat==='cocktail';
+  const row=document.getElementById('cocktail-sub-row');
+  if(row)row.style.display=isC?'':'none';
+  if(!isC){
+    filters.cocktailSub='all';
+    document.querySelectorAll('#cocktail-sub-chips .chip').forEach(x=>x.classList.remove('active'));
+    document.querySelector('#cocktail-sub-chips [data-csub="all"]')?.classList.add('active');
+  }
+});
+// 調酒子分類 chips（toggle：再點已選 → 回全部）
+(function(){
+  const c=document.getElementById('cocktail-sub-chips');if(!c)return;
+  c.addEventListener('click',e=>{
+    const b=e.target.closest('.chip');if(!b)return;
+    const val=b.dataset.csub||'all';
+    const reselect=val!=='all'&&b.classList.contains('active');
+    c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+    if(reselect||val==='all'){
+      c.querySelector('[data-csub="all"]')?.classList.add('active');
+      filters.cocktailSub='all';
+    }else{
+      b.classList.add('active');
+      filters.cocktailSub=val;
+    }
+    renderList();
+  });
+})();
 // 氛圍 / 偏好 / 特色 三組獨立 toggle（再點已選 → 回全部）
 function bindChipsToggle(id,key){
   const c=document.getElementById(id);if(!c)return;
@@ -1502,6 +1593,7 @@ async function loadBars(){
         name:b.name,
         zh:b.zh,
         cat:b.cat,
+        cocktailSub:b.cocktail_sub||'',
         style:b.style,
         area:b.area,
         districtZh:b.district_zh||'',
@@ -1521,9 +1613,26 @@ async function loadBars(){
         googlePlaceId:b.google_place_id||'',
         lat:b.lat||null,
         lng:b.lng||null,
-        reviewList:b.review_list||[]
+        reviewList:b.review_list||[],
+        reviewSummary:b.review_summary||''
       });
     });
+
+    // ── 預建全文搜尋索引（每間酒吧一條字串，O(1) 查詢）──────────
+    BARS.forEach(b=>{
+      const reviewText=(b.reviewList||[]).map(r=>r.text||'').join(' ');
+      b._idx=[
+        b.name, b.zh,
+        b.districtZh, b.districtEn, b.area,
+        b.addr?.zh||'', b.addr?.en||'',
+        b.cat, b.catLabel?.zh||'', b.catLabel?.en||'',
+        b.cocktailSub,
+        (b.tags||[]).join(' '),
+        b.reviewSummary,
+        reviewText
+      ].join(' ').toLowerCase();
+    });
+
     console.log(`✓ Loaded ${BARS.length} bars from bars.json`);
 
     // ── 更新首頁英雄統計數字 ─────────────────────────────────────
@@ -1707,6 +1816,49 @@ async function loadBars(){
 
 /* ===== INIT ===== */
 loadBars();
+/* ===== 精確追蹤與標籤抓取擴充 ===== */
+const TippleTracker = {
+    // 精確抓取詳情頁資訊
+    getDetailInfo: function() {
+        const b = BARS.find(x => x.id === currentBarId);
+        if (!b) return null;
+
+        return {
+            id: b.id,
+            name: document.getElementById('d-name').innerText.trim(),
+            zhName: document.getElementById('d-zhname').innerText.trim(),
+            category: document.getElementById('d-cat').innerText.trim(),
+            area: document.getElementById('d-area').innerText.trim(),
+            score: parseFloat(document.getElementById('d-score').innerText),
+            // 精確過濾：只拿乾淨的地址，不含圖標字元
+            address: document.getElementById('d-addr').innerText.trim(),
+            // 狀態：目前是開還是關
+            status: isOpen(b) ? 'Open' : 'Closed'
+        };
+    },
+
+    // 監控頁面切換並執行追蹤
+    trackPageChange: function(route, opts) {
+        // 增加微小延遲，確保 DOM 已切換顯示
+        setTimeout(() => {
+            const path = window.location.hash || '#home';
+            console.log(`[Track] 頁面切換至: ${path}`);
+
+            if (route === 'detail') {
+                const data = this.getDetailInfo();
+                console.log('[Track] 進入店家詳情:', data);
+                // 這裡可以串接你的 GA4 或 API:
+                // gtag('event', 'view_item', data);
+            } else if (route === 'nearby') {
+                console.log('[Track] 使用者查看附近酒吧');
+            }
+        }, 100);
+    }
+};
+
+// 導入方式：修改你原有的 _render 函式
+// 找到原本的 function _render(route, opts={})，在結尾處加上：
+// TippleTracker.trackPageChange(route, opts);
 </script>
 </body>
 </html>

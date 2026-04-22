@@ -106,6 +106,61 @@ VIBE_KEYWORDS = {
     },
 }
 
+# ── 調酒子分類關鍵字 ─────────────────────────────────────────────────────────
+COCKTAIL_SUB_KEYWORDS = {
+    "tea": {
+        "zh": ["茶", "烏龍", "普洱", "花茶", "綠茶", "紅茶", "高山茶", "台灣茶", "東方美人", "茶調酒"],
+        "en": ["tea", "oolong", "pu-erh", "green tea", "taiwanese tea", "tea cocktail", "herbal tea"]
+    },
+    "fruit": {
+        "zh": ["水果", "熱帶", "芒果", "鳳梨", "荔枝", "百香果", "莓果", "柑橘", "西瓜", "草莓", "水蜜桃"],
+        "en": ["fruit", "tropical", "mango", "pineapple", "lychee", "passion fruit", "berry", "citrus", "watermelon"]
+    },
+    "creative": {
+        "zh": ["創意", "實驗", "分子", "創新", "前衛", "獨特", "特調", "概念", "手法"],
+        "en": ["creative", "experimental", "molecular", "innovative", "avant-garde", "concept", "signature technique"]
+    },
+    "sweet": {
+        "zh": ["甜", "少女", "可愛", "花系", "夢幻", "糖漿", "甜蜜", "粉紅", "輕甜", "甜口"],
+        "en": ["sweet", "kawaii", "cute", "floral", "bubbly", "girly", "dessert cocktail", "sugar syrup"]
+    },
+    "classic": {
+        "zh": ["經典", "古典", "傳統", "純飲", "純粹", "老派", "調酒師", "職人"],
+        "en": ["classic", "traditional", "old fashioned", "manhattan", "martini", "negroni", "daiquiri"]
+    },
+}
+
+def classify_cocktail_sub(bar: dict) -> str:
+    """
+    從 review_summary + 評論 + 名稱推斷調酒子分類。
+    只對 cat='cocktail' 的酒吧執行，預設 classic。
+    """
+    if bar.get("cat") != "cocktail":
+        return bar.get("cocktail_sub", "")
+
+    summary = bar.get("review_summary", "").lower()
+    has_summary = bool(summary)
+
+    base_texts = [bar.get("name", ""), bar.get("zh", "")]
+    for r in bar.get("review_list", []):
+        base_texts.append(r.get("text", ""))
+    base = " ".join(base_texts).lower()
+
+    scores = {}
+    for sub, kws in COCKTAIL_SUB_KEYWORDS.items():
+        score = 0
+        for kw in kws["zh"] + kws["en"]:
+            kw_l = kw.lower()
+            if has_summary and kw_l in summary:
+                score += 3
+            if kw_l in base:
+                score += 1
+        scores[sub] = score
+
+    best = max(scores, key=lambda k: scores[k])
+    # 只有確實命中關鍵字才回傳子分類；無明顯特徵就留空（顯示在「全部」但不歸入任何子分類）
+    return best if scores[best] > 0 else ""
+
 # ── 分類主函式 ────────────────────────────────────────────────────────────────
 def classify_vibes(bar: dict) -> list:
     """
@@ -170,16 +225,24 @@ def main():
     print(f"📋 處理酒吧：{len(targets)} 間\n")
 
     changed = 0
+    sub_changed = 0
     vibe_count = {}
+    sub_count = {}
 
     for bar in targets:
         old_vibes = set(bar.get("vibes", bar.get("tags", [])))
         new_vibes = classify_vibes(bar)
         new_set   = set(new_vibes)
 
-        # 統計各 vibe 出現次數
+        # 調酒子分類
+        new_sub = classify_cocktail_sub(bar)
+        old_sub = bar.get("cocktail_sub", "")
+
+        # 統計各 vibe / sub 出現次數
         for v in new_vibes:
             vibe_count[v] = vibe_count.get(v, 0) + 1
+        if new_sub:
+            sub_count[new_sub] = sub_count.get(new_sub, 0) + 1
 
         if new_set != old_vibes:
             if not args.dry_run:
@@ -192,11 +255,20 @@ def main():
                 print(f"  {bar['name'][:30]:<30}  +"
                       f"{list(added)} -{list(removed)}")
 
+        if new_sub != old_sub:
+            if not args.dry_run:
+                bar["cocktail_sub"] = new_sub
+            sub_changed += 1
+
     if not args.dry_run:
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
     print(f"\n✅ 完成！{changed} 間酒吧的 vibe 有更新")
+    print(f"   {sub_changed} 間調酒吧的子分類有更新")
+    print("\n📊 調酒子分類分布：")
+    for sub, cnt in sorted(sub_count.items(), key=lambda x: -x[1]):
+        print(f"  {sub:<10} {cnt:4d}")
     print("\n📊 各 Vibe 分布：")
     for vibe, cnt in sorted(vibe_count.items(), key=lambda x: -x[1]):
         bar_str = "█" * (cnt // 10)
