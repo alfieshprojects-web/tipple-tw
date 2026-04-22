@@ -263,7 +263,7 @@ section.block{padding:78px 0;border-bottom:1px solid var(--line);position:relati
 @media(max-width:560px){.bar-grid{grid-template-columns:1fr}}
 .bar-card{border-radius:var(--radius);overflow:hidden;background:var(--bg-2);border:1px solid var(--line);transition:var(--ease);cursor:pointer}
 .bar-card:hover{border-color:var(--gold-3);transform:translateY(-4px);box-shadow:var(--shadow)}
-.bc-img{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--bg-3)}
+.bc-img{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--bg-3)}
 .bc-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.72) 100%);pointer-events:none;z-index:1}
 .bc-img.v1{background:radial-gradient(circle at 30% 30%,rgba(201,169,106,.24),transparent 54%),radial-gradient(circle at 70% 70%,rgba(201,169,106,.08),transparent 54%),var(--bg-3)}
 .bc-img.v2{background:radial-gradient(circle at 62% 30%,rgba(207,210,214,.18),transparent 54%),radial-gradient(circle at 28% 78%,rgba(201,169,106,.12),transparent 54%),var(--bg-3)}
@@ -364,11 +364,14 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 #scroll-top svg{color:var(--silver)}
 
 /* ===== PHOTO CAROUSEL ===== */
-.photo-carousel{position:relative;border-radius:12px;overflow:hidden;height:300px;background:var(--bg-3);margin-bottom:28px;display:none}
+.photo-carousel{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:var(--bg-3);margin-bottom:28px;display:none}
 .photo-carousel.has-photos{display:block}
 .carousel-track{display:flex;height:100%;overflow-x:scroll;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0}
 .carousel-track::-webkit-scrollbar{display:none}
-.carousel-slide{flex:0 0 100%;height:100%;scroll-snap-align:start;background-size:cover;background-position:center;background-repeat:no-repeat;position:relative}
+.carousel-slide{flex:0 0 100%;height:100%;scroll-snap-align:start;position:relative;overflow:hidden;background:var(--bg-3)}
+/* Blur background：模糊暗化版填滿背景，前景圖片 contain 完整顯示 */
+.cs-bg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(20px) brightness(.3) saturate(.7);transform:scale(1.15);z-index:0;pointer-events:none}
+.cs-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1}
 .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(10,10,12,.7);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--ease);backdrop-filter:blur(6px)}
 .carousel-btn:hover{background:rgba(201,169,106,.3);border-color:var(--gold-3)}
 .carousel-btn svg{color:#fff;width:16px;height:16px}
@@ -378,7 +381,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .carousel-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;transition:var(--ease)}
 .carousel-dot.active{background:var(--gold);width:18px;border-radius:3px}
 .carousel-count{position:absolute;top:12px;right:12px;background:rgba(10,10,12,.65);color:var(--silver);font-size:11px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px);letter-spacing:.05em;z-index:10}
-@media(max-width:640px){.photo-carousel{height:220px}}
+@media(max-width:640px){.photo-carousel{aspect-ratio:3/2}}
 
 /* ── Reviews ── */
 .reviews-section{margin-top:36px;padding-top:28px;border-top:1px solid var(--line)}
@@ -916,6 +919,7 @@ function _render(route,opts={}){
   // === 插入這行 ===
   if (typeof TippleTracker !== 'undefined') {
       TippleTracker.trackPageChange(route, opts);
+  }
 }
 function go(route,opts={},push=true){
   if(push){
@@ -1190,9 +1194,14 @@ function renderDetail(){
   if(refs.length>0&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE'){
     photosEl.classList.add('has-photos');
     // Build slides
-    trackEl.innerHTML=refs.map((ref,i)=>
-      `<div class="carousel-slide" style="background-image:url('${photoUrl(ref,1200)}')" data-idx="${i}"></div>`
-    ).join('');
+    trackEl.innerHTML=refs.map((ref,i)=>{
+      const url=photoUrl(ref,1200);
+      const thumbUrl=photoUrl(ref,400);
+      return`<div class="carousel-slide" data-idx="${i}">
+        <div class="cs-bg" style="background-image:url('${thumbUrl}')"></div>
+        <img class="cs-img" src="${url}" alt="${b.name}" loading="${i===0?'eager':'lazy'}" onerror="this.closest('.carousel-slide').style.opacity='.3'">
+      </div>`;
+    }).join('');
     // Build dots
     dotsEl.innerHTML=refs.map((_,i)=>
       `<div class="carousel-dot${i===0?' active':''}" data-dot="${i}"></div>`
@@ -1267,7 +1276,7 @@ function renderDetail(){
       revSec.innerHTML=`<div class="reviews-title">${title}</div>`
         +reviews.map(r=>{
           const initial=(r.author||'?')[0].toUpperCase();
-          return`<div class="review-card${r.rating===1?' negative':''}">`
+          return`<div class="review-card${r.rating===1?' negative':''}">
             <div class="review-header">
               <div class="review-avatar">${initial}</div>
               <div class="review-meta">
