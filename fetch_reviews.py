@@ -138,12 +138,25 @@ def main():
         name = bar.get("name", pid)
         print(f"[{i:4d}/{len(targets)}] {name[:32]:<32}", end=" ", flush=True)
 
-        # zh-TW + zh → 中文評論（合併去重取前 8）
+        # zh-TW + zh → 中文評論池
         d_zhtw = fetch_place_data(pid, "zh-TW"); time.sleep(DELAY)
         d_zh   = fetch_place_data(pid, "zh");    time.sleep(DELAY)
         zh_reviews = process_raw_reviews(d_zhtw.get("reviews", [])) \
                    + process_raw_reviews(d_zh.get("reviews", []))
-        zh_final = dedup_and_sort(zh_reviews, now_ts)[:MAX_ZH]
+        zh_sorted = dedup_and_sort(zh_reviews, now_ts)
+
+        # 從中文池挑出 1 星負評，依文字長度排序，取前 3
+        one_star = sorted(
+            [r for r in zh_sorted if r.get("rating") == 1 and r.get("text","")],
+            key=lambda r: len(r.get("text","")), reverse=True
+        )[:3]
+
+        # 正面評論：排除已選負評，取前 8
+        one_star_set = set(id(r) for r in one_star)
+        positive_zh = [r for r in zh_sorted if id(r) not in one_star_set][:MAX_ZH]
+
+        # 最終中文：正面 8 則 + 最多 3 則 1 星負評
+        zh_final = positive_zh + one_star
 
         # en → 英文評論（取前 2）
         d_en = fetch_place_data(pid, "en"); time.sleep(DELAY)
@@ -158,7 +171,8 @@ def main():
             bar["review_summary"] = summary
             ok += 1
             summary_count += (1 if summary else 0)
-            print(f"✓ zh:{len(zh_final)} en:{len(en_final)}  {'📝' if summary else '  '}")
+            neg = f"👎{len(one_star)}" if one_star else "  "
+            print(f"✓ zh:{len(positive_zh)}+{neg} en:{len(en_final)}  {'📝' if summary else '  '}")
         else:
             bar["review_list"]    = []
             bar["review_summary"] = ""
