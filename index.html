@@ -1264,19 +1264,23 @@ function renderDetail(){
   const revSec=document.getElementById('d-reviews-section');
   if(revSec){
     const allReviews=b.reviewList||[];
-    // 不過濾語言：負評不分語言都要顯示，讓使用者看到完整聲音
-    // 排序：正評在前，負評（≤2★）在後
-    const reviews=[...allReviews].sort((a,b)=>{
-      const aNeg=(a.rating||5)<=2, bNeg=(b.rating||5)<=2;
-      if(aNeg&&!bNeg)return 1;
-      if(!aNeg&&bNeg)return -1;
+    // 中文模式：顯示中文評論 + 任何語言的負評（≤2★）
+    // 英文模式：顯示全部
+    // 排序：正評在前，負評沉底
+    const isNeg=r=>(r.rating||5)<=2;
+    const reviews=lang==='zh'
+      ? allReviews.filter(r=>isNeg(r)||!r.lang||r.lang.startsWith('zh'))
+      : allReviews;
+    const sorted=[...reviews].sort((a,b)=>{
+      if(isNeg(a)&&!isNeg(b))return 1;
+      if(!isNeg(a)&&isNeg(b))return -1;
       return 0;
     });
-    if(reviews.length){
+    if(sorted.length){
       const title=lang==='zh'?'Google 評論':'Google Reviews';
       const stars=n=>[1,2,3,4,5].map(i=>`<span class="review-star${i<=n?'':' off'}">★</span>`).join('');
       revSec.innerHTML=`<div class="reviews-title">${title}</div>`
-        +reviews.map(r=>{
+        +sorted.map(r=>{
           const initial=(r.author||'?')[0].toUpperCase();
           return`<div class="review-card${(r.rating||5)<=2?' negative':''}">
             <div class="review-header">
