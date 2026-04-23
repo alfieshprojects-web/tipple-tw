@@ -1,10 +1,16 @@
 """
-TIPPLE — 評論抓取腳本 v4.0
+TIPPLE — 評論抓取腳本 v5.0
 ==============================
 策略：
-  - 目標城市：台北 / 新北 / 台中 / 台南 / 高雄
-  - 每間酒吧 10 則：中文 8 則（zh-TW + zh 合併去重）+ 英文 2 則
-  - 同時抓取 generativeSummary（Google AI 彙整所有評論的摘要）
+  - 目標城市：台北 / 新北
+  - 每間酒吧最多 13 則：
+      中文（zh-TW + zh）正評 ≤ 8 則
+      負評（1–2★，任意語言）≤ 5 則
+      英文正評 ≤ 2 則
+  - 多語系抓取：zh-TW / zh / en / ja / ko
+    → 不同語系回傳不同評論池，大幅提高負評撈取率
+  - 負評定義：rating ≤ 2（含 2★，不再只抓 1★）
+  - 同時抓取 generativeSummary
   - 排序：文字長度 × 0.6 + 新舊程度 × 0.4
 
 執行方式：
@@ -13,8 +19,8 @@ TIPPLE — 評論抓取腳本 v4.0
   python3 fetch_reviews.py --min 4.2    # 只抓 4.2 分以上
 
 費用估算：
-  每間酒吧 3 次 Details call × $0.003 差額 = $0.009
-  5 城市全部約 2700 間 ≈ $24
+  每間酒吧 5 次 Details call × $0.003 = $0.015
+  2137 間 ≈ $32
 """
 
 import requests
@@ -29,11 +35,15 @@ OUTPUT_FILE    = "bars.json"
 DELAY          = 0.15
 
 # 目標城市
-TARGET_AREAS = {'taipei', 'newtaipei', 'taichung', 'tainan', 'kaohsiung'}
+TARGET_AREAS = {'taipei', 'newtaipei'}
 
 # 每間酒吧的評論組成
-MAX_ZH = 8   # 中文評論上限
-MAX_EN = 2   # 英文評論上限
+MAX_ZH  = 8   # 中文正評上限
+MAX_EN  = 2   # 英文正評上限
+MAX_NEG = 5   # 負評（1–2★）上限（任意語言）
+
+# 多語系抓取順序（不同語系回傳不同評論池，增加負評撈取率）
+LANG_CODES = ["zh-TW", "zh", "en", "ja", "ko"]
 
 def fetch_place_data(place_id: str, lang: str) -> dict:
     url = f"https://places.googleapis.com/v1/places/{place_id}"
@@ -108,9 +118,10 @@ def main():
     parser.add_argument("--skip-existing", action="store_true",      help="跳過已有評論的酒吧")
     args = parser.parse_args()
 
-    print("🍸 TIPPLE 評論抓取腳本 v4.0")
-    print(f"   目標城市：台北 / 新北 / 台中 / 台南 / 高雄")
-    print(f"   評論組成：中文 {MAX_ZH} 則 + 英文 {MAX_EN} 則 = 10 則")
+    print("🍸 TIPPLE 評論抓取腳本 v5.0")
+    print(f"   目標城市：台北 / 新北")
+    print(f"   評論組成：中文正評 ≤{MAX_ZH} + 英文正評 ≤{MAX_EN} + 負評(1-2★) ≤{MAX_NEG}")
+    print(f"   語系抓取：{' / '.join(LANG_CODES)}")
     print(f"   開始：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     with open(INPUT_FILE, "r", encoding="utf-8") as f:
@@ -128,7 +139,7 @@ def main():
         targets = [b for b in targets if not b.get("review_list")]
 
     print(f"📋 目標：{len(targets)} 間酒吧")
-    print(f"   預計費用：約 ${len(targets) * 0.009:.1f} USD（3 calls / 間）\n")
+    print(f"   預計費用：約 ${len(targets) * 0.015:.1f} USD（5 calls / 間）\n")
 
     ok = fail = summary_count = 0
     now_ts = datetime.now(timezone.utc).timestamp()
@@ -138,41 +149,55 @@ def main():
         name = bar.get("name", pid)
         print(f"[{i:4d}/{len(targets)}] {name[:32]:<32}", end=" ", flush=True)
 
-        # zh-TW + zh → 中文評論池
-        d_zhtw = fetch_place_data(pid, "zh-TW"); time.sleep(DELAY)
-        d_zh   = fetch_place_data(pid, "zh");    time.sleep(DELAY)
-        zh_reviews = process_raw_reviews(d_zhtw.get("reviews", [])) \
-                   + process_raw_reviews(d_zh.get("reviews", []))
-        zh_sorted = dedup_and_sort(zh_reviews, now_ts)
+        # ── 多語系抓取，彙整所有評論 ────────────────────────────────
+        all_raw = []
+        lang_data = {}
+        for lc in LANG_CODES:
+            d = fetch_place_data(pid, lc)
+            lang_data[lc] = d
+            all_raw += process_raw_reviews(d.get("reviews", []))
+            time.sleep(DELAY)
 
-        # 從中文池挑出 1 星負評，依文字長度排序，取前 3
-        one_star = sorted(
-            [r for r in zh_sorted if r.get("rating") == 1 and r.get("text","")],
+        # 全語系去重（以評論前 60 字為 key）
+        seen, all_uniq = set(), []
+        for r in all_raw:
+            key = r["text"][:60]
+            if key not in seen:
+                seen.add(key); all_uniq.append(r)
+
+        # ── 分類 ──────────────────────────────────────────────────
+        is_neg = lambda r: r.get("rating", 5) <= 2
+
+        # 負評池：1–2★，任意語言，依文字長度排序（越詳細越優先）
+        neg_pool = sorted(
+            [r for r in all_uniq if is_neg(r) and r.get("text","")],
             key=lambda r: len(r.get("text","")), reverse=True
-        )[:3]
+        )[:MAX_NEG]
+        neg_ids = set(id(r) for r in neg_pool)
 
-        # 正面評論：排除已選負評，取前 8
-        one_star_set = set(id(r) for r in one_star)
-        positive_zh = [r for r in zh_sorted if id(r) not in one_star_set][:MAX_ZH]
+        # 中文正評池
+        zh_pos = [r for r in all_uniq
+                  if not is_neg(r) and id(r) not in neg_ids
+                  and (not r.get("lang") or r["lang"].startswith("zh"))]
+        zh_pos = dedup_and_sort(zh_pos, now_ts)[:MAX_ZH]
+        zh_ids = set(id(r) for r in zh_pos)
 
-        # 最終中文：正面 8 則 + 最多 3 則 1 星負評
-        zh_final = positive_zh + one_star
+        # 英文正評池
+        en_pos = [r for r in all_uniq
+                  if not is_neg(r) and id(r) not in neg_ids and id(r) not in zh_ids
+                  and r.get("lang","").startswith("en")]
+        en_pos = dedup_and_sort(en_pos, now_ts)[:MAX_EN]
 
-        # en → 英文評論（取前 2）
-        d_en = fetch_place_data(pid, "en"); time.sleep(DELAY)
-        en_reviews = process_raw_reviews(d_en.get("reviews", []))
-        en_final = dedup_and_sort(en_reviews, now_ts)[:MAX_EN]
-
-        merged = zh_final + en_final
-        summary = extract_summary([d_zhtw, d_en])
+        merged = zh_pos + en_pos + neg_pool
+        summary = extract_summary([lang_data.get("zh-TW",{}), lang_data.get("en",{})])
 
         if merged:
             bar["review_list"]    = merged
             bar["review_summary"] = summary
             ok += 1
             summary_count += (1 if summary else 0)
-            neg = f"👎{len(one_star)}" if one_star else "  "
-            print(f"✓ zh:{len(positive_zh)}+{neg} en:{len(en_final)}  {'📝' if summary else '  '}")
+            neg_str = f" 👎{len(neg_pool)}" if neg_pool else ""
+            print(f"✓ zh:{len(zh_pos)} en:{len(en_pos)}{neg_str}  {'📝' if summary else '  '}")
         else:
             bar["review_list"]    = []
             bar["review_summary"] = ""
