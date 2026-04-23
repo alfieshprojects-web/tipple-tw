@@ -1,0 +1,13 @@
+name = "tipple-tw"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# 靜態資產設定：目錄裡的所有檔案都可被 env.ASSETS.fetch() 提供
+[assets]
+directory = "."
+binding = "ASSETS"
+
+# GPHOTO_KEY 請用 wrangler secret put GPHOTO_KEY 設定，不要寫在這裡
+# 執行方式：npx wrangler secret put GPHOTO_KEY
+# 貼上 API Key 後按 Enter 即可

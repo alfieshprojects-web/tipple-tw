@@ -871,16 +871,15 @@ const BARS=[
   {id:12,name:'Plough',zh:'Plough 精釀啤酒吧',cat:'craft',style:'casual',area:'taichung',district:'West Dist. · 西區',score:4.15,reviews:680,openHours:[[17,25]],addr:{zh:'台中市西區精誠路 88 號',en:'No.88, Jingcheng Rd., Taichung'},hours:{zh:'17:00 – 01:00',en:'17:00 – 01:00'},price:{zh:'$$',en:'$$'},catLabel:{zh:'精釀啤酒',en:'Craft Beer'},styleLabel:{zh:'輕鬆',en:'Casual'},img:'v4',tags:['Local Brew','Easy Going','Taichung']}
 ];
 
-/* ===== GOOGLE PHOTO KEY (限制來源：tipple-tw.netlify.app) ===== */
-const GPHOTO_KEY='AIzaSyC-YZRHWyYTv0-BQf0JJ4RNtZzFYAERCWQ';
-function photoUrl(ref,maxw=1200){
-  if(!ref||GPHOTO_KEY==='YOUR_BROWSER_API_KEY_HERE')return'';
-  // Places API (New): ref = "places/ChIJ.../photos/AXCi..."
+/* ===== PHOTO URL — 走 Worker 代理，API key 不暴露在瀏覽器 ===== */
+function photoUrl(ref,maxw=800){
+  if(!ref)return'';
+  // 統一走 /photo 代理路徑，由 Cloudflare Worker 快取 + 轉發 Google API
   if(ref.startsWith('places/')){
-    return`https://places.googleapis.com/v1/${ref}/media?maxWidthPx=${maxw}&key=${GPHOTO_KEY}`;
+    return`/photo?ref=${encodeURIComponent(ref)}&w=${maxw}`;
   }
-  // Legacy fallback: old photo_reference string
-  return`https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxw}&photoreference=${ref}&key=${GPHOTO_KEY}`;
+  // 舊版 photo_reference 格式（fallback）
+  return`/photo?ref=${encodeURIComponent(ref)}&w=${maxw}`;
 }
 
 /* ===== STATE ===== */
@@ -1102,7 +1101,7 @@ function renderTypePage(){
     const viewAll=ln?(I18N.zh['type.viewall']||'看全部 →'):(I18N.en['type.viewall']||'View All →');
     const cards=top6.map((b,i)=>{
       const rank=String(i+1).padStart(2,'0');
-      const hasPhoto=b.photoRefs&&b.photoRefs[0]&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE';
+      const hasPhoto=b.photoRefs&&b.photoRefs[0]&&true;
       const imgHtml=hasPhoto
         ?`<img src="${photoUrl(b.photoRefs[0],200)}" alt="${b.name}" loading="lazy" onerror="this.style.display='none'">`
         :'';
@@ -1154,7 +1153,7 @@ function renderList(){
   grid.innerHTML=filtered.map(b=>{
     const meta=ln?`${b.district}<span class="dot">·</span>${b.catLabel.zh}`:`${b.district}<span class="dot">·</span>${b.catLabel.en}`;
     const opInd=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
-    const hasPhoto=b.photoRefs&&b.photoRefs[0]&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE';
+    const hasPhoto=b.photoRefs&&b.photoRefs[0]&&true;
     const photoImg=hasPhoto?`<img class="bc-photo" src="${photoUrl(b.photoRefs[0],600)}" alt="${b.name}" loading="lazy" onerror="this.remove()">`:'';
     return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
       <div class="bc-img ${b.img}">${photoImg}<div class="bc-indicator" style="z-index:2">${opInd}</div></div>
@@ -1191,7 +1190,7 @@ function renderDetail(){
   const dotsEl=document.getElementById('carousel-dots');
   const countEl=document.getElementById('carousel-count');
   const refs=(b.photoRefs||[]).filter(Boolean);
-  if(refs.length>0&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE'){
+  if(refs.length>0&&true){
     photosEl.classList.add('has-photos');
     // Build slides
     trackEl.innerHTML=refs.map((ref,i)=>{
@@ -1479,7 +1478,7 @@ function renderNearbyGrid(){
   grid.innerHTML=withDist.map(b=>{
     const meta=ln?`${b.district}<span class="dot">·</span>${b.catLabel.zh}`:`${b.district}<span class="dot">·</span>${b.catLabel.en}`;
     const opInd=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
-    const hasPhoto=b.photoRefs&&b.photoRefs[0]&&GPHOTO_KEY!=='YOUR_BROWSER_API_KEY_HERE';
+    const hasPhoto=b.photoRefs&&b.photoRefs[0]&&true;
     const photoImg=hasPhoto?`<img class="bc-photo" src="${photoUrl(b.photoRefs[0],600)}" alt="${b.name}" loading="lazy" onerror="this.remove()">`:'';
     const distLabel=`<div class="nearby-dist">📍 ${fmtDist(b.dist,ln)}</div>`;
     return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
@@ -1770,7 +1769,7 @@ async function loadBars(){
 
     // ── 工具：注入照片 ────────────────────────────────────────────
     const injectPhoto=(el,bar,cls)=>{
-      if(!el||!bar||!bar.photoRefs||!bar.photoRefs[0]||GPHOTO_KEY==='YOUR_BROWSER_API_KEY_HERE')return;
+      if(!el||!bar||!bar.photoRefs||!bar.photoRefs[0]||false)return;
       const img=document.createElement('img');
       img.className=cls;img.alt=bar.name;img.loading='lazy';
       img.onerror=()=>img.remove();
