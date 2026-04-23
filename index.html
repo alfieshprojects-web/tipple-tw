@@ -533,8 +533,8 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
       <div class="section-head reveal">
         <div>
           <span class="eyebrow" data-i18n="picks.eyebrow">精選推薦</span>
-          <h2 data-i18n="picks.title">高分精選 · 本週推薦</h2>
-          <p class="desc" data-i18n="picks.desc">根據 Google Maps 評分，為你推薦近期評價最高的酒吧。</p>
+          <h2 data-i18n="picks.title">本月精選 · 編輯推薦</h2>
+          <p class="desc" data-i18n="picks.desc">複合評分演算法綜合評分、口碑與類型多元，每月自動輪換。</p>
         </div>
         <a class="more" data-route="list" data-i18n="picks.more">All Picks →</a>
       </div>
@@ -1590,6 +1590,70 @@ function initCountUps(){
   });
 }
 
+/* ===== 每月精選推薦演算法 ===== */
+function pickMonthlyPicks(){
+  // Mulberry32 seeded PRNG（每月種子不同，自動輪換）
+  function mulberry32(seed){
+    return function(){
+      seed|=0; seed=seed+0x6D2B79F5|0;
+      let t=Math.imul(seed^seed>>>15,1|seed);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  const now=new Date();
+  const monthSeed=now.getFullYear()*100+now.getMonth(); // e.g. 202604
+
+  // 1. 品質門檻：評分 ≥ 4.3、評論 ≥ 150、有照片
+  const pool=BARS.filter(b=>b.score>=4.3&&b.reviews>=150&&b.photoRefs&&b.photoRefs[0]);
+
+  // 2. 複合評分 = 評分 × log10(評論數+1)
+  //    隱藏好店加成：評論 < 500 則加 0.25，讓優質但低曝光的酒吧有機會上榜
+  pool.forEach(b=>{
+    b._comp=b.score*Math.log10(b.reviews+1);
+    if(b.reviews<500)b._comp+=0.25;
+  });
+
+  // 3. 排序取前 60 候選池
+  pool.sort((a,b)=>b._comp-a._comp);
+  const candidates=pool.slice(0,60);
+
+  // 4. 月份種子洗牌（同一個月內每次看都一樣，換月自動換一批）
+  const rng=mulberry32(monthSeed);
+  const shuffled=[...candidates].sort(()=>rng()-0.5);
+
+  const spotlight=shuffled[0];
+  if(!spotlight)return null;
+
+  // 5. 精選 3 張：優先不同 cat + 不同 district，逐步放寬
+  const picks=[];
+  const usedCats=new Set([spotlight.cat]);
+  const usedDistricts=new Set([spotlight.districtZh||spotlight.district]);
+
+  // 第一輪：嚴格多元（不同 cat 且不同 district）
+  for(const bar of shuffled.slice(1)){
+    if(picks.length>=3)break;
+    const cat=bar.cat, dist=bar.districtZh||bar.district;
+    if(!usedCats.has(cat)&&!usedDistricts.has(dist)){
+      picks.push(bar); usedCats.add(cat); usedDistricts.add(dist);
+    }
+  }
+  // 第二輪：只要不同 cat
+  for(const bar of shuffled.slice(1)){
+    if(picks.length>=3)break;
+    if(!picks.includes(bar)&&!usedCats.has(bar.cat)){
+      picks.push(bar); usedCats.add(bar.cat);
+    }
+  }
+  // 第三輪：任意填滿
+  for(const bar of shuffled.slice(1)){
+    if(picks.length>=3)break;
+    if(!picks.includes(bar))picks.push(bar);
+  }
+
+  return{spotlight,picks};
+}
+
 /* ===== LOAD DATA FROM bars.json ===== */
 async function loadBars(){
   try{
@@ -1775,9 +1839,20 @@ async function loadBars(){
       el.prepend(img);
     };
 
-    // ── 更新首頁 Spotlight 為真實第一名 ──────────────────────────
-    if(BARS.length>0){
-      const b0=BARS[0];
+    // ── 每月精選推薦（複合評分 + 類型多元 + 月份輪換）────────────
+    const monthly=pickMonthlyPicks();
+    if(monthly){
+      const{spotlight:b0,picks:pickBars}=monthly;
+      const MONTHS_ZH=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+      const MONTHS_EN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+      const mo=new Date().getMonth();
+
+      // badge 顯示當月
+      document.querySelectorAll('[data-i18n="spot.badge"]').forEach(el=>{
+        el.textContent=lang==='zh'?`★ 編輯之選 · ${MONTHS_ZH[mo]}`:`★ EDITOR'S PICK · ${MONTHS_EN[mo]}`;
+      });
+
+      // Spotlight
       const sp=document.querySelector('.spotlight[data-route="detail"]');
       if(sp){
         sp.dataset.bar=b0.id;
@@ -1789,19 +1864,19 @@ async function loadBars(){
       }
       const heroBtn=document.querySelector('[data-route="detail"][data-i18n="hero.cta2"]');
       if(heroBtn)heroBtn.dataset.bar=b0.id;
-    }
 
-    // ── 更新首頁編輯精選為真實 2～4 名 ──────────────────────────
-    document.querySelectorAll('.pick[data-route="detail"]').forEach((pick,i)=>{
-      const b=BARS[i+1];if(!b)return;
-      pick.dataset.bar=b.id;
-      const h4=pick.querySelector('h4');if(h4)h4.textContent=b.name;
-      const psub=pick.querySelector('.psub');
-      if(psub)psub.textContent=`${b.district} · ${b.catLabel.zh} · ${b.styleLabel.zh}`;
-      const fscore=pick.querySelector('.fscore');
-      if(fscore)fscore.innerHTML=`${b.score.toFixed(1)}<span>/ 5</span>`;
-      injectPhoto(pick.querySelector('.img'),b,'p-photo');
-    });
+      // 精選 picks
+      document.querySelectorAll('.pick[data-route="detail"]').forEach((pick,i)=>{
+        const b=pickBars[i];if(!b)return;
+        pick.dataset.bar=b.id;
+        const h4=pick.querySelector('h4');if(h4)h4.textContent=b.name;
+        const psub=pick.querySelector('.psub');
+        if(psub)psub.textContent=`${b.district} · ${b.catLabel.zh} · ${b.styleLabel.zh}`;
+        const fscore=pick.querySelector('.fscore');
+        if(fscore)fscore.innerHTML=`${b.score.toFixed(1)}<span>/ 5</span>`;
+        injectPhoto(pick.querySelector('.img'),b,'p-photo');
+      });
+    }
 
     // ── 風格卡片注入代表酒吧照片 ─────────────────────────────────
     const styleOrder=['rooftop','jazz','dj','lounge','experimental','tasting','hidden','hotel'];
