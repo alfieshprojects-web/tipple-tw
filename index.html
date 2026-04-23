@@ -401,6 +401,10 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .review-text.expanded{-webkit-line-clamp:unset;overflow:visible}
 .review-expand{font-size:11px;color:var(--gold-3);cursor:pointer;margin-top:6px;letter-spacing:.04em;display:none}
 .review-expand.show{display:block}
+.review-translate{font-size:11px;color:var(--gold-3);cursor:pointer;margin-top:4px;letter-spacing:.04em;opacity:.75;border:none;background:none;padding:0;display:inline-flex;align-items:center;gap:4px}
+.review-translate:hover{opacity:1}
+.review-translated{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:none}
+.review-translated.show{display:block}
 
 /* ── Nearby page ── */
 .nearby-hero{text-align:center;padding:60px 0 36px;display:flex;flex-direction:column;align-items:center;gap:18px}
@@ -1282,6 +1286,11 @@ function renderDetail(){
       revSec.innerHTML=`<div class="reviews-title">${title}</div>`
         +sorted.map(r=>{
           const initial=(r.author||'?')[0].toUpperCase();
+          const rLang=r.lang||'';
+          const needTrans=lang==='zh'&&rLang&&!rLang.startsWith('zh');
+          const transBtn=needTrans
+            ?`<button class="review-translate" data-text="${(r.text||'').replace(/"/g,'&quot;')}">🌐 顯示翻譯</button><div class="review-translated"></div>`
+            :'';
           return`<div class="review-card${(r.rating||5)<=2?' negative':''}">
             <div class="review-header">
               <div class="review-avatar">${initial}</div>
@@ -1293,9 +1302,39 @@ function renderDetail(){
             </div>
             <div class="review-text">${r.text||''}</div>
             <div class="review-expand">展開 ↓</div>
+            ${transBtn}
           </div>`;
         }).join('');
       revSec.style.display='block';
+
+      // 翻譯按鈕點擊
+      revSec.querySelectorAll('.review-translate').forEach(btn=>{
+        btn.addEventListener('click',async()=>{
+          const box=btn.nextElementSibling;
+          if(box.classList.contains('show')){
+            box.classList.remove('show');
+            btn.textContent='🌐 顯示翻譯';
+            return;
+          }
+          if(box.dataset.done){
+            box.classList.add('show');
+            btn.textContent='🌐 隱藏翻譯';
+            return;
+          }
+          btn.textContent='翻譯中…';
+          try{
+            const res=await fetch(`/translate?q=${encodeURIComponent(btn.dataset.text)}&tl=zh-TW`);
+            const json=await res.json();
+            box.textContent=json.text||'（翻譯失敗）';
+            box.dataset.done='1';
+            box.classList.add('show');
+            btn.textContent='🌐 隱藏翻譯';
+          }catch(e){
+            btn.textContent='🌐 翻譯失敗，再試一次';
+          }
+        });
+      });
+
       // 展開/收合
       revSec.querySelectorAll('.review-text').forEach(el=>{
         requestAnimationFrame(()=>{

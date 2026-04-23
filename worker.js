@@ -2,6 +2,7 @@
  * TIPPLE Cloudflare Worker
  * - 靜態檔案（index.html, bars.json）由 Assets 提供
  * - GET /photo?ref=places/...&w=800 → 代理 Google Places 照片並快取 30 天
+ * - GET /translate?q=TEXT&tl=zh-TW → 翻譯代理，快取 30 天
  */
 
 export default {
@@ -12,9 +13,67 @@ export default {
       return handlePhoto(request, url, env);
     }
 
+    if (url.pathname === '/translate') {
+      return handleTranslate(request, url);
+    }
+
     return env.ASSETS.fetch(request);
   },
 };
+
+async function handleTranslate(request, url) {
+  const q  = url.searchParams.get('q');
+  const tl = url.searchParams.get('tl') || 'zh-TW';
+
+  if (!q) return new Response('Missing q', { status: 400 });
+
+  // 用翻譯內容當 cache key（前 120 字）
+  const cacheKey = new Request(
+    `https://tipple-translate/${tl}/${encodeURIComponent(q.slice(0, 120))}`,
+    { method: 'GET' }
+  );
+  const cache = caches.default;
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
+  // Google Translate 非官方免費端點（不需 API key）
+  const gtUrl =
+    `https://translate.googleapis.com/translate_a/single` +
+    `?client=gtx&sl=auto&tl=${tl}&dt=t&q=${encodeURIComponent(q)}`;
+
+  let gtResp;
+  try {
+    gtResp = await fetch(gtUrl);
+  } catch (e) {
+    return json({ error: e.message }, 502);
+  }
+
+  if (!gtResp.ok) {
+    return json({ error: `translate failed: ${gtResp.status}` }, gtResp.status);
+  }
+
+  const data = await gtResp.json();
+  // data[0] = [[translated_chunk, original_chunk], ...]
+  const translated = (data[0] || []).map(c => c[0] || '').join('');
+
+  const response = json({ text: translated }, 200, {
+    'Cache-Control': 'public, max-age=2592000',
+  });
+
+  await cache.put(cacheKey, response.clone());
+  return response;
+}
+
+function json(obj, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(obj), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      ...extraHeaders,
+    },
+  });
+}
 
 async function handlePhoto(request, url, env) {
   const ref = url.searchParams.get('ref');
