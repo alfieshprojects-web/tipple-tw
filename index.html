@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <style>
 :root{
   --bg:#0a0a0c;--bg-2:#111116;--bg-3:#18181f;--bg-4:#1e1e27;
@@ -417,6 +418,46 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .review-translated{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:none}
 .review-translated.show{display:block}
 
+/* ── View toggle (列表/地圖) ── */
+.view-toggle{display:flex;border:0.5px solid var(--line-2);border-radius:8px;overflow:hidden;flex-shrink:0}
+.view-toggle-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:.03em;transition:var(--ease);font-family:inherit}
+.view-toggle-btn.active{background:var(--bg-3);color:var(--gold-2)}
+.view-toggle-btn svg{width:13px;height:13px;flex-shrink:0}
+.view-toggle-sep{width:0.5px;background:var(--line-2);align-self:stretch}
+
+/* ── Map container ── */
+#map-container{display:none;height:calc(100vh - 260px);min-height:480px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);margin-top:8px}
+#map-count-bar{display:none;align-items:center;gap:8px;padding:10px 2px;font-size:12px;color:var(--muted)}
+#map-count-bar b{color:var(--gold-2);font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400}
+#map-locate-btn{margin-left:auto;font-size:11px;padding:5px 12px;border-radius:999px;background:var(--bg-2);border:0.5px solid var(--line-2);color:var(--muted);cursor:pointer;transition:var(--ease)}
+#map-locate-btn:hover{border-color:var(--gold-3);color:var(--gold-2)}
+.leaflet-container{background:#111622!important;font-family:inherit}
+.leaflet-tile-pane{filter:brightness(.9) saturate(.8)}
+
+/* ── Map pins ── */
+.tp-pin{display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .15s}
+.tp-pin:hover{transform:translateY(-2px)}
+.tp-pin-body{background:var(--gold);color:#0a0a0c;font-size:10px;font-weight:600;border-radius:999px;padding:3px 7px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.45);transition:background .15s,transform .15s}
+.tp-pin.active .tp-pin-body{background:var(--gold-4);transform:scale(1.12);box-shadow:0 4px 16px rgba(201,169,106,.6)}
+.tp-pin-tail{width:2px;height:7px;background:var(--gold);border-radius:0 0 2px 2px}
+.tp-pin.active .tp-pin-tail{background:var(--gold-4)}
+
+/* ── Map popup ── */
+.leaflet-popup-content-wrapper{background:#18181f!important;border:0.5px solid #32323f!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;padding:0!important;overflow:hidden}
+.leaflet-popup-tip-container{display:none}
+.leaflet-popup-content{margin:0!important;width:240px!important}
+.leaflet-popup-close-button{color:#8a8a96!important;right:8px!important;top:8px!important;font-size:16px!important;z-index:2}
+.tp-pop-img{height:80px;width:100%;object-fit:cover;display:block;background:#1e1e27}
+.tp-pop-img-ph{height:80px;background:linear-gradient(135deg,#1a1206,#2d200a)}
+.tp-pop-body{padding:10px 14px 12px}
+.tp-pop-score{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:#c9a96a;line-height:1}
+.tp-pop-name{font-size:13px;font-weight:500;color:#f0f0f4;margin-top:4px}
+.tp-pop-sub{font-size:10px;color:#8a8a96;margin-top:2px}
+.tp-pop-open{font-size:10px;color:#50b478;margin-top:3px}
+.tp-pop-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.tp-pop-cta{font-size:11px;padding:6px 14px;border-radius:999px;background:rgba(201,169,106,.15);color:#c9a96a;border:0.5px solid rgba(201,169,106,.35);cursor:pointer;transition:background .15s;font-family:inherit}
+.tp-pop-cta:hover{background:rgba(201,169,106,.28)}
+
 /* ── Fav button on cards ── */
 .bc-fav{position:absolute;top:10px;left:10px;z-index:3;background:rgba(10,10,12,.72);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;transition:var(--ease);backdrop-filter:blur(6px);color:var(--muted-2);line-height:1}
 .bc-fav:hover{color:#e85577;transform:scale(1.15)}
@@ -652,7 +693,20 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
           <h2 data-i18n="list.title">探索 · 全台灣酒吧</h2>
           <p class="desc" data-i18n="list.desc">類型 × 風格 × 地區交叉篩選，找到今晚的那一間。</p>
         </div>
-        <span style="color:var(--muted);font-size:13px"><b id="list-count" style="color:var(--gold-2);font-family:'Cormorant Garamond',serif;font-size:26px">12</b><span data-i18n="list.found"> 家符合</span></span>
+        <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+          <span style="color:var(--muted);font-size:13px"><b id="list-count" style="color:var(--gold-2);font-family:'Cormorant Garamond',serif;font-size:26px">12</b><span data-i18n="list.found"> 家符合</span></span>
+          <div class="view-toggle">
+            <button class="view-toggle-btn active" id="view-list-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+              列表
+            </button>
+            <div class="view-toggle-sep"></div>
+            <button class="view-toggle-btn" id="view-map-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              地圖
+            </button>
+          </div>
+        </div>
       </div>
       <div class="list-toolbar">
         <div class="filter-group"><span class="filter-lbl" data-i18n="filter.cat">CATEGORY</span>
@@ -743,6 +797,11 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         </div>
       </div>
       <div class="bar-grid" id="bar-grid"></div>
+      <div id="map-container"></div>
+      <div id="map-count-bar">
+        <span><b id="map-count-num">0</b> <span id="map-count-label">間酒吧在地圖範圍內</span></span>
+        <button id="map-locate-btn">📍 定位我的位置</button>
+      </div>
     </div>
   </section>
 </main>
@@ -903,6 +962,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 /* ===== I18N ===== */
 const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依類型','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'直接採用 Google Maps 原始評分（滿分 5 分），依評分高低排序。','rank.more':'看完整排行 →','picks.eyebrow':'精選推薦','picks.title':'高分精選 · 本週推薦','picks.desc':'根據 Google Maps 評分，為你推薦近期評價最高的酒吧。','picks.more':'更多精選 →','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'頂樓 · 城市夜景','style.s2':'爵士 · 現場演奏','style.s3':'DJ · 電子聲浪','style.s4':'Lounge · 沙發放鬆','style.s5':'實驗 · 分子調酒','style.s6':'品飲 · 侍酒體驗','style.s7':'隱藏 · 預約制','style.s8':'飯店 · 精品吧','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.vibe':'VIBE','filter.vibe_atm':'氛圍','filter.vibe_pref':'偏好','filter.vibe_feat':'特色','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','filter.morning':'早午（10:00–14:00）','filter.afternoon':'下午（14:00–18:00）','filter.evening':'晚上（18:00–02:00）','cat.all':'全部','cat.cocktail':'調酒吧','cat.speakeasy':'Speakeasy','cat.gin':'琴酒吧','cat.whisky':'威士忌吧','cat.rum_agave':'蘭姆/龍舌蘭','cat.wine':'紅酒吧','cat.craft':'精釀啤酒','cat.sake':'清酒吧','cat.bistro':'餐酒館','vibe.all':'全部氛圍','vibe.rooftop':'頂樓景觀','vibe.jazz':'爵士現場','vibe.dj':'DJ 電音','vibe.listen':'音樂鑑賞','vibe.lounge':'沙發放鬆','vibe.dive':'Dive Bar','vibe.theme':'主題酒吧','vibe.hotel':'飯店酒吧','vibe.hidden':'隱藏私密','vibe.date':'約會導向','vibe.party':'派對熱鬧','vibe.group':'朋友聚會','vibe.solo':'一人友善','vibe.afterwork':'下班小酌','vibe.experimental':'實驗調酒','vibe.tasting':'品飲體驗','vibe.zero_abv':'無酒精','vibe.low_abv':'低酒精','vibe.sustainable':'永續在地','vibe.chefs_table':'餐酒融合','vibe.private':'預約私人','type.eyebrow':'依類型','type.title':'依類型找酒吧','type.desc':'從飲品種類出發，找到今晚的那一杯。','type.viewall':'看全部 →','area.all':'全部','detail.back':'返回','detail.idx':'Google 評分','detail.outof':'滿分 5 分','detail.basedon':'基於','detail.reviews':'則 Google 評論','detail.disclaimer':'評分資料來自 Google Maps，僅供參考','open.now':'現在營業','closed.now':'暫停營業','nav.nearby':'附近','nav.fav':'收藏','nearby.eyebrow':'附近酒吧','nearby.title':'附近的酒吧','nearby.desc':'開啟定位，找到走路可達的那一間。','nearby.locate':'取得我的位置','nearby.locating':'定位中…','nearby.radius':'範圍','nearby.found':' 間酒吧在附近','nearby.none':'這個範圍內找不到酒吧','nearby.denied':'無法取得定位權限，請在瀏覽器設定中允許','nearby.error':'定位失敗，請稍後再試','nearby.m':'公尺','nearby.km':'公里','nearby.relocate':'更新位置'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Type','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'Aggregating Google Maps ratings across 1,090 bars in Taiwan — find the one worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Google Maps ratings out of 5. Bars ranked highest to lowest.','rank.more':'View All →','picks.eyebrow':'Top Picks','picks.title':'Top Picks · This Week','picks.desc':'Highest-rated bars on Google Maps right now.','picks.more':'All Picks →','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Rooftop · City at night','style.s2':'Jazz · Live music','style.s3':'DJ · Electronic sound','style.s4':'Lounge · Deep sofas','style.s5':'Experimental · Molecular','style.s6':'Tasting · Pairing room','style.s7':'Hidden · Reservation only','style.s8':'Hotel · Refined bar','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.vibe':'VIBE','filter.vibe_atm':'Atmosphere','filter.vibe_pref':'Preference','filter.vibe_feat':'Features','filter.area':'AREA','filter.time':'時段','filter.open':'Open now','filter.openon':'✓ Open now','filter.morning':'Morning（10:00–14:00）','filter.afternoon':'Afternoon（14:00–18:00）','filter.evening':'Evening（18:00–02:00）','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.speakeasy':'Speakeasy','cat.gin':'Gin Bar','cat.whisky':'Whisky Bar','cat.rum_agave':'Rum & Agave','cat.wine':'Wine Bar','cat.craft':'Craft Beer','cat.sake':'Sake Bar','cat.bistro':'Bistro Bar','vibe.all':'All Vibes','vibe.rooftop':'Rooftop','vibe.jazz':'Jazz Bar','vibe.dj':'DJ / Club','vibe.listen':'Listen Bar','vibe.lounge':'Lounge','vibe.dive':'Dive Bar','vibe.theme':'Theme Bar','vibe.hotel':'Hotel Bar','vibe.hidden':'Hidden','vibe.date':'Date Bar','vibe.party':'Party Bar','vibe.group':'Group Bar','vibe.solo':'Solo-friendly','vibe.afterwork':'Afterwork','vibe.experimental':'Experimental','vibe.tasting':'Tasting Room','vibe.zero_abv':'Zero ABV','vibe.low_abv':'Low ABV','vibe.sustainable':'Sustainable','vibe.chefs_table':"Chef's Table",'vibe.private':'Private Bar','type.eyebrow':'By Category','type.title':'Bars by Type','type.desc':'Start with the drink, find the bar.','type.viewall':'View All →','area.all':'All','detail.back':'Back','detail.idx':'Google Rating','detail.outof':'out of 5','detail.basedon':'Based on','detail.reviews':'Google reviews','detail.disclaimer':'Ratings sourced from Google Maps. For reference only.','open.now':'Open now','closed.now':'Closed','nav.nearby':'Nearby','nav.fav':'Saved','nearby.eyebrow':'Nearby Bars','nearby.title':'Bars Near You','nearby.desc':'Enable location to find bars within walking distance.','nearby.locate':'Get My Location','nearby.locating':'Locating…','nearby.radius':'Radius','nearby.found':' bars nearby','nearby.none':'No bars found in this area','nearby.denied':'Location permission denied. Please enable in browser settings.','nearby.error':'Location failed. Please try again.','nearby.m':'m','nearby.km':'km','nearby.relocate':'Update Location'}};
@@ -983,6 +1043,8 @@ function _render(route,opts={}){
   const activeTab=tabMap[route]||route;
   document.querySelectorAll('.tab-item[data-tab]').forEach(t=>t.classList.toggle('active',t.dataset.tab===activeTab));
   closeDrawer();
+  // Reset map mode when leaving list page
+  if(route!=='list'&&typeof mapMode!=='undefined'&&mapMode){setMapMode(false);}
   if(route==='detail'&&opts.barId){currentBarId=opts.barId;renderDetail()}
   if(route==='list')renderList();
   if(route==='rank')renderRankPage();
@@ -1224,6 +1286,8 @@ function renderList(){
     return true;
   }).sort((a,b)=>b.score-a.score);
   document.getElementById('list-count').textContent=filtered.length;
+  // ── Map mode: render map instead of grid ──
+  if(typeof mapMode!=='undefined'&&mapMode){renderMap(filtered);return;}
   const grid=document.getElementById('bar-grid');
   if(!filtered.length){
     grid.innerHTML=`<div class="empty-state"><div class="esi">${ln?'找不到符合的酒吧':'No bars match'}</div><p>${ln?'換個篩選條件試試？':'Try adjusting your filters.'}</p></div>`;return;
@@ -2151,6 +2215,163 @@ const TippleTracker = {
 // 導入方式：修改你原有的 _render 函式
 // 找到原本的 function _render(route, opts={})，在結尾處加上：
 // TippleTracker.trackPageChange(route, opts);
+
+/* ===== MAP VIEW ===== */
+let mapMode = false;
+let leafletMap = null;
+let markersLayer = null;
+let _lastMapBars = [];
+
+function initMap() {
+  if (leafletMap) return;
+  leafletMap = L.map('map-container', {
+    center: [25.045, 121.52],
+    zoom: 13,
+    zoomControl: true,
+    attributionControl: false,
+  });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    subdomains: 'abcd',
+  }).addTo(leafletMap);
+  markersLayer = L.layerGroup().addTo(leafletMap);
+
+  // map-count update on move
+  leafletMap.on('moveend zoomend', () => {
+    if (!mapMode) return;
+    const bounds = leafletMap.getBounds();
+    const visible = _lastMapBars.filter(b => b._latlng && bounds.contains(b._latlng));
+    const numEl = document.getElementById('map-count-num');
+    if (numEl) numEl.textContent = visible.length;
+  });
+}
+
+function renderMap(bars) {
+  if (!leafletMap) initMap();
+  markersLayer.clearLayers();
+  _lastMapBars = bars.map(b => ({ ...b, _latlng: null }));
+
+  const ln = lang === 'zh';
+  bars.forEach((b, idx) => {
+    if (!b.lat || !b.lng) return;
+    const latlng = [b.lat, b.lng];
+    _lastMapBars[idx]._latlng = latlng;
+
+    // custom DivIcon pin
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="tp-pin" id="tp-pin-${b.id}"><div class="tp-pin-body">${b.score.toFixed(1)}</div><div class="tp-pin-tail"></div></div>`,
+      iconSize: [46, 30],
+      iconAnchor: [23, 30],
+      popupAnchor: [0, -32],
+    });
+
+    const marker = L.marker(latlng, { icon }).addTo(markersLayer);
+
+    // popup content
+    const opBadge = isOpen(b)
+      ? `<div class="tp-pop-open">${ln ? '現在營業' : 'Open now'}</div>`
+      : '';
+    const catTxt = ln ? b.catLabel.zh : b.catLabel.en;
+    const imgHtml = b.photoRefs && b.photoRefs[0]
+      ? `<img class="tp-pop-img" src="${photoUrl(b.photoRefs[0], 400)}" alt="${b.name}" loading="lazy" onerror="this.style.display='none'">`
+      : `<div class="tp-pop-img-ph"></div>`;
+
+    const popHtml = `
+      ${imgHtml}
+      <div class="tp-pop-body">
+        <div class="tp-pop-score">${b.score.toFixed(1)}<span style="font-size:11px;color:#8a8a96"> / 5</span></div>
+        <div class="tp-pop-name">${b.name}</div>
+        <div class="tp-pop-sub">${b.district} · ${catTxt}</div>
+        ${opBadge}
+        <div class="tp-pop-row">
+          <span style="font-size:10px;color:#5a5a68">${b.reviews.toLocaleString()} ${ln ? '則評論' : 'reviews'}</span>
+          <button class="tp-pop-cta" onclick="goBar('${b.id}')">${ln ? '查看 →' : 'View →'}</button>
+        </div>
+      </div>`;
+
+    const popup = L.popup({ maxWidth: 240, minWidth: 240, closeButton: true })
+      .setContent(popHtml);
+
+    marker.on('click', () => {
+      // deactivate all pins, activate clicked
+      document.querySelectorAll('.tp-pin').forEach(p => p.classList.remove('active'));
+      const pinEl = document.getElementById(`tp-pin-${b.id}`);
+      if (pinEl) pinEl.classList.add('active');
+      marker.openPopup();
+    });
+    marker.bindPopup(popup);
+    marker.on('popupclose', () => {
+      const pinEl = document.getElementById(`tp-pin-${b.id}`);
+      if (pinEl) pinEl.classList.remove('active');
+    });
+  });
+
+  // update count
+  const numEl = document.getElementById('map-count-num');
+  if (numEl) numEl.textContent = bars.filter(b => b.lat && b.lng).length;
+
+  // fit bounds if bars have coords
+  const coordBars = bars.filter(b => b.lat && b.lng);
+  if (coordBars.length) {
+    const latlngs = coordBars.map(b => [b.lat, b.lng]);
+    try { leafletMap.fitBounds(L.latLngBounds(latlngs), { padding: [40, 40], maxZoom: 15 }); } catch(e) {}
+  }
+
+  // invalidate size (container might have just become visible)
+  setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 80);
+}
+
+function goBar(id) {
+  currentBarId = id;
+  _render('detail');
+}
+
+function setMapMode(on) {
+  mapMode = on;
+  const grid = document.getElementById('bar-grid');
+  const mapCont = document.getElementById('map-container');
+  const countBar = document.getElementById('map-count-bar');
+  const listBtn = document.getElementById('view-list-btn');
+  const mapBtn = document.getElementById('view-map-btn');
+
+  if (on) {
+    grid.style.display = 'none';
+    mapCont.style.display = 'block';
+    countBar.style.display = 'flex';
+    listBtn && listBtn.classList.remove('active');
+    mapBtn && mapBtn.classList.add('active');
+    // update i18n label
+    const lblEl = document.getElementById('map-count-label');
+    if (lblEl) lblEl.textContent = lang === 'zh' ? '間酒吧在地圖範圍內' : 'bars in view';
+  } else {
+    grid.style.display = '';
+    mapCont.style.display = 'none';
+    countBar.style.display = 'none';
+    listBtn && listBtn.classList.add('active');
+    mapBtn && mapBtn.classList.remove('active');
+  }
+}
+
+// toggle button handlers
+document.addEventListener('DOMContentLoaded', () => {
+  const listBtn = document.getElementById('view-list-btn');
+  const mapBtn = document.getElementById('view-map-btn');
+  if (listBtn) listBtn.addEventListener('click', () => { if (mapMode) { setMapMode(false); renderList(); } });
+  if (mapBtn) mapBtn.addEventListener('click', () => { if (!mapMode) { setMapMode(true); renderList(); } });
+
+  // locate button
+  const locBtn = document.getElementById('map-locate-btn');
+  if (locBtn) locBtn.addEventListener('click', () => {
+    if (!navigator.geolocation) return;
+    locBtn.textContent = '定位中…';
+    navigator.geolocation.getCurrentPosition(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      if (leafletMap) leafletMap.setView([lat, lng], 15);
+      locBtn.textContent = '📍 定位我的位置';
+    }, () => { locBtn.textContent = '📍 定位我的位置'; });
+  });
+});
 </script>
 <div class="toast" id="toast"></div>
 </body>
