@@ -406,6 +406,21 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .review-translated{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:none}
 .review-translated.show{display:block}
 
+/* ── Fav button on cards ── */
+.bc-fav{position:absolute;top:10px;left:10px;z-index:3;background:rgba(10,10,12,.72);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;transition:var(--ease);backdrop-filter:blur(6px);color:var(--muted-2);line-height:1}
+.bc-fav:hover{color:#e85577;transform:scale(1.15)}
+.bc-fav.active{color:#e85577}
+
+/* ── Detail action buttons ── */
+.d-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.d-action-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line-2);color:var(--muted);font-size:13px;letter-spacing:.04em;transition:var(--ease);cursor:pointer;font-family:inherit}
+.d-action-btn:hover{border-color:var(--gold-3);color:var(--gold-2)}
+.d-action-btn.fav-active{border-color:#e85577;color:#e85577}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--bg-3);border:1px solid var(--line-2);color:var(--text);padding:10px 22px;border-radius:999px;font-size:13px;opacity:0;transition:.3s ease;pointer-events:none;z-index:9999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 /* ── Nearby page ── */
 .nearby-hero{text-align:center;padding:60px 0 36px;display:flex;flex-direction:column;align-items:center;gap:18px}
 .nearby-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;border-radius:999px;background:var(--gold-grad);color:#0a0a0c;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;letter-spacing:.06em;cursor:pointer;border:none;transition:var(--ease);box-shadow:0 6px 24px rgba(201,169,106,.28)}
@@ -610,6 +625,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <div class="filter-group"><span class="filter-lbl" data-i18n="filter.cat">CATEGORY</span>
           <div class="chips" id="cat-chips">
             <button class="chip active" data-cat="all" data-i18n="cat.all">全部</button>
+            <button class="chip" data-cat="fav" id="fav-chip">♥ 收藏</button>
             <button class="chip" data-cat="cocktail" data-i18n="cat.cocktail">調酒吧</button>
             <button class="chip" data-cat="bistro" data-i18n="cat.bistro">餐酒館</button>
             <button class="chip" data-cat="wine" data-i18n="cat.wine">紅酒吧</button>
@@ -838,6 +854,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
           <span data-i18n="detail.gmaps">在 Google Maps 查看</span>
         </a>
+        <div id="d-actions" class="d-actions"></div>
       </div>
       <!-- 廣告版位 C：詳情頁底部 -->
       <div class="ad-slot" id="ad-detail-bottom" style="margin-top:32px">
@@ -889,6 +906,25 @@ let lang='zh',currentBarId=1;
 let filters={cat:'all',cocktailSub:'all',atm:'all',pref:'all',feat:'all',area:'all',district:'all',openNow:false,timeSlot:'all'};
 const TIME_SLOTS={morning:[10,14],afternoon:[14,18],evening:[18,26]};
 function opensIn(bar,start,end){return(bar.openHours||[]).some(([s,e])=>s<end&&e>start);}
+
+/* ===== FAVOURITES ===== */
+function getFavs(){return new Set(JSON.parse(localStorage.getItem('tipple_favs')||'[]'));}
+function isFav(id){return getFavs().has(id);}
+function toggleFav(id){
+  const favs=getFavs();
+  favs.has(id)?favs.delete(id):favs.add(id);
+  localStorage.setItem('tipple_favs',JSON.stringify([...favs]));
+  return favs.has(id);
+}
+
+/* ===== TOAST ===== */
+let _toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
 
 /* ===== HELPERS ===== */
 function isOpen(bar){
@@ -1132,7 +1168,10 @@ function renderTypePage(){
 /* ===== LIST ===== */
 function renderList(){
   const ln=lang==='zh';
+  // 收藏篩選：單獨處理
+  const favs=getFavs();
   const filtered=BARS.filter(b=>{
+    if(filters.cat==='fav')return favs.has(b.id);
     if(filters.cat!=='all'&&b.cat!==filters.cat)return false;
     // 調酒子分類（只在 cat=cocktail 時生效）
     if(filters.cocktailSub!=='all'&&b.cocktailSub!==filters.cocktailSub)return false;
@@ -1157,8 +1196,9 @@ function renderList(){
     const opInd=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
     const hasPhoto=b.photoRefs&&b.photoRefs[0]&&true;
     const photoImg=hasPhoto?`<img class="bc-photo" src="${photoUrl(b.photoRefs[0],600)}" alt="${b.name}" loading="lazy" onerror="this.remove()">`:'';
+    const favActive=isFav(b.id);
     return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
-      <div class="bc-img ${b.img}">${photoImg}<div class="bc-indicator" style="z-index:2">${opInd}</div></div>
+      <div class="bc-img ${b.img}">${photoImg}<div class="bc-indicator" style="z-index:2">${opInd}</div><button class="bc-fav${favActive?' active':''}" data-fav="${b.id}" aria-label="收藏">♥</button></div>
       <div class="bc-body">
         <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="bc-sc">${b.score.toFixed(1)}<span>/ 5</span></div><div style="font-size:10px;color:var(--muted);letter-spacing:.04em">${b.reviews.toLocaleString()} ${ln?'則':'rev.'}</div></div></div>
         <div class="bc-meta">${meta}</div>
@@ -1262,6 +1302,34 @@ function renderDetail(){
       gmLink.href=`https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`;
     }
     gmLink.style.display=(b.googlePlaceId||b.lat)?'inline-flex':'none';
+  }
+
+  // ── 收藏 + 分享按鈕 ─────────────────────────────────────────
+  const actEl=document.getElementById('d-actions');
+  if(actEl){
+    const favActive=isFav(b.id);
+    actEl.innerHTML=`
+      <button class="d-action-btn${favActive?' fav-active':''}" id="d-fav-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="${favActive?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>${favActive?(ln?'已收藏':'Saved'):(ln?'加入收藏':'Save')}</span>
+      </button>
+      <button class="d-action-btn" id="d-share-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>${ln?'分享':'Share'}</span>
+      </button>`;
+    document.getElementById('d-fav-btn').onclick=()=>{
+      const active=toggleFav(b.id);
+      const fbtn=document.getElementById('d-fav-btn');
+      fbtn.classList.toggle('fav-active',active);
+      fbtn.querySelector('svg').setAttribute('fill',active?'currentColor':'none');
+      fbtn.querySelector('span').textContent=active?(ln?'已收藏':'Saved'):(ln?'加入收藏':'Save');
+      document.querySelectorAll(`.bc-fav[data-fav="${b.id}"]`).forEach(el=>el.classList.toggle('active',active));
+      showToast(active?(ln?'已加入收藏':'Saved!'):(ln?'已移除收藏':'Removed'));
+    };
+    document.getElementById('d-share-btn').onclick=()=>{
+      const url=`${location.origin}${location.pathname}#bar/${b.id}`;
+      navigator.clipboard.writeText(url).then(()=>showToast(ln?'連結已複製！':'Link copied!'));
+    };
   }
 
   // 評論區塊
@@ -1375,6 +1443,19 @@ function bindChips(id,key){
   });
 }
 bindChips('cat-chips','cat');
+
+// 愛心按鈕（card grid 事件委派）
+document.getElementById('bar-grid')?.addEventListener('click',e=>{
+  const btn=e.target.closest('.bc-fav');if(!btn)return;
+  e.stopPropagation();
+  const id=+btn.dataset.fav;
+  const active=toggleFav(id);
+  btn.classList.toggle('active',active);
+  showToast(active?(lang==='zh'?'已加入收藏':'Saved!'):(lang==='zh'?'已移除收藏':'Removed'));
+  // 若目前在收藏篩選模式，移除後重新渲染
+  if(filters.cat==='fav'&&!active)renderList();
+});
+
 // 調酒子分類：隨 cat 顯示/隱藏 + reset
 document.getElementById('cat-chips')?.addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;
@@ -1986,5 +2067,6 @@ const TippleTracker = {
 // 找到原本的 function _render(route, opts={})，在結尾處加上：
 // TippleTracker.trackPageChange(route, opts);
 </script>
+<div class="toast" id="toast"></div>
 </body>
 </html>
