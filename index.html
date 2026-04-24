@@ -1268,13 +1268,10 @@ function renderDetail(){
   const revSec=document.getElementById('d-reviews-section');
   if(revSec){
     const allReviews=b.reviewList||[];
-    // 中文模式：顯示中文評論 + 任何語言的負評（≤2★）
-    // 英文模式：顯示全部
+    // 全部顯示；非中文評論在中文模式下附帶翻譯按鈕
     // 排序：正評在前，負評沉底
     const isNeg=r=>(r.rating||5)<=2;
-    const reviews=lang==='zh'
-      ? allReviews.filter(r=>isNeg(r)||!r.lang||r.lang.startsWith('zh'))
-      : allReviews;
+    const reviews=allReviews;
     const sorted=[...reviews].sort((a,b)=>{
       if(isNeg(a)&&!isNeg(b))return 1;
       if(!isNeg(a)&&isNeg(b))return -1;
