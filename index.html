@@ -474,6 +474,8 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .fav-nearby-status{font-size:13px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px}
 .fav-locate-btn{font-size:11px;padding:5px 14px;border-radius:999px;background:var(--bg-2);border:0.5px solid var(--line-2);color:var(--muted);cursor:pointer;transition:var(--ease);font-family:inherit}
 .fav-locate-btn:hover{border-color:var(--gold-3);color:var(--gold-2)}
+#fav-map{height:320px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);margin-bottom:20px}
+@media(max-width:600px){#fav-map{height:240px}}
 
 /* ── Detail action buttons ── */
 .d-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
@@ -928,6 +930,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
           <span id="fav-nearby-msg" data-i18n="fav.no_location">尚未取得定位</span>
           <button class="fav-locate-btn" id="fav-locate-btn" data-i18n="fav.locate">📍 取得位置</button>
         </div>
+        <div id="fav-map" style="display:none"></div>
         <div class="bar-grid" id="fav-nearby-grid"></div>
       </div>
 
@@ -1338,7 +1341,10 @@ function renderList(){
   }).sort((a,b)=>b.score-a.score);
   document.getElementById('list-count').textContent=filtered.length;
   // ── Map mode: render map instead of grid ──
-  if(typeof mapMode!=='undefined'&&mapMode){renderMap(filtered);return;}
+  if(typeof mapMode!=='undefined'&&mapMode){
+    requestAnimationFrame(()=>{ renderMap(filtered); setTimeout(()=>{if(leafletMap)leafletMap.invalidateSize();},120); });
+    return;
+  }
   const grid=document.getElementById('bar-grid');
   if(!filtered.length){
     grid.innerHTML=`<div class="empty-state"><div class="esi">${ln?'找不到符合的酒吧':'No bars match'}</div><p>${ln?'換個篩選條件試試？':'Try adjusting your filters.'}</p></div>`;return;
@@ -1882,14 +1888,18 @@ function favCardHtml(b, ln){
   </div>`;
 }
 
+let favLeafletMap=null;
+let favMarkersLayer=null;
+
 function renderFavNearby(ln, favBars){
-  const nearbySection=document.getElementById('fav-nearby-section');
   const msg=document.getElementById('fav-nearby-msg');
   const grid=document.getElementById('fav-nearby-grid');
-  if(!nearbySection||!grid)return;
+  const favMapEl=document.getElementById('fav-map');
+  if(!grid)return;
 
   if(userLat===null){
     if(msg)msg.textContent=I18N[lang]['fav.no_location'];
+    if(favMapEl)favMapEl.style.display='none';
     grid.innerHTML='';
     return;
   }
@@ -1903,6 +1913,57 @@ function renderFavNearby(ln, favBars){
   if(msg)msg.textContent=withDist.length
     ?(ln?`${withDist.length} 間已收藏的酒吧在 2km 內`:`${withDist.length} saved bar${withDist.length>1?'s':''} within 2km`)
     :I18N[lang]['fav.nearby_empty'];
+
+  // ── Leaflet 小地圖 ───────────────────────────────────────────
+  if(favMapEl){
+    if(!withDist.length){
+      favMapEl.style.display='none';
+    } else {
+      favMapEl.style.display='block';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        // 初始化地圖（只建一次）
+        if(!favLeafletMap){
+          favLeafletMap=L.map('fav-map',{zoomControl:true,attributionControl:false});
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(favLeafletMap);
+          favMarkersLayer=L.layerGroup().addTo(favLeafletMap);
+        }
+        favMarkersLayer.clearLayers();
+
+        // 用戶位置標記（藍色小圓）
+        L.circleMarker([userLat,userLng],{radius:7,color:'#4a90d9',fillColor:'#4a90d9',fillOpacity:.9,weight:2}).addTo(favMarkersLayer);
+
+        // 收藏酒吧 pin
+        withDist.forEach(b=>{
+          const icon=L.divIcon({
+            className:'',
+            html:`<div class="tp-pin"><div class="tp-pin-body">${b.score.toFixed(1)}</div><div class="tp-pin-tail"></div></div>`,
+            iconSize:[46,30],iconAnchor:[23,30],popupAnchor:[0,-32]
+          });
+          const marker=L.marker([b.lat,b.lng],{icon}).addTo(favMarkersLayer);
+          const opBadge=isOpen(b)?`<div class="tp-pop-open">${ln?'現在營業':'Open now'}</div>`:'';
+          const catTxt=ln?b.catLabel.zh:b.catLabel.en;
+          const imgHtml=b.photoRefs&&b.photoRefs[0]?`<img class="tp-pop-img" src="${photoUrl(b.photoRefs[0],400)}" alt="${b.name}" loading="lazy" onerror="this.style.display='none'">`:`<div class="tp-pop-img-ph"></div>`;
+          marker.bindPopup(L.popup({maxWidth:240,minWidth:240,closeButton:true}).setContent(`
+            ${imgHtml}
+            <div class="tp-pop-body">
+              <div class="tp-pop-score">${b.score.toFixed(1)}<span style="font-size:11px;color:#8a8a96"> / 5</span></div>
+              <div class="tp-pop-name">${b.name}</div>
+              <div class="tp-pop-sub">${b.district} · ${catTxt}</div>
+              ${opBadge}
+              <div class="tp-pop-row">
+                <span style="font-size:10px;color:#5a5a68">📍 ${fmtDist(b.dist,ln)}</span>
+                <button class="tp-pop-cta" onclick="goBar(${b.id})">${ln?'查看 →':'View →'}</button>
+              </div>
+            </div>`));
+        });
+
+        // 地圖範圍 fit：包含用戶位置 + 所有 pin
+        const allLatLngs=[[userLat,userLng],...withDist.map(b=>[b.lat,b.lng])];
+        try{favLeafletMap.fitBounds(L.latLngBounds(allLatLngs),{padding:[30,30],maxZoom:15});}catch(e){}
+        favLeafletMap.invalidateSize();
+      }));
+    }
+  }
 
   if(!withDist.length){grid.innerHTML='';return;}
   grid.innerHTML=withDist.map(b=>{
@@ -2506,8 +2567,17 @@ function setMapMode(on) {
 document.addEventListener('DOMContentLoaded', () => {
   const listBtn = document.getElementById('view-list-btn');
   const mapBtn = document.getElementById('view-map-btn');
-  if (listBtn) listBtn.addEventListener('click', () => { if (mapMode) { setMapMode(false); renderList(); } });
-  if (mapBtn) mapBtn.addEventListener('click', () => { if (!mapMode) { setMapMode(true); renderList(); } });
+  if (listBtn) listBtn.addEventListener('click', () => {
+    if (!mapMode) return;
+    setMapMode(false);
+    renderList();
+  });
+  if (mapBtn) mapBtn.addEventListener('click', () => {
+    if (mapMode) return;
+    setMapMode(true);
+    // 等瀏覽器完成 layout 再初始化 Leaflet，避免 0-height 問題
+    requestAnimationFrame(() => requestAnimationFrame(() => renderList()));
+  });
 
   // locate button
   const locBtn = document.getElementById('map-locate-btn');
