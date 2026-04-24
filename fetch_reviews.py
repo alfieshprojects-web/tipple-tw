@@ -42,14 +42,14 @@ MAX_ZH  = 8   # 中文正評上限
 MAX_EN  = 2   # 英文正評上限
 MAX_NEG = 5   # 負評（1–2★）上限（任意語言）
 
-# 多語系抓取順序（不同語系回傳不同評論池，增加負評撈取率）
-LANG_CODES = ["zh-TW", "zh", "en", "ja", "ko"]
+# 多語系抓取順序（zh-TW/zh/en 已能涵蓋大多數評論，ja/ko 移除以控制費用）
+LANG_CODES = ["zh-TW", "zh", "en"]
 
 def fetch_place_data(place_id: str, lang: str) -> dict:
     url = f"https://places.googleapis.com/v1/places/{place_id}"
     headers = {
         "X-Goog-Api-Key": GOOGLE_API_KEY,
-        "X-Goog-FieldMask": "reviews,generativeSummary",
+        "X-Goog-FieldMask": "reviews",
         "Accept-Language": lang,
     }
     try:
@@ -94,7 +94,11 @@ def process_raw_reviews(raw_list: list) -> list:
 def dedup_and_sort(reviews: list, now_ts: float) -> list:
     seen, out = set(), []
     for r in reviews:
-        key = r["text"][:60]
+        author = r.get("author", "").strip()
+        if author and author != "匿名":
+            key = f"{author}|{r.get('rating','')}"
+        else:
+            key = r["text"][:60]
         if key not in seen:
             seen.add(key)
             out.append(r)
@@ -113,9 +117,10 @@ def extract_summary(data_list: list) -> str:
     return ""
 
 def main():
-    parser = argparse.ArgumentParser(description="TIPPLE 評論抓取腳本 v4.0")
+    parser = argparse.ArgumentParser(description="TIPPLE 評論抓取腳本 v5.0")
     parser.add_argument("--min",           type=float, default=0.0,  help="最低 Google 評分門檻（預設 0=全部）")
     parser.add_argument("--skip-existing", action="store_true",      help="跳過已有評論的酒吧")
+    parser.add_argument("--yes",           action="store_true",      help="跳過費用確認（自動同意）")
     args = parser.parse_args()
 
     print("🍸 TIPPLE 評論抓取腳本 v5.0")
@@ -138,6 +143,19 @@ def main():
     if args.skip_existing:
         targets = [b for b in targets if not b.get("review_list")]
 
+    # ── 費用確認 ──────────────────────────────────────────────
+    est_calls = len(targets) * len(LANG_CODES)
+    est_usd   = est_calls * 0.020  # Places API (New) Advanced SKU 上限
+    est_twd   = est_usd * 32
+    print(f"📋 目標：{len(targets)} 間酒吧 × {len(LANG_CODES)} 語言 = {est_calls:,} 次 API")
+    print(f"   預估費用上限：${est_usd:.1f} USD（≈ {est_twd:,.0f} TWD）")
+    if not args.yes:
+        confirm = input("\n確認執行？輸入 yes 繼續，其他任意鍵取消：").strip().lower()
+        if confirm != "yes":
+            print("已取消。")
+            return
+    print()
+
     print(f"📋 目標：{len(targets)} 間酒吧")
     print(f"   預計費用：約 ${len(targets) * 0.015:.1f} USD（5 calls / 間）\n")
 
@@ -158,10 +176,16 @@ def main():
             all_raw += process_raw_reviews(d.get("reviews", []))
             time.sleep(DELAY)
 
-        # 全語系去重（以評論前 60 字為 key）
+        # 全語系去重：優先用「作者名 + 星等」當 key，
+        # 防止同一則評論被不同語系 API 以不同翻譯各抓一次
+        # 若作者名缺失，fallback 到評論前 60 字
         seen, all_uniq = set(), []
         for r in all_raw:
-            key = r["text"][:60]
+            author = r.get("author", "").strip()
+            if author and author != "匿名":
+                key = f"{author}|{r.get('rating','')}"
+            else:
+                key = r["text"][:60]
             if key not in seen:
                 seen.add(key); all_uniq.append(r)
 
@@ -189,15 +213,12 @@ def main():
         en_pos = dedup_and_sort(en_pos, now_ts)[:MAX_EN]
 
         merged = zh_pos + en_pos + neg_pool
-        summary = extract_summary([lang_data.get("zh-TW",{}), lang_data.get("en",{})])
 
         if merged:
-            bar["review_list"]    = merged
-            bar["review_summary"] = summary
+            bar["review_list"] = merged
             ok += 1
-            summary_count += (1 if summary else 0)
             neg_str = f" 👎{len(neg_pool)}" if neg_pool else ""
-            print(f"✓ zh:{len(zh_pos)} en:{len(en_pos)}{neg_str}  {'📝' if summary else '  '}")
+            print(f"✓ zh:{len(zh_pos)} en:{len(en_pos)}{neg_str}")
         else:
             bar["review_list"]    = []
             bar["review_summary"] = ""
