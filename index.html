@@ -1389,9 +1389,12 @@ function renderDetail(){
         +sorted.map(r=>{
           const initial=(r.author||'?')[0].toUpperCase();
           const rLang=r.lang||'';
-          const needTrans=lang==='zh'&&rLang&&!rLang.startsWith('zh');
+          const needTrans=(lang==='zh'&&rLang&&!rLang.startsWith('zh'))
+                        ||(lang==='en'&&rLang&&rLang.startsWith('zh'));
+          const transTl=lang==='zh'?'zh-TW':'en';
+          const transBtnLabel=lang==='zh'?'🌐 顯示翻譯':'🌐 Show Translation';
           const transBtn=needTrans
-            ?`<button class="review-translate" data-text="${(r.text||'').replace(/"/g,'&quot;')}">🌐 顯示翻譯</button><div class="review-translated"></div>`
+            ?`<button class="review-translate" data-text="${(r.text||'').replace(/"/g,'&quot;')}" data-tl="${transTl}">${transBtnLabel}</button><div class="review-translated"></div>`
             :'';
           return`<div class="review-card${(r.rating||5)<=2?' negative':''}">
             <div class="review-header">
@@ -1413,26 +1416,33 @@ function renderDetail(){
       revSec.querySelectorAll('.review-translate').forEach(btn=>{
         btn.addEventListener('click',async()=>{
           const box=btn.nextElementSibling;
+          const isZh=lang==='zh';
+          const showLabel=isZh?'🌐 顯示翻譯':'🌐 Show Translation';
+          const hideLabel=isZh?'🌐 隱藏翻譯':'🌐 Hide Translation';
+          const loadLabel=isZh?'翻譯中…':'Translating…';
+          const failLabel=isZh?'🌐 翻譯失敗，再試一次':'🌐 Failed, try again';
+          const fallback=isZh?'（翻譯失敗）':'(Translation failed)';
           if(box.classList.contains('show')){
             box.classList.remove('show');
-            btn.textContent='🌐 顯示翻譯';
+            btn.textContent=showLabel;
             return;
           }
           if(box.dataset.done){
             box.classList.add('show');
-            btn.textContent='🌐 隱藏翻譯';
+            btn.textContent=hideLabel;
             return;
           }
-          btn.textContent='翻譯中…';
+          btn.textContent=loadLabel;
           try{
-            const res=await fetch(`/translate?q=${encodeURIComponent(btn.dataset.text)}&tl=zh-TW`);
+            const tl=btn.dataset.tl||'zh-TW';
+            const res=await fetch(`/translate?q=${encodeURIComponent(btn.dataset.text)}&tl=${tl}`);
             const json=await res.json();
-            box.textContent=json.text||'（翻譯失敗）';
+            box.textContent=json.text||fallback;
             box.dataset.done='1';
             box.classList.add('show');
-            btn.textContent='🌐 隱藏翻譯';
+            btn.textContent=hideLabel;
           }catch(e){
-            btn.textContent='🌐 翻譯失敗，再試一次';
+            btn.textContent=failLabel;
           }
         });
       });
