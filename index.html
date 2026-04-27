@@ -1811,7 +1811,7 @@ function doLocate(){
       clearLocation();
       setNearbyLocated(false);
     },
-    {enableHighAccuracy:true,timeout:10000}
+    {enableHighAccuracy:false,timeout:8000,maximumAge:300000}
   );
 }
 
@@ -1998,7 +1998,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       renderFavNearby(lang==='zh',BARS.filter(b=>favs.has(b.id)));
     },()=>{
       if(btn)btn.textContent=I18N[lang]['fav.locate'];
-    },{enableHighAccuracy:true,timeout:10000});
+    },{enableHighAccuracy:false,timeout:8000,maximumAge:300000});
   });
 });
 
@@ -2588,7 +2588,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const { latitude: lat, longitude: lng } = pos.coords;
       if (leafletMap) leafletMap.setView([lat, lng], 15);
       locBtn.textContent = '📍 定位我的位置';
-    }, () => { locBtn.textContent = '📍 定位我的位置'; });
+    }, () => { locBtn.textContent = '📍 定位我的位置'; },
+    {enableHighAccuracy:false,timeout:8000,maximumAge:300000});
   });
 });
 </script>
