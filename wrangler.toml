@@ -3,11 +3,23 @@ main = "worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-# 靜態資產設定：目錄裡的所有檔案都可被 env.ASSETS.fetch() 提供
+# 靜態資產設定
 [assets]
 directory = "."
 binding = "ASSETS"
 
-# GPHOTO_KEY 請用 wrangler secret put GPHOTO_KEY 設定，不要寫在這裡
-# 執行方式：npx wrangler secret put GPHOTO_KEY
-# 貼上 API Key 後按 Enter 即可
+# Google OAuth Client ID（公開值，可直接寫這裡）
+# 請至 Google Cloud Console → APIs & Services → Credentials → 建立 OAuth 2.0 用戶端 ID
+# Authorized JavaScript origins 加入你的 Workers domain（例如 https://tipple-tw.workers.dev）
+[vars]
+GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"
+
+# D1 資料庫（執行 npx wrangler d1 create tipple-db 取得 database_id）
+[[d1_databases]]
+binding = "DB"
+database_name = "tipple-db"
+database_id = "YOUR_DATABASE_ID_HERE"
+
+# 機密金鑰請用 wrangler secret put 設定：
+# npx wrangler secret put GPHOTO_KEY
+# npx wrangler secret put SESSION_SECRET   （任意隨機字串，用於 session token 簽發）

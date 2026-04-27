@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{
   --bg:#0a0a0c;--bg-2:#111116;--bg-3:#18181f;--bg-4:#1e1e27;
@@ -458,6 +459,74 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 .tp-pop-cta{font-size:11px;padding:6px 14px;border-radius:999px;background:rgba(201,169,106,.15);color:#c9a96a;border:0.5px solid rgba(201,169,106,.35);cursor:pointer;transition:background .15s;font-family:inherit}
 .tp-pop-cta:hover{background:rgba(201,169,106,.28)}
 
+/* ── Auth / User ── */
+.auth-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line-2);color:var(--silver);font-size:12px;cursor:pointer;transition:var(--ease);letter-spacing:.04em;flex-shrink:0;font-family:inherit}
+.auth-btn:hover{border-color:var(--gold-3);color:var(--gold-2)}
+.auth-btn svg{width:14px;height:14px;flex-shrink:0}
+.user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line-2);cursor:pointer;flex-shrink:0;transition:var(--ease)}
+.user-pill:hover{border-color:var(--line-2)}
+.user-pill img,.user-pill .user-ini{width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.user-pill .user-ini{background:var(--gold-3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0a0a0c}
+.user-pill .user-pts{font-size:11px;color:var(--gold-2);letter-spacing:.04em;font-weight:500}
+.user-menu{position:absolute;top:calc(100%+8px);right:0;background:var(--bg-3);border:1px solid var(--line-2);border-radius:var(--radius);padding:6px;min-width:160px;box-shadow:var(--shadow);z-index:300;display:none}
+.user-menu.open{display:block}
+.user-menu-item{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:var(--radius-sm);font-size:13px;color:var(--muted);cursor:pointer;transition:var(--ease);border:none;background:none;font-family:inherit;width:100%;text-align:left}
+.user-menu-item:hover{background:var(--bg-4);color:var(--text)}
+.user-menu-item.danger:hover{color:#e85577}
+.user-wrap{position:relative;flex-shrink:0}
+
+/* ── Community reviews section ── */
+.community-section{margin-top:40px;padding-top:32px;border-top:1px solid var(--line)}
+.community-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.community-score{display:flex;align-items:baseline;gap:8px}
+.community-score-num{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:400;color:var(--gold-2);line-height:1}
+.community-score-stars{color:var(--gold);font-size:18px;letter-spacing:2px}
+.community-score-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.community-eyebrow{font-size:10px;letter-spacing:.2em;color:var(--gold-3);font-weight:600;margin-bottom:6px}
+.write-review-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:999px;background:rgba(201,169,106,.12);border:1px solid rgba(201,169,106,.35);color:var(--gold-2);font-size:13px;cursor:pointer;transition:var(--ease);font-family:inherit;letter-spacing:.04em;flex-shrink:0}
+.write-review-btn:hover{background:rgba(201,169,106,.22)}
+.login-to-review{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.login-to-review button{font-size:12px;padding:6px 14px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line-2);color:var(--silver);cursor:pointer;font-family:inherit;transition:var(--ease)}
+.login-to-review button:hover{border-color:var(--gold-3);color:var(--gold-2)}
+
+/* ── Review form ── */
+.review-form{background:var(--bg-2);border:1px solid var(--line-2);border-radius:var(--radius);padding:20px;margin-bottom:24px;display:none}
+.review-form.open{display:block}
+.star-picker{display:flex;gap:6px;margin:12px 0 16px}
+.star-picker button{font-size:22px;background:none;border:none;cursor:pointer;color:var(--line-2);transition:color .15s;padding:2px;line-height:1}
+.star-picker button.lit{color:var(--gold)}
+.star-picker button:hover{color:var(--gold-2)}
+.review-form textarea{width:100%;background:var(--bg-3);border:1px solid var(--line-2);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:inherit;line-height:1.6;padding:12px 14px;resize:vertical;outline:none;transition:border-color .2s;box-sizing:border-box;min-height:100px}
+.review-form textarea:focus{border-color:var(--gold-3)}
+.review-form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.review-submit{padding:9px 22px;border-radius:999px;background:var(--gold-grad);color:#0a0a0c;font-weight:600;font-size:13px;border:none;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.review-submit:hover{opacity:.88}
+.review-submit:disabled{opacity:.45;cursor:not-allowed}
+.review-cancel{padding:9px 16px;border-radius:999px;background:none;border:1px solid var(--line-2);color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;transition:var(--ease)}
+.review-cancel:hover{color:var(--text);border-color:var(--line-2)}
+
+/* ── Community review cards ── */
+.cr-list{display:flex;flex-direction:column;gap:16px}
+.cr-card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.cr-head{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.cr-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.cr-avatar-ini{width:34px;height:34px;border-radius:50%;background:var(--gold-3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#0a0a0c;flex-shrink:0}
+.cr-user-name{font-size:13px;font-weight:500;color:var(--text)}
+.cr-user-pts{font-size:10px;color:var(--gold-3);letter-spacing:.06em;margin-top:1px}
+.cr-stars{margin-left:auto;color:var(--gold);font-size:14px;letter-spacing:1px;flex-shrink:0}
+.cr-text{font-size:13px;color:var(--silver);line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.cr-foot{display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.cr-date{font-size:11px;color:var(--muted-2)}
+.cr-helpful{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:inherit;transition:color .2s;margin-left:auto}
+.cr-helpful:hover{color:var(--gold-2)}
+.cr-helpful.voted{color:var(--gold-2)}
+.cr-own-actions{display:flex;gap:8px;margin-left:8px}
+.cr-own-btn{font-size:11px;color:var(--muted-2);background:none;border:none;cursor:pointer;font-family:inherit;transition:color .2s}
+.cr-own-btn:hover{color:var(--text)}
+.cr-own-btn.del:hover{color:#e85577}
+.community-empty{padding:32px 0;text-align:center;color:var(--muted);font-size:13px}
+.community-loading{padding:24px 0;text-align:center;color:var(--muted-2);font-size:12px;letter-spacing:.06em}
+
 /* ── Fav button on cards ── */
 .bc-fav{position:absolute;top:10px;left:10px;z-index:3;background:rgba(10,10,12,.72);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;transition:var(--ease);backdrop-filter:blur(6px);color:var(--muted-2);line-height:1}
 .bc-fav:hover{color:#e85577;transform:scale(1.15)}
@@ -548,6 +617,27 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
     <div class="lang-sw" id="lang-sw">
       <button class="active" data-lang="zh">繁中</button>
       <button data-lang="en">EN</button>
+    </div>
+    <!-- Auth -->
+    <div class="user-wrap" id="user-wrap">
+      <button class="auth-btn" id="auth-login-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span data-i18n="auth.login">登入</span>
+      </button>
+      <div class="user-pill" id="user-pill" style="display:none">
+        <span class="user-ini" id="user-ini"></span>
+        <span class="user-pts" id="user-pts"></span>
+      </div>
+      <div class="user-menu" id="user-menu">
+        <div class="user-menu-item" id="menu-profile">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span id="menu-name">—</span>
+        </div>
+        <div class="user-menu-item danger" id="menu-logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          <span data-i18n="auth.logout">登出</span>
+        </div>
+      </div>
     </div>
     <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
   </div>
@@ -1009,6 +1099,12 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
           <div class="sc-out" data-i18n="detail.outof">Google 評分 × 2</div>
           <div class="sc-rev"><span data-i18n="detail.basedon">基於</span> <b id="d-reviews"></b> <span data-i18n="detail.reviews">則 Google 評論</span></div>
         </div>
+        <div class="score-card" id="community-score-card" style="display:none">
+          <div class="sc-lbl">社群評分</div>
+          <div class="sc-big" id="sc-community-num">—</div>
+          <div class="sc-out">/ 5</div>
+          <div class="sc-rev" id="sc-community-meta">TIPPLE 用戶</div>
+        </div>
       </div>
       <div style="margin-top:20px">
         <a id="d-gmaps-link" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line-2);color:var(--muted);font-size:13px;letter-spacing:.04em;transition:var(--ease);text-decoration:none" onmouseover="this.style.borderColor='var(--gold-3)';this.style.color='var(--gold-2)'" onmouseout="this.style.borderColor='var(--line-2)';this.style.color='var(--muted)'">
@@ -1022,6 +1118,40 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
         <div class="ad-slot-inner"></div>
       </div>
       <div id="d-reviews-section" class="reviews-section" style="display:none"></div>
+
+      <!-- 社群評論區 -->
+      <div class="community-section" id="community-section">
+        <div class="community-header">
+          <div>
+            <div class="community-eyebrow">TIPPLE COMMUNITY</div>
+            <div class="community-score">
+              <span class="community-score-num" id="cs-avg">—</span>
+              <div>
+                <div class="community-score-stars" id="cs-stars"></div>
+                <div class="community-score-meta" id="cs-meta">尚無評論</div>
+              </div>
+            </div>
+          </div>
+          <div id="cs-action"></div>
+        </div>
+        <div class="review-form" id="review-form">
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px" id="rf-title">寫下你的評論</div>
+          <div class="star-picker" id="star-picker">
+            <button data-star="1">★</button>
+            <button data-star="2">★</button>
+            <button data-star="3">★</button>
+            <button data-star="4">★</button>
+            <button data-star="5">★</button>
+          </div>
+          <textarea id="review-textarea" placeholder="分享你的親身體驗（至少 10 字）…"></textarea>
+          <div class="review-form-actions">
+            <button class="review-cancel" id="review-cancel">取消</button>
+            <button class="review-submit" id="review-submit" disabled>發布評論</button>
+          </div>
+        </div>
+        <div id="community-reviews-list"><div class="community-loading">載入中…</div></div>
+      </div>
+
       <div style="margin-top:28px;text-align:center;color:var(--muted-2);font-size:10px;letter-spacing:.16em" data-i18n="detail.disclaimer">評分資料來自 Google Maps，僅供參考</div>
     </div>
   </section>
@@ -1034,7 +1164,7 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 /* ===== I18N ===== */
-const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依類型','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'直接採用 Google Maps 原始評分（滿分 5 分），依評分高低排序。','rank.more':'看完整排行 →','picks.eyebrow':'精選推薦','picks.title':'高分精選 · 本週推薦','picks.desc':'根據 Google Maps 評分，為你推薦近期評價最高的酒吧。','picks.more':'更多精選 →','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'頂樓 · 城市夜景','style.s2':'爵士 · 現場演奏','style.s3':'DJ · 電子聲浪','style.s4':'Lounge · 沙發放鬆','style.s5':'實驗 · 分子調酒','style.s6':'品飲 · 侍酒體驗','style.s7':'隱藏 · 預約制','style.s8':'飯店 · 精品吧','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.vibe':'VIBE','filter.vibe_atm':'氛圍','filter.vibe_pref':'偏好','filter.vibe_feat':'特色','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','filter.morning':'早午（10:00–14:00）','filter.afternoon':'下午（14:00–18:00）','filter.evening':'晚上（18:00–02:00）','cat.all':'全部','cat.cocktail':'調酒吧','cat.speakeasy':'Speakeasy','cat.gin':'琴酒吧','cat.whisky':'威士忌吧','cat.rum_agave':'蘭姆/龍舌蘭','cat.wine':'紅酒吧','cat.craft':'精釀啤酒','cat.sake':'清酒吧','cat.bistro':'餐酒館','vibe.all':'全部氛圍','vibe.rooftop':'頂樓景觀','vibe.jazz':'爵士現場','vibe.dj':'DJ 電音','vibe.listen':'音樂鑑賞','vibe.lounge':'沙發放鬆','vibe.dive':'Dive Bar','vibe.theme':'主題酒吧','vibe.hotel':'飯店酒吧','vibe.hidden':'隱藏私密','vibe.date':'約會導向','vibe.party':'派對熱鬧','vibe.group':'朋友聚會','vibe.solo':'一人友善','vibe.afterwork':'下班小酌','vibe.experimental':'實驗調酒','vibe.tasting':'品飲體驗','vibe.zero_abv':'無酒精','vibe.low_abv':'低酒精','vibe.sustainable':'永續在地','vibe.chefs_table':'餐酒融合','vibe.private':'預約私人','type.eyebrow':'依類型','type.title':'依類型找酒吧','type.desc':'從飲品種類出發，找到今晚的那一杯。','type.viewall':'看全部 →','area.all':'全部','detail.back':'返回','detail.idx':'Google 評分','detail.outof':'滿分 5 分','detail.basedon':'基於','detail.reviews':'則 Google 評論','detail.disclaimer':'評分資料來自 Google Maps，僅供參考','open.now':'現在營業','closed.now':'暫停營業','nav.nearby':'附近','nav.fav':'收藏','nearby.eyebrow':'附近酒吧','nearby.title':'附近的酒吧','nearby.desc':'開啟定位，找到走路可達的那一間。','nearby.locate':'取得我的位置','nearby.locating':'定位中…','nearby.radius':'範圍','nearby.found':' 間酒吧在附近','nearby.none':'這個範圍內找不到酒吧','nearby.denied':'無法取得定位權限，請在瀏覽器設定中允許','nearby.error':'定位失敗，請稍後再試','nearby.m':'公尺','nearby.km':'公里','nearby.relocate':'更新位置','fav.title':'我的收藏','fav.desc':'你收藏的酒吧，隨時回來看。','fav.nearby':'附近已收藏','fav.all':'全部收藏','fav.no_location':'尚未取得定位','fav.locate':'📍 取得位置','fav.empty':'還沒有收藏','fav.empty_desc':'在探索頁找到喜歡的酒吧，點 ♥ 加入收藏','fav.nearby_empty':'附近沒有已收藏的酒吧','fav.go_explore':'開始探索'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Type','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'Aggregating Google Maps ratings across 1,090 bars in Taiwan — find the one worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Google Maps ratings out of 5. Bars ranked highest to lowest.','rank.more':'View All →','picks.eyebrow':'Top Picks','picks.title':'Top Picks · This Week','picks.desc':'Highest-rated bars on Google Maps right now.','picks.more':'All Picks →','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Rooftop · City at night','style.s2':'Jazz · Live music','style.s3':'DJ · Electronic sound','style.s4':'Lounge · Deep sofas','style.s5':'Experimental · Molecular','style.s6':'Tasting · Pairing room','style.s7':'Hidden · Reservation only','style.s8':'Hotel · Refined bar','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.vibe':'VIBE','filter.vibe_atm':'Atmosphere','filter.vibe_pref':'Preference','filter.vibe_feat':'Features','filter.area':'AREA','filter.time':'時段','filter.open':'Open now','filter.openon':'✓ Open now','filter.morning':'Morning（10:00–14:00）','filter.afternoon':'Afternoon（14:00–18:00）','filter.evening':'Evening（18:00–02:00）','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.speakeasy':'Speakeasy','cat.gin':'Gin Bar','cat.whisky':'Whisky Bar','cat.rum_agave':'Rum & Agave','cat.wine':'Wine Bar','cat.craft':'Craft Beer','cat.sake':'Sake Bar','cat.bistro':'Bistro Bar','vibe.all':'All Vibes','vibe.rooftop':'Rooftop','vibe.jazz':'Jazz Bar','vibe.dj':'DJ / Club','vibe.listen':'Listen Bar','vibe.lounge':'Lounge','vibe.dive':'Dive Bar','vibe.theme':'Theme Bar','vibe.hotel':'Hotel Bar','vibe.hidden':'Hidden','vibe.date':'Date Bar','vibe.party':'Party Bar','vibe.group':'Group Bar','vibe.solo':'Solo-friendly','vibe.afterwork':'Afterwork','vibe.experimental':'Experimental','vibe.tasting':'Tasting Room','vibe.zero_abv':'Zero ABV','vibe.low_abv':'Low ABV','vibe.sustainable':'Sustainable','vibe.chefs_table':"Chef's Table",'vibe.private':'Private Bar','type.eyebrow':'By Category','type.title':'Bars by Type','type.desc':'Start with the drink, find the bar.','type.viewall':'View All →','area.all':'All','detail.back':'Back','detail.idx':'Google Rating','detail.outof':'out of 5','detail.basedon':'Based on','detail.reviews':'Google reviews','detail.disclaimer':'Ratings sourced from Google Maps. For reference only.','open.now':'Open now','closed.now':'Closed','nav.nearby':'Nearby','nav.fav':'Saved','nearby.eyebrow':'Nearby Bars','nearby.title':'Bars Near You','nearby.desc':'Enable location to find bars within walking distance.','nearby.locate':'Get My Location','nearby.locating':'Locating…','nearby.radius':'Radius','nearby.found':' bars nearby','nearby.none':'No bars found in this area','nearby.denied':'Location permission denied. Please enable in browser settings.','nearby.error':'Location failed. Please try again.','nearby.m':'m','nearby.km':'km','nearby.relocate':'Update Location','fav.title':'My Saved Bars','fav.desc':'Your saved bars, ready whenever you are.','fav.nearby':'Saved Nearby','fav.all':'All Saved','fav.no_location':'Location not available','fav.locate':'📍 Get Location','fav.empty':'Nothing saved yet','fav.empty_desc':'Browse bars and tap ♥ to save them here','fav.nearby_empty':'No saved bars nearby','fav.go_explore':'Start Exploring'}};
+const I18N={zh:{'brand.sub':'台灣酒吧索引','nav.home':'首頁','nav.discover':'探索','nav.rank':'排行榜','nav.style':'依類型','search.ph':'搜尋酒吧、地區、風格…','hero.eyebrow':'值得微醺的每一晚','hero.title':'台灣微醺的<br/><em>飲酒指南針</em>','hero.lead':'聚合 Google Maps 評分與評論，收錄全台 1,090 間酒吧，找到今晚真正值得一去的那一間。','hero.cta1':'開始探索','hero.cta2':'本月之選','stat.bars':'收錄酒吧','stat.reviews':'匯整評論','stat.sources':'資料來源','spot.badge':'★ 編輯之選 · 四月','spot.sub':'大安 · Cocktail Bar · Experimental','sources.label':'資料來源','rank.eyebrow':'排行榜','rank.title':'本月綜合排行榜','rank.desc':'直接採用 Google Maps 原始評分（滿分 5 分），依評分高低排序。','rank.more':'看完整排行 →','picks.eyebrow':'精選推薦','picks.title':'高分精選 · 本週推薦','picks.desc':'根據 Google Maps 評分，為你推薦近期評價最高的酒吧。','picks.more':'更多精選 →','picks.sub2':'大安 · Speakeasy · Modern Asian','picks.sub3':'中山 · Cocktail Bar · Craft','picks.sub4':'中山 · Cocktail Bar · Theatre','style.eyebrow':'依氛圍','style.title':'依風格挑一間','style.desc':'心情決定夜晚，挑個氛圍再出發。','style.more':'更多風格 →','style.s1':'頂樓 · 城市夜景','style.s2':'爵士 · 現場演奏','style.s3':'DJ · 電子聲浪','style.s4':'Lounge · 沙發放鬆','style.s5':'實驗 · 分子調酒','style.s6':'品飲 · 侍酒體驗','style.s7':'隱藏 · 預約制','style.s8':'飯店 · 精品吧','style.click.hint':'點選風格卡片，前往符合氛圍的酒吧列表','footer.tag':'台灣酒吧索引 · 來自全網的真實聲音','footer.about':'關於 TIPPLE','footer.method':'評分方法','footer.partners':'酒吧合作','footer.contact':'聯絡我們','list.eyebrow':'探索','list.title':'探索 · 全台灣酒吧','list.desc':'類型 × 風格 × 地區交叉篩選，找到今晚的那一間。','list.found':' 家符合','filter.cat':'類型','filter.vibe':'VIBE','filter.vibe_atm':'氛圍','filter.vibe_pref':'偏好','filter.vibe_feat':'特色','filter.area':'地區','filter.time':'時段','filter.open':'現在營業中','filter.openon':'✓ 現在營業中','filter.morning':'早午（10:00–14:00）','filter.afternoon':'下午（14:00–18:00）','filter.evening':'晚上（18:00–02:00）','cat.all':'全部','cat.cocktail':'調酒吧','cat.speakeasy':'Speakeasy','cat.gin':'琴酒吧','cat.whisky':'威士忌吧','cat.rum_agave':'蘭姆/龍舌蘭','cat.wine':'紅酒吧','cat.craft':'精釀啤酒','cat.sake':'清酒吧','cat.bistro':'餐酒館','vibe.all':'全部氛圍','vibe.rooftop':'頂樓景觀','vibe.jazz':'爵士現場','vibe.dj':'DJ 電音','vibe.listen':'音樂鑑賞','vibe.lounge':'沙發放鬆','vibe.dive':'Dive Bar','vibe.theme':'主題酒吧','vibe.hotel':'飯店酒吧','vibe.hidden':'隱藏私密','vibe.date':'約會導向','vibe.party':'派對熱鬧','vibe.group':'朋友聚會','vibe.solo':'一人友善','vibe.afterwork':'下班小酌','vibe.experimental':'實驗調酒','vibe.tasting':'品飲體驗','vibe.zero_abv':'無酒精','vibe.low_abv':'低酒精','vibe.sustainable':'永續在地','vibe.chefs_table':'餐酒融合','vibe.private':'預約私人','type.eyebrow':'依類型','type.title':'依類型找酒吧','type.desc':'從飲品種類出發，找到今晚的那一杯。','type.viewall':'看全部 →','area.all':'全部','detail.back':'返回','detail.idx':'Google 評分','detail.outof':'滿分 5 分','detail.basedon':'基於','detail.reviews':'則 Google 評論','detail.disclaimer':'評分資料來自 Google Maps，僅供參考','open.now':'現在營業','closed.now':'暫停營業','nav.nearby':'附近','nav.fav':'收藏','nearby.eyebrow':'附近酒吧','nearby.title':'附近的酒吧','nearby.desc':'開啟定位，找到走路可達的那一間。','nearby.locate':'取得我的位置','nearby.locating':'定位中…','nearby.radius':'範圍','nearby.found':' 間酒吧在附近','nearby.none':'這個範圍內找不到酒吧','nearby.denied':'無法取得定位權限，請在瀏覽器設定中允許','nearby.error':'定位失敗，請稍後再試','nearby.m':'公尺','nearby.km':'公里','nearby.relocate':'更新位置','fav.title':'我的收藏','fav.desc':'你收藏的酒吧，隨時回來看。','fav.nearby':'附近已收藏','fav.all':'全部收藏','fav.no_location':'尚未取得定位','fav.locate':'📍 取得位置','fav.empty':'還沒有收藏','fav.empty_desc':'在探索頁找到喜歡的酒吧，點 ♥ 加入收藏','fav.nearby_empty':'附近沒有已收藏的酒吧','fav.go_explore':'開始探索','auth.login':'登入','auth.logout':'登出','auth.welcome':'歡迎，','review.write':'寫評論','review.edit':'編輯評論','review.submit':'發布評論','review.cancel':'取消','review.placeholder':'分享你的親身體驗（至少 10 字）…','review.login_prompt':'登入後即可留下評論','review.helpful':'有幫助','review.no_reviews':'還沒有用戶評論，成為第一個！','review.pts_label':'積分'},en:{'brand.sub':'TAIWAN BAR INDEX','nav.home':'Home','nav.discover':'Discover','nav.rank':'Rankings','nav.style':'By Type','search.ph':'Search bars, areas, vibes…','hero.eyebrow':'EVERY NIGHT WORTH HAVING','hero.title':"Taiwan's drinking scene,<br/><em>your guide to the perfect tipple</em>",'hero.lead':'Aggregating Google Maps ratings across 1,090 bars in Taiwan — find the one worth your night.','hero.cta1':'Start exploring','hero.cta2':'Bar of the month','stat.bars':'Bars Tracked','stat.reviews':'Reviews','stat.sources':'Sources','spot.badge':"★ EDITOR'S PICK · APRIL",'spot.sub':"Da'an · Cocktail Bar · Experimental",'sources.label':'Sourced From','rank.eyebrow':'Top of the Index','rank.title':"This Month's Top Bars",'rank.desc':'Google Maps ratings out of 5. Bars ranked highest to lowest.','rank.more':'View All →','picks.eyebrow':'Top Picks','picks.title':'Top Picks · This Week','picks.desc':'Highest-rated bars on Google Maps right now.','picks.more':'All Picks →','picks.sub2':"Da'an · Speakeasy · Modern Asian",'picks.sub3':'Zhongshan · Cocktail Bar · Craft','picks.sub4':'Zhongshan · Cocktail Bar · Theatre','style.eyebrow':'By Vibe','style.title':'Pick a bar by mood','style.desc':'Mood writes the night. Pick the feeling first.','style.more':'All Styles →','style.s1':'Rooftop · City at night','style.s2':'Jazz · Live music','style.s3':'DJ · Electronic sound','style.s4':'Lounge · Deep sofas','style.s5':'Experimental · Molecular','style.s6':'Tasting · Pairing room','style.s7':'Hidden · Reservation only','style.s8':'Hotel · Refined bar','style.click.hint':'Click a style card to browse matching bars','footer.tag':'Taiwan Bar Index · Real voices from the web','footer.about':'About','footer.method':'Methodology','footer.partners':'For Bars','footer.contact':'Contact','list.eyebrow':'Discover','list.title':'Discover · Bars across Taiwan','list.desc':'Cross-filter by type, vibe and city.','list.found':' bars found','filter.cat':'CATEGORY','filter.vibe':'VIBE','filter.vibe_atm':'Atmosphere','filter.vibe_pref':'Preference','filter.vibe_feat':'Features','filter.area':'AREA','filter.time':'時段','filter.open':'Open now','filter.openon':'✓ Open now','filter.morning':'Morning（10:00–14:00）','filter.afternoon':'Afternoon（14:00–18:00）','filter.evening':'Evening（18:00–02:00）','cat.all':'All','cat.cocktail':'Cocktail Bar','cat.speakeasy':'Speakeasy','cat.gin':'Gin Bar','cat.whisky':'Whisky Bar','cat.rum_agave':'Rum & Agave','cat.wine':'Wine Bar','cat.craft':'Craft Beer','cat.sake':'Sake Bar','cat.bistro':'Bistro Bar','vibe.all':'All Vibes','vibe.rooftop':'Rooftop','vibe.jazz':'Jazz Bar','vibe.dj':'DJ / Club','vibe.listen':'Listen Bar','vibe.lounge':'Lounge','vibe.dive':'Dive Bar','vibe.theme':'Theme Bar','vibe.hotel':'Hotel Bar','vibe.hidden':'Hidden','vibe.date':'Date Bar','vibe.party':'Party Bar','vibe.group':'Group Bar','vibe.solo':'Solo-friendly','vibe.afterwork':'Afterwork','vibe.experimental':'Experimental','vibe.tasting':'Tasting Room','vibe.zero_abv':'Zero ABV','vibe.low_abv':'Low ABV','vibe.sustainable':'Sustainable','vibe.chefs_table':"Chef's Table",'vibe.private':'Private Bar','type.eyebrow':'By Category','type.title':'Bars by Type','type.desc':'Start with the drink, find the bar.','type.viewall':'View All →','area.all':'All','detail.back':'Back','detail.idx':'Google Rating','detail.outof':'out of 5','detail.basedon':'Based on','detail.reviews':'Google reviews','detail.disclaimer':'Ratings sourced from Google Maps. For reference only.','open.now':'Open now','closed.now':'Closed','nav.nearby':'Nearby','nav.fav':'Saved','nearby.eyebrow':'Nearby Bars','nearby.title':'Bars Near You','nearby.desc':'Enable location to find bars within walking distance.','nearby.locate':'Get My Location','nearby.locating':'Locating…','nearby.radius':'Radius','nearby.found':' bars nearby','nearby.none':'No bars found in this area','nearby.denied':'Location permission denied. Please enable in browser settings.','nearby.error':'Location failed. Please try again.','nearby.m':'m','nearby.km':'km','nearby.relocate':'Update Location','fav.title':'My Saved Bars','fav.desc':'Your saved bars, ready whenever you are.','fav.nearby':'Saved Nearby','fav.all':'All Saved','fav.no_location':'Location not available','fav.locate':'📍 Get Location','fav.empty':'Nothing saved yet','fav.empty_desc':'Browse bars and tap ♥ to save them here','fav.nearby_empty':'No saved bars nearby','fav.go_explore':'Start Exploring','auth.login':'Sign in','auth.logout':'Sign out','auth.welcome':'Welcome, ','review.write':'Write a Review','review.edit':'Edit Review','review.submit':'Post Review','review.cancel':'Cancel','review.placeholder':'Share your experience (min 10 chars)…','review.login_prompt':'Sign in to leave a review','review.helpful':'Helpful','review.no_reviews':'No community reviews yet. Be the first!','review.pts_label':'pts'}};
 
 /* ===== DATA ===== */
 const BARS=[
@@ -1610,6 +1740,9 @@ function renderDetail(){
       revSec.style.display='none';
     }
   }
+
+  // 載入社群評論區塊
+  loadCommunitySection(b.id);
 }
 
 /* ===== ANIMATE COUNT ===== */
@@ -2025,6 +2158,21 @@ function renderFavNearby(ln, favBars){
     </div>`;
   }).join('');
 }
+
+// Auth 初始化
+document.addEventListener('DOMContentLoaded',()=>{
+  initAuth().then(()=>{
+    // 等 Google GSI SDK 載入後初始化 One Tap
+    const checkGSI=setInterval(()=>{
+      if(typeof google!=='undefined'&&google.accounts?.id){
+        clearInterval(checkGSI);
+        initGoogleOneTap();
+      }
+    },200);
+    // 15 秒後放棄（SDK 載入失敗時不阻塞）
+    setTimeout(()=>clearInterval(checkGSI),15000);
+  });
+});
 
 // 收藏頁 locate 按鈕
 document.addEventListener('DOMContentLoaded',()=>{
@@ -2499,6 +2647,321 @@ const TippleTracker = {
         }, 100);
     }
 };
+
+/* ===== AUTH ===== */
+// !! 把這裡換成你的 Google OAuth Client ID
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID_HERE';
+
+const AUTH_KEY = 'tipple_session';
+let currentUser = null;
+
+function getSessionToken(){ return localStorage.getItem(AUTH_KEY)||null; }
+function saveSession(token){ localStorage.setItem(AUTH_KEY,token); }
+function clearSession(){ localStorage.removeItem(AUTH_KEY); }
+
+function authHeaders(){
+  const t=getSessionToken();
+  return t?{'Authorization':'Bearer '+t,'Content-Type':'application/json'}:{'Content-Type':'application/json'};
+}
+
+async function initAuth(){
+  const token=getSessionToken();
+  if(!token)return;
+  try{
+    const r=await fetch('/auth/me',{headers:authHeaders()});
+    if(r.ok){ const d=await r.json(); setUser(d.user); }
+    else clearSession();
+  }catch(e){}
+}
+
+function setUser(user){
+  currentUser=user;
+  const pill=document.getElementById('user-pill');
+  const loginBtn=document.getElementById('auth-login-btn');
+  const ini=document.getElementById('user-ini');
+  const pts=document.getElementById('user-pts');
+  const menuName=document.getElementById('menu-name');
+  if(user){
+    if(pill)pill.style.display='flex';
+    if(loginBtn)loginBtn.style.display='none';
+    if(ini){
+      if(user.avatar){ini.innerHTML=`<img src="${user.avatar}" style="width:26px;height:26px;border-radius:50%;object-fit:cover">`;}
+      else{ ini.textContent=(user.name||'?')[0].toUpperCase(); ini.className='user-ini'; }
+    }
+    if(pts)pts.textContent=`★ ${user.points||0}`;
+    if(menuName)menuName.textContent=user.name;
+  } else {
+    if(pill)pill.style.display='none';
+    if(loginBtn)loginBtn.style.display='flex';
+  }
+}
+
+async function handleGoogleCredential(response){
+  try{
+    const r=await fetch('/auth/google',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({credential:response.credential})});
+    if(!r.ok)throw new Error('Auth failed');
+    const d=await r.json();
+    saveSession(d.token);
+    setUser(d.user);
+    showToast(lang==='zh'?`歡迎，${d.user.name.split(' ')[0]}！`:`Welcome, ${d.user.name.split(' ')[0]}!`);
+    // 如果在 detail 頁，刷新社群評論
+    if(document.getElementById('page-detail').classList.contains('active')) loadCommunityReviews(currentBarId);
+  }catch(e){ showToast('登入失敗，請稍後再試'); }
+}
+
+async function logout(){
+  const token=getSessionToken();
+  if(token) await fetch('/auth/logout',{method:'POST',headers:authHeaders()}).catch(()=>{});
+  clearSession();
+  setUser(null);
+  document.getElementById('user-menu')?.classList.remove('open');
+  showToast(lang==='zh'?'已登出':'Signed out');
+  if(document.getElementById('page-detail').classList.contains('active')) loadCommunityReviews(currentBarId);
+}
+
+// Google One Tap 初始化（等 Google SDK 載入後）
+function initGoogleOneTap(){
+  if(typeof google==='undefined'||!google.accounts?.id||currentUser)return;
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: true,
+  });
+  // 僅在未登入時顯示 One Tap
+  if(!currentUser) google.accounts.id.prompt();
+}
+
+// login button → trigger Google sign-in picker
+document.getElementById('auth-login-btn')?.addEventListener('click',()=>{
+  if(typeof google==='undefined'){showToast('Google 登入載入中，請稍候');return;}
+  google.accounts.id.prompt();
+});
+
+// user pill → toggle menu
+document.getElementById('user-pill')?.addEventListener('click',e=>{
+  e.stopPropagation();
+  document.getElementById('user-menu')?.classList.toggle('open');
+});
+document.getElementById('menu-logout')?.addEventListener('click',logout);
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#user-wrap')) document.getElementById('user-menu')?.classList.remove('open');
+});
+
+/* ===== COMMUNITY REVIEWS ===== */
+let reviewRating = 0;
+let _communityBarId = null;
+
+function starsHtml(rating, size=14){
+  const full=Math.round(rating);
+  return Array.from({length:5}).map((_,i)=>`<span style="color:${i<full?'var(--gold)':'var(--line-2)';font-size:${size}px">★</span>`).join('');
+}
+
+function starsStr(rating){
+  const r=Math.round(rating);
+  return '★'.repeat(r)+'☆'.repeat(5-r);
+}
+
+function relTime(ts){
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return lang==='zh'?'剛剛':'just now';
+  const m=Math.floor(s/60);if(m<60)return lang==='zh'?`${m} 分鐘前`:`${m}m ago`;
+  const h=Math.floor(m/60);if(h<24)return lang==='zh'?`${h} 小時前`:`${h}h ago`;
+  const d=Math.floor(h/24);if(d<30)return lang==='zh'?`${d} 天前`:`${d}d ago`;
+  const mo=Math.floor(d/30);if(mo<12)return lang==='zh'?`${mo} 個月前`:`${mo}mo ago`;
+  return lang==='zh'?`${Math.floor(mo/12)} 年前`:`${Math.floor(mo/12)}y ago`;
+}
+
+async function loadCommunityReviews(barId){
+  _communityBarId = barId;
+  const listEl=document.getElementById('community-reviews-list');
+  const csAvg=document.getElementById('cs-avg');
+  const csStars=document.getElementById('cs-stars');
+  const csMeta=document.getElementById('cs-meta');
+  const csAction=document.getElementById('cs-action');
+  const scoreCard=document.getElementById('community-score-card');
+  const scNum=document.getElementById('sc-community-num');
+  const scMeta=document.getElementById('sc-community-meta');
+  if(!listEl)return;
+
+  listEl.innerHTML=`<div class="community-loading">${lang==='zh'?'載入中…':'Loading…'}</div>`;
+  try{
+    const r=await fetch(`/api/reviews?bar_id=${barId}`);
+    const d=await r.json();
+    const {reviews=[],avg_rating,count=0}=d;
+
+    // 上方評分顯示
+    if(count>0&&avg_rating!=null){
+      csAvg.textContent=avg_rating.toFixed(1);
+      csStars.textContent=starsStr(avg_rating);
+      csMeta.textContent=lang==='zh'?`${count} 則用戶評論`:`${count} user review${count>1?'s':''}`;
+      if(scoreCard){scoreCard.style.display='';scNum.textContent=avg_rating.toFixed(1);scMeta.textContent=lang==='zh'?`${count} 則`:`${count} reviews`;}
+    } else {
+      csAvg.textContent='—';csStars.textContent='';
+      csMeta.textContent=lang==='zh'?'尚無評論':'No reviews yet';
+      if(scoreCard)scoreCard.style.display='none';
+    }
+
+    // 行動按鈕
+    if(currentUser){
+      const myReview=reviews.find(rv=>rv.user_id===currentUser.id);
+      csAction.innerHTML=`<button class="write-review-btn" id="open-review-form">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        ${myReview?(lang==='zh'?'編輯評論':'Edit Review'):(lang==='zh'?'寫評論':'Write a Review')}
+      </button>`;
+      document.getElementById('open-review-form')?.addEventListener('click',()=>openReviewForm(myReview));
+    } else {
+      csAction.innerHTML=`<div class="login-to-review">
+        <span>${lang==='zh'?'登入後即可留下評論':'Sign in to leave a review'}</span>
+        <button id="login-to-review-btn">${lang==='zh'?'登入':'Sign in'}</button>
+      </div>`;
+      document.getElementById('login-to-review-btn')?.addEventListener('click',()=>{
+        if(typeof google!=='undefined') google.accounts.id.prompt();
+        else showToast('Google 登入載入中，請稍候');
+      });
+    }
+
+    // 評論列表
+    if(!reviews.length){
+      listEl.innerHTML=`<div class="community-empty">${lang==='zh'?'還沒有用戶評論，成為第一個！':'No community reviews yet. Be the first!'}</div>`;
+    } else {
+      listEl.innerHTML=`<div class="cr-list">${reviews.map(rv=>renderReviewCard(rv)).join('')}</div>`;
+    }
+  }catch(e){
+    listEl.innerHTML=`<div class="community-empty">${lang==='zh'?'載入失敗，請稍後再試':'Failed to load reviews'}</div>`;
+  }
+}
+
+function renderReviewCard(rv){
+  const avatarHtml=rv.user_avatar
+    ?`<img class="cr-avatar" src="${rv.user_avatar}" alt="${rv.user_name}">`
+    :`<div class="cr-avatar-ini">${(rv.user_name||'?')[0].toUpperCase()}</div>`;
+  const isOwn=currentUser&&rv.user_id===currentUser.id;
+  const ownActions=isOwn?`<span class="cr-own-actions">
+    <button class="cr-own-btn" data-edit-review="${rv.id}" data-bar-id="${rv.bar_id}">${lang==='zh'?'編輯':'Edit'}</button>
+    <button class="cr-own-btn del" data-del-review="${rv.id}">${lang==='zh'?'刪除':'Delete'}</button>
+  </span>`:'';
+  const helpfulBtn=`<button class="cr-helpful" data-helpful="${rv.id}">👍 ${lang==='zh'?'有幫助':'Helpful'} ${rv.helpful_count>0?`(${rv.helpful_count})`:''}</button>`;
+  return`<div class="cr-card" id="cr-${rv.id}">
+    <div class="cr-head">
+      ${avatarHtml}
+      <div>
+        <div class="cr-user-name">${rv.user_name}</div>
+        <div class="cr-user-pts">★ ${rv.user_points||0} ${lang==='zh'?'積分':'pts'}</div>
+      </div>
+      <div class="cr-stars">${starsStr(rv.rating)}</div>
+    </div>
+    <div class="cr-text">${rv.text.replace(/</g,'&lt;')}</div>
+    <div class="cr-foot">
+      <span class="cr-date">${relTime(rv.created_at)}</span>
+      ${ownActions}
+      ${isOwn?'':helpfulBtn}
+    </div>
+  </div>`;
+}
+
+function openReviewForm(existing){
+  const form=document.getElementById('review-form');
+  const ta=document.getElementById('review-textarea');
+  const title=document.getElementById('rf-title');
+  const submitBtn=document.getElementById('review-submit');
+  if(!form)return;
+  form.classList.add('open');
+  reviewRating=existing?.rating||0;
+  if(ta)ta.value=existing?.text||'';
+  if(title)title.textContent=existing?(lang==='zh'?'編輯你的評論':'Edit Your Review'):(lang==='zh'?'寫下你的評論':'Write a Review');
+  updateStarPicker(reviewRating);
+  validateReviewForm();
+  form.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function updateStarPicker(val){
+  document.querySelectorAll('#star-picker button').forEach(b=>{
+    b.classList.toggle('lit',+b.dataset.star<=val);
+  });
+}
+
+function validateReviewForm(){
+  const ta=document.getElementById('review-textarea');
+  const btn=document.getElementById('review-submit');
+  if(btn) btn.disabled=!(reviewRating>0&&ta&&ta.value.trim().length>=10);
+}
+
+// Star picker
+document.getElementById('star-picker')?.addEventListener('click',e=>{
+  const b=e.target.closest('[data-star]');if(!b)return;
+  reviewRating=+b.dataset.star;
+  updateStarPicker(reviewRating);
+  validateReviewForm();
+});
+document.getElementById('review-textarea')?.addEventListener('input',validateReviewForm);
+
+document.getElementById('review-cancel')?.addEventListener('click',()=>{
+  document.getElementById('review-form')?.classList.remove('open');
+});
+
+document.getElementById('review-submit')?.addEventListener('click',async()=>{
+  if(!currentUser){showToast(lang==='zh'?'請先登入':'Please sign in');return;}
+  const ta=document.getElementById('review-textarea');
+  const btn=document.getElementById('review-submit');
+  if(!ta||!_communityBarId)return;
+  btn.disabled=true;
+  try{
+    const r=await fetch('/api/reviews',{
+      method:'POST',headers:authHeaders(),
+      body:JSON.stringify({bar_id:_communityBarId,rating:reviewRating,text:ta.value.trim()})
+    });
+    if(!r.ok)throw new Error((await r.json()).error||'Failed');
+    const d=await r.json();
+    // update points display
+    if(d.points!=null&&currentUser){
+      currentUser.points=d.points;
+      const ptsEl=document.getElementById('user-pts');
+      if(ptsEl)ptsEl.textContent=`★ ${d.points}`;
+    }
+    document.getElementById('review-form')?.classList.remove('open');
+    showToast(lang==='zh'?'評論已發布！':'Review posted!');
+    await loadCommunityReviews(_communityBarId);
+  }catch(e){ showToast(e.message||'發布失敗'); btn.disabled=false; }
+});
+
+// Helpful / Edit / Delete via event delegation
+document.getElementById('community-reviews-list')?.addEventListener('click',async e=>{
+  // Helpful
+  const hBtn=e.target.closest('[data-helpful]');
+  if(hBtn){
+    if(!currentUser){showToast(lang==='zh'?'請先登入':'Sign in first');return;}
+    const id=hBtn.dataset.helpful;
+    const r=await fetch(`/api/reviews/${id}/helpful`,{method:'POST',headers:authHeaders()});
+    if(r.ok){ hBtn.classList.toggle('voted',(await r.json()).helpful); await loadCommunityReviews(_communityBarId); }
+    return;
+  }
+  // Delete
+  const dBtn=e.target.closest('[data-del-review]');
+  if(dBtn){
+    if(!confirm(lang==='zh'?'確定刪除這則評論？':'Delete this review?'))return;
+    const id=dBtn.dataset.delReview;
+    const r=await fetch(`/api/reviews/${id}`,{method:'DELETE',headers:authHeaders()});
+    if(r.ok){ showToast(lang==='zh'?'評論已刪除':'Review deleted'); await loadCommunityReviews(_communityBarId); }
+    return;
+  }
+  // Edit
+  const eBtn=e.target.closest('[data-edit-review]');
+  if(eBtn){
+    const id=+eBtn.dataset.editReview;
+    const card=document.getElementById(`cr-${id}`);
+    if(!card)return;
+    const text=card.querySelector('.cr-text')?.innerText||'';
+    const ratingStr=card.querySelector('.cr-stars')?.textContent||'';
+    const rating=(ratingStr.match(/★/g)||[]).length;
+    openReviewForm({id,text,rating});
+  }
+});
+
+// 載入社群評論（供 renderDetail 呼叫）
+function loadCommunitySection(barId){
+  loadCommunityReviews(barId);
+}
 
 // 導入方式：修改你原有的 _render 函式
 // 找到原本的 function _render(route, opts={})，在結尾處加上：
