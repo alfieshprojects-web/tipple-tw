@@ -477,6 +477,24 @@ footer{padding:52px 0 34px;color:var(--muted);font-size:12px;letter-spacing:.05e
 #fav-map{height:320px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);margin-bottom:20px}
 @media(max-width:600px){#fav-map{height:240px}}
 
+/* ── Fav note ── */
+.fav-note-area{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+.fav-note-text{font-size:12px;color:var(--muted);line-height:1.55;cursor:pointer;display:flex;align-items:flex-start;gap:6px}
+.fav-note-text .note-icon{flex-shrink:0;opacity:.55;font-size:11px;margin-top:1px}
+.fav-note-text .note-body{flex:1;white-space:pre-wrap;word-break:break-word}
+.fav-note-text:hover .note-body{color:var(--silver)}
+.fav-note-add{font-size:11px;color:var(--muted-2);cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:2px 0;transition:color .2s;background:none;border:none;font-family:inherit;letter-spacing:.03em}
+.fav-note-add:hover{color:var(--gold-2)}
+.fav-note-editor{display:none;margin-top:8px}
+.fav-note-editor.open{display:block}
+.fav-note-editor textarea{width:100%;background:var(--bg-3);border:1px solid var(--line-2);border-radius:var(--radius-sm);color:var(--text);font-size:12px;font-family:inherit;line-height:1.55;padding:9px 12px;resize:none;outline:none;transition:border-color .2s;box-sizing:border-box}
+.fav-note-editor textarea:focus{border-color:var(--gold-3)}
+.fav-note-actions{display:flex;gap:8px;margin-top:6px;justify-content:flex-end}
+.fav-note-save{font-size:11px;padding:5px 14px;border-radius:999px;background:rgba(201,169,106,.15);color:var(--gold-2);border:0.5px solid rgba(201,169,106,.35);cursor:pointer;font-family:inherit;transition:background .15s}
+.fav-note-save:hover{background:rgba(201,169,106,.28)}
+.fav-note-cancel{font-size:11px;padding:5px 12px;border-radius:999px;background:none;color:var(--muted-2);border:0.5px solid var(--line-2);cursor:pointer;font-family:inherit;transition:color .15s}
+.fav-note-cancel:hover{color:var(--text)}
+
 /* ── Detail action buttons ── */
 .d-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .d-action-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;background:var(--bg-2);border:1px solid var(--line-2);color:var(--muted);font-size:13px;letter-spacing:.04em;transition:var(--ease);cursor:pointer;font-family:inherit}
@@ -1874,16 +1892,41 @@ function renderFavPage(){
   renderFavNearby(ln, favBars);
 }
 
+/* ── Notes helpers ── */
+const NOTES_KEY='tipple_notes';
+function getNotes(){try{return JSON.parse(localStorage.getItem(NOTES_KEY)||'{}');}catch(e){return {};}}
+function getNote(id){return getNotes()[id]||'';}
+function setNote(id,text){
+  const notes=getNotes();
+  if(text.trim())notes[id]=text.trim();
+  else delete notes[id];
+  try{localStorage.setItem(NOTES_KEY,JSON.stringify(notes));}catch(e){}
+}
+
 function favCardHtml(b, ln){
   const meta=ln?`${b.district}<span class="dot">·</span>${b.catLabel.zh}`:`${b.district}<span class="dot">·</span>${b.catLabel.en}`;
   const opInd=isOpen(b)?`<span class="open-badge">${I18N[lang]['open.now']}</span>`:`<span class="closed-badge">${I18N[lang]['closed.now']}</span>`;
   const photoImg=b.photoRefs&&b.photoRefs[0]?`<img class="bc-photo" src="${photoUrl(b.photoRefs[0],600)}" alt="${b.name}" loading="lazy" onerror="this.remove()">`:'';
-  return`<div class="bar-card" data-route="detail" data-bar="${b.id}">
-    <div class="bc-img ${b.img}">${photoImg}<div class="bc-indicator" style="z-index:2">${opInd}</div><button class="bc-fav active" data-fav="${b.id}" aria-label="取消收藏">♥</button></div>
+  const note=getNote(b.id);
+  const noteHtml=note
+    ?`<div class="fav-note-text" data-note-edit="${b.id}"><span class="note-icon">📝</span><span class="note-body">${note.replace(/</g,'&lt;')}</span></div>`
+    :`<button class="fav-note-add" data-note-edit="${b.id}">＋ ${ln?'加備註':'Add note'}</button>`;
+  return`<div class="bar-card fav-bar-card" data-bar="${b.id}">
+    <div class="bc-img ${b.img}" data-route="detail" data-bar="${b.id}" style="cursor:pointer">${photoImg}<div class="bc-indicator" style="z-index:2">${opInd}</div><button class="bc-fav active" data-fav="${b.id}" aria-label="取消收藏">♥</button></div>
     <div class="bc-body">
-      <div class="bc-row1"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="bc-sc">${b.score.toFixed(1)}<span>/ 5</span></div></div></div>
-      <div class="bc-meta">${meta}</div>
+      <div class="bc-row1" data-route="detail" data-bar="${b.id}" style="cursor:pointer"><div><h4>${b.name}</h4><div class="bc-zh">${b.zh}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0"><div class="bc-sc">${b.score.toFixed(1)}<span>/ 5</span></div></div></div>
+      <div class="bc-meta" data-route="detail" data-bar="${b.id}" style="cursor:pointer">${meta}</div>
       <div class="bc-tags">${b.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="fav-note-area">
+        ${noteHtml}
+        <div class="fav-note-editor" id="note-editor-${b.id}">
+          <textarea rows="3" placeholder="${ln?'寫下你的備忘、心得…':'Add your notes…'}" id="note-ta-${b.id}">${note.replace(/</g,'&lt;')}</textarea>
+          <div class="fav-note-actions">
+            <button class="fav-note-cancel" data-note-cancel="${b.id}">${ln?'取消':'Cancel'}</button>
+            <button class="fav-note-save" data-note-save="${b.id}">${ln?'儲存':'Save'}</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>`;
 }
@@ -2004,16 +2047,51 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 // 收藏頁點 ♥ 取消收藏 → 重新渲染
 document.getElementById('page-fav')?.addEventListener('click',e=>{
-  const btn=e.target.closest('[data-fav]');
-  if(btn&&!e.target.closest('[data-route]')){
+  // ♥ 取消收藏
+  const favBtn=e.target.closest('[data-fav]');
+  if(favBtn){
     e.stopPropagation();
-    const id=+btn.dataset.fav;
+    const id=+favBtn.dataset.fav;
     toggleFav(id);
     renderFavPage();
     return;
   }
-  const card=e.target.closest('[data-route="detail"][data-bar]');
-  if(card){currentBarId=+card.dataset.bar;_render('detail');}
+
+  // 開啟備註編輯器
+  const noteEdit=e.target.closest('[data-note-edit]');
+  if(noteEdit){
+    e.stopPropagation();
+    const id=noteEdit.dataset.noteEdit;
+    const editor=document.getElementById(`note-editor-${id}`);
+    if(editor){editor.classList.add('open');document.getElementById(`note-ta-${id}`)?.focus();}
+    return;
+  }
+
+  // 儲存備註
+  const noteSave=e.target.closest('[data-note-save]');
+  if(noteSave){
+    e.stopPropagation();
+    const id=+noteSave.dataset.noteSave;
+    const ta=document.getElementById(`note-ta-${id}`);
+    setNote(id,ta?ta.value:'');
+    showToast(lang==='zh'?'備註已儲存':'Note saved');
+    renderFavPage();
+    return;
+  }
+
+  // 取消備註編輯
+  const noteCancel=e.target.closest('[data-note-cancel]');
+  if(noteCancel){
+    e.stopPropagation();
+    const id=noteCancel.dataset.noteCancel;
+    const editor=document.getElementById(`note-editor-${id}`);
+    if(editor)editor.classList.remove('open');
+    return;
+  }
+
+  // 進入 detail
+  const nav=e.target.closest('[data-route="detail"][data-bar]');
+  if(nav){currentBarId=+nav.dataset.bar;_render('detail');}
 });
 
 /* ===== TAB BAR ===== */
