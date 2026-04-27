@@ -18,7 +18,7 @@ GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"
 [[d1_databases]]
 binding = "DB"
 database_name = "tipple-db"
-database_id = "YOUR_DATABASE_ID_HERE"
+database_id = "5f4a4b8a-3605-4ebf-b738-91022e2f3b77"
 
 # 機密金鑰請用 wrangler secret put 設定：
 # npx wrangler secret put GPHOTO_KEY
